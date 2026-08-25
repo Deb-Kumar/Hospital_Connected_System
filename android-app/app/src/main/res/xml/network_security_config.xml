@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Allows plaintext HTTP only to the emulator's host-machine alias, so
+  debug builds can talk to a locally-running Node server on 10.0.2.2.
+  Everything else (including the production Render URL) must use HTTPS.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!--
+          PHYSICAL DEVICE SETUP: 10.0.2.2 only works in the emulator. If
+          you're running on a real device instead, add your development
+          machine's LAN IP here too (find it with `ipconfig` on Windows or
+          `ifconfig`/`ip addr` on Mac/Linux), for example:
+              <domain includeSubdomains="false">192.168.1.42</domain>
+          This MUST match the BASE_URL you set in app/build.gradle's debug
+          buildType — updating one without the other will fail silently
+          (the request gets blocked before it leaves the device).
+        -->
+    </domain-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>

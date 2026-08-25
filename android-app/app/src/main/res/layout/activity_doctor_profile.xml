@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/deep_navy"
+        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
+        app:navigationIconTint="@color/clinical_white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <ImageView
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/sym_def_app_icon"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.Hospital.Title"
+                android:textSize="20sp"
+                tools:text="Dr. Anjali Sharma" />
+
+            <TextView
+                android:id="@+id/tvSpecialization"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:textColor="@color/medical_blue"
+                tools:text="Cardiologist" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Hospital.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView android:id="@+id/tvQualification" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        tools:text="Qualification: MBBS, MD (Cardiology)" />
+
+                    <TextView android:id="@+id/tvExperience" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        tools:text="Experience: 8 years" />
+
+                    <TextView android:id="@+id/tvDepartment" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        tools:text="Department: Cardiology" />
+
+                    <TextView android:id="@+id/tvFee" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        tools:text="Consultation Fee: ₹500" />
+
+                    <TextView android:id="@+id/tvAvailability" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        tools:text="Availability: Mon, Wed 9:00 AM–1:00 PM" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="About"
+                android:textAppearance="@style/TextAppearance.Hospital.Title"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvBio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textAppearance="@style/TextAppearance.Hospital.Body"
+                tools:text="Dr. Sharma has 8 years of experience in interventional cardiology..." />
+
+            <TextView
+                android:id="@+id/tvOnLeaveNotice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:padding="12dp"
+                android:background="@drawable/bg_badge"
+                android:textColor="@color/clinical_white"
+                android:visibility="gone"
+                android:text="This doctor is currently on leave and not accepting new bookings." />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBook"
+        style="@style/Widget.Hospital.Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="@string/book_appointment" />
+
+</LinearLayout>

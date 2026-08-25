@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/deep_navy"
+        android:title="Appointment Details"
+        app:titleTextColor="@color/clinical_white"
+        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
+        app:navigationIconTint="@color/clinical_white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Hospital.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/deep_navy">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#B8C4D9"
+                        android:textSize="12sp"
+                        tools:text="PENDING" />
+
+                    <TextView
+                        android:id="@+id/tvToken"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/clinical_white"
+                        android:textSize="32sp"
+                        android:textStyle="bold"
+                        tools:text="A-024" />
+
+                    <TextView
+                        android:id="@+id/tvQueueInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="#D8E1F0"
+                        tools:text="6 patients ahead · ~25 min wait" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Hospital.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView android:id="@+id/tvDoctor" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary" android:textStyle="bold" android:textSize="16sp"
+                        tools:text="Dr. Anjali Sharma" />
+
+                    <TextView android:id="@+id/tvDepartment" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp" tools:text="Cardiology" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp"
+                        android:background="@color/cool_gray" android:layout_marginTop="12dp" android:layout_marginBottom="12dp" />
+
+                    <TextView android:id="@+id/tvDateTime" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        tools:text="20 Aug 2026 · 10:30 AM" />
+
+                    <TextView android:id="@+id/tvReason" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        tools:text="Reason: Chest pain and shortness of breath" />
+
+                    <TextView android:id="@+id/tvCancellationReason" style="@style/TextAppearance.Hospital.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/error_red"
+                        android:visibility="gone"
+                        tools:text="Cancellation reason: Patient requested" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnReschedule"
+        style="@style/Widget.Hospital.Button.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Reschedule" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/error_red"
+        app:cornerRadius="12dp"
+        android:textAllCaps="false"
+        android:text="Cancel Appointment" />
+
+</LinearLayout>

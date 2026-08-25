@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Brainware Patient Portal</string>
+    <string name="app_version">v1.0.1</string>
+
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Sign in to manage your appointments</string>
+    <string name="email_or_phone">Email or phone number</string>
+    <string name="password">Password</string>
+    <string name="btn_login">Log In</string>
+    <string name="no_account">Don\'t have an account? Sign up</string>
+    <string name="forgot_password">Forgot password?</string>
+
+    <string name="register_title">Create your account</string>
+    <string name="full_name">Full name</string>
+    <string name="phone_number">Phone number</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="btn_register">Create Account</string>
+    <string name="have_account">Already have an account? Log in</string>
+
+    <string name="otp_title">Verify your account</string>
+    <string name="otp_subtitle">Enter the 6-digit code sent to your email</string>
+    <string name="btn_verify">Verify</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_appointments">Appointments</string>
+    <string name="nav_doctors">Doctors</string>
+    <string name="nav_records">Records</string>
+    <string name="nav_profile">Profile</string>
+
+    <string name="book_appointment">Book Appointment</string>
+    <string name="my_appointments">My Appointments</string>
+    <string name="medical_records">Medical Records</string>
+    <string name="find_doctor">Find Doctor</string>
+    <string name="digital_id">Digital Patient ID</string>
+    <string name="emergency">Emergency</string>
+
+    <string name="tab_upcoming">Upcoming</string>
+    <string name="tab_completed">Completed</string>
+    <string name="tab_cancelled">Cancelled</string>
+
+    <string name="retry">Retry</string>
+    <string name="loading">Loading…</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="no_internet_title">Unable to connect</string>
+    <string name="no_internet_body">Please check your internet connection and try again.</string>
+
+    <string name="logout">Log Out</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="change_password">Change Password</string>
+    <string name="family_members">Family Members</string>
+</resources>
