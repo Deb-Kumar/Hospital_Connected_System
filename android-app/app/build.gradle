@@ -21,16 +21,11 @@ android {
     // release -> your deployed Render URL (see PRODUCTION CONFIG below)
     buildTypes {
         debug {
-            // 10.0.2.2 is how the Android EMULATOR reaches "localhost" on
-            // your development machine. For a physical device on the same
-            // Wi-Fi, replace this with your machine's LAN IP, e.g.
-            // "http://192.168.1.42:5000/api/"
-            buildConfigField "String", "BASE_URL", '"http://10.0.2.2:5000/api/"'
+            buildConfigField "String", "BASE_URL", '"https://hospital-connected-system.onrender.com/api/"'
             debuggable true
         }
         release {
-            // PRODUCTION CONFIG: replace with your real Render URL once deployed.
-            buildConfigField "String", "BASE_URL", '"https://YOUR-RENDER-SERVICE.onrender.com/api/"'
+            buildConfigField "String", "BASE_URL", '"https://hospital-connected-system.onrender.com/api/"'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
