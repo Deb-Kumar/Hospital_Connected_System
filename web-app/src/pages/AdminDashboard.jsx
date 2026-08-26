@@ -1291,6 +1291,7 @@ export default function AdminDashboard() {
                               <div className="space-y-2 text-xs bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/70">
                                 <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">Specialization</span> <span className="font-extrabold text-darkNavy dark:text-white">{doc.specialization || doc.department?.name || 'General Medicine'}</span></div>
                                 <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">Clinical Experience</span> <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{doc.experienceYears || 0} Years</span></div>
+                                <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">OPD Time / Schedule</span> <span className="font-mono font-extrabold text-sky-600 dark:text-sky-400">{doc.availabilitySchedule || doc.opdTime || 'MON-FRI: 09:00 AM - 02:00 PM'}</span></div>
                                 <div className="pt-1 border-t border-slate-100 dark:border-slate-800"><span className="text-slate-400 font-bold uppercase text-[10px] block mb-0.5">Qualifications</span> <span className="font-extrabold text-darkNavy dark:text-white block">{doc.qualifications || doc.qualification || 'MBBS, MD'}</span></div>
                               </div>
                             </div>
