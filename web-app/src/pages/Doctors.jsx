@@ -284,7 +284,7 @@ export default function DoctorsPage() {
             </button>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {filteredDoctors.map((doc, idx) => {
               const rawName = doc.user?.fullName || doc.fullName || 'Senior Specialist';
               const name = /^dr\.?/i.test(rawName.trim()) ? rawName.trim() : `Dr. ${rawName.trim()}`;
