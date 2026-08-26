@@ -85,10 +85,10 @@ const defaultDoctorPhotos = [
 
 function getDoctorAvatarUrl(doc) {
   if (!doc) return defaultDoctorPhotos[0];
-  if (doc.avatarUrl && doc.avatarUrl.startsWith('http')) return doc.avatarUrl;
-  if (doc.profileImage && doc.profileImage.startsWith('http')) return doc.profileImage;
-  if (doc.user && doc.user.avatarUrl && doc.user.avatarUrl.startsWith('http')) return doc.user.avatarUrl;
-  if (doc.user && doc.user.profileImage && doc.user.profileImage.startsWith('http')) return doc.user.profileImage;
+  if (doc.profileImage) return doc.profileImage;
+  if (doc.avatarUrl) return doc.avatarUrl;
+  if (doc.user && doc.user.profileImage) return doc.user.profileImage;
+  if (doc.user && doc.user.avatarUrl) return doc.user.avatarUrl;
 
   const rawName = (doc.user?.fullName || doc.fullName || '').toLowerCase();
   const isFemale = rawName.includes('ananya') || rawName.includes('meera') || rawName.includes('priya') || rawName.includes('sunita') || rawName.includes('roy') || rawName.includes('banerjee') || rawName.includes('female');
@@ -302,11 +302,11 @@ export default function DoctorsPage() {
                 >
                   <div>
                     {/* Photo Header */}
-                    <div className="relative h-64 overflow-hidden bg-slate-100">
+                    <div className="relative h-56 overflow-hidden bg-slate-100">
                       <img
                         src={avatar}
                         alt={name}
-                        className="w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition duration-500"
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-darkNavy/80 via-transparent to-transparent"></div>
                       
