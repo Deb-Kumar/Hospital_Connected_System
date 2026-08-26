@@ -85,19 +85,10 @@ const defaultDoctorPhotos = [
 
 function getDoctorAvatarUrl(doc) {
   if (!doc) return defaultDoctorPhotos[0];
-  const url = doc.avatarUrl || doc.profileImage || (doc.user && doc.user.avatarUrl);
-  if (url && typeof url === 'string' && url.trim()) {
-    const trimmed = url.trim();
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-      return trimmed;
-    }
-    if (trimmed.startsWith('/uploads/') || trimmed.startsWith('uploads/')) {
-      return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-    }
-    const apiBase = (import.meta.env.VITE_API_URL || 'https://hospital-connected-system.onrender.com/api')
-      .replace(/\/api\/?$/, '');
-    return `${apiBase}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
-  }
+  if (doc.avatarUrl && doc.avatarUrl.startsWith('http')) return doc.avatarUrl;
+  if (doc.profileImage && doc.profileImage.startsWith('http')) return doc.profileImage;
+  if (doc.user && doc.user.avatarUrl && doc.user.avatarUrl.startsWith('http')) return doc.user.avatarUrl;
+  if (doc.user && doc.user.profileImage && doc.user.profileImage.startsWith('http')) return doc.user.profileImage;
 
   const rawName = (doc.user?.fullName || doc.fullName || '').toLowerCase();
   const isFemale = rawName.includes('ananya') || rawName.includes('meera') || rawName.includes('priya') || rawName.includes('sunita') || rawName.includes('roy') || rawName.includes('banerjee') || rawName.includes('female');
@@ -310,53 +301,37 @@ export default function DoctorsPage() {
                   className="bg-white rounded-3xl border border-slate-200 hover:border-primary/40 overflow-hidden shadow-xs hover:shadow-cardHover transition duration-300 flex flex-col justify-between group"
                 >
                   <div>
-                    {/* Header Banner & Doctor Profile Avatar */}
-                    <div className="relative pt-5 px-5 pb-4 bg-gradient-to-br from-indigo-50/90 via-slate-50 to-sky-50/60 border-b border-slate-100 flex items-center gap-4">
-                      {/* Doctor Profile Image */}
-                      <div className="relative shrink-0">
-                        {avatar ? (
-                          <img
-                            src={avatar}
-                            alt={name}
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition duration-300"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-primary to-primaryDark text-white font-poppins font-extrabold text-lg items-center justify-center border-2 border-white shadow-md ${
-                            avatar ? 'hidden' : 'flex'
-                          }`}
-                        >
-                          {name.replace(/^Dr\.\s+/i, '').split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()}
-                        </div>
-                        <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-[9px] text-white font-bold" title="Verified Senior Specialist">
-                          ✓
-                        </span>
-                      </div>
-
-                      {/* Doctor Name & Specialization Pill */}
-                      <div className="min-w-0 flex-1">
-                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-primary/10 text-primary uppercase tracking-wide truncate max-w-full">
+                    {/* Photo Header */}
+                    <div className="relative h-56 overflow-hidden bg-slate-100">
+                      <img
+                        src={avatar}
+                        alt={name}
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-darkNavy/80 via-transparent to-transparent"></div>
+                      
+                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs font-medium">
+                        <span className="bg-primary/90 backdrop-blur-md px-2.5 py-1 rounded-xl text-[11px] font-bold">
                           {spec}
                         </span>
-                        <h3 className="font-poppins font-bold text-darkNavy text-base group-hover:text-primary transition-colors truncate mt-1">
-                          {name}
-                        </h3>
-                        <p className="text-xs text-slateText font-medium truncate mt-0.5">{qual}</p>
                       </div>
                     </div>
 
                     {/* Content Details */}
                     <div className="p-5 space-y-3">
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                      <div>
+                        <h3 className="font-poppins font-bold text-darkNavy text-base group-hover:text-primary transition-colors">
+                          {name}
+                        </h3>
+                        <p className="text-xs text-slateText font-medium line-clamp-1">{qual}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
+                        <div className="bg-slate-50 p-2 rounded-xl border border-slate-100">
                           <span className="block text-[10px] uppercase text-slate-400 font-semibold">Experience</span>
                           <span className="font-bold text-darkNavy">{exp}+ Years</span>
                         </div>
-                        <div className="bg-indigo-50/80 p-2.5 rounded-xl border border-indigo-100">
+                        <div className="bg-indigo-50 p-2 rounded-xl border border-indigo-100">
                           <span className="block text-[10px] uppercase text-indigo-600 font-semibold">Department</span>
                           <span className="font-bold text-indigo-900 truncate block">{doc.department?.name || spec}</span>
                         </div>
