@@ -1561,30 +1561,43 @@ function ScheduleModal({ userId, currentSchedule, onClose, onSuccess }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-darkNavy/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-page-slide-left">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 w-full max-w-lg border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
-        <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
-          📅 OPD Availability Schedule
-        </h3>
+    <div className="fixed inset-0 bg-darkNavy/70 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 sm:p-7 w-full max-w-2xl border border-slate-200 dark:border-slate-800 space-y-5 max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h3 className="font-poppins font-black text-darkNavy dark:text-white text-xl flex items-center gap-2">
+              <span>📅 Configure OPD Availability Schedule</span>
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Set weekly consultation hours displayed to patients on web and mobile booking systems.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-darkNavy dark:hover:text-white flex items-center justify-center font-bold text-base transition cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
 
         <OpdSchedulePicker
           value={schedule}
           onChange={setSchedule}
         />
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
           <button
             onClick={onClose}
-            className="flex-1 bg-slate-100 dark:bg-slate-800 text-slateText dark:text-slate-300 font-bold text-xs py-2.5 rounded-xl"
+            className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slateText dark:text-slate-300 font-bold text-xs py-3 rounded-2xl transition cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-xs disabled:opacity-60"
+            className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs py-3 rounded-2xl shadow-emerald-500/20 shadow-lg transition cursor-pointer active:scale-95 disabled:opacity-60"
           >
-            {saving ? 'Saving...' : 'Save Timings'}
+            {saving ? 'Saving Timings...' : '✓ Save OPD Timings'}
           </button>
         </div>
       </div>

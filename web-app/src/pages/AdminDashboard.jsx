@@ -4966,8 +4966,8 @@ function EditDoctorModal({ doctor, onClose, onUpdated }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-darkNavy/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-page-slide-left">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 w-full max-w-lg border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-darkNavy/70 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 sm:p-7 w-full max-w-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
             ✏️ Edit Doctor Profile
