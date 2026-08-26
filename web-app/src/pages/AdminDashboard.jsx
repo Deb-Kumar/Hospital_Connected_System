@@ -35,6 +35,7 @@ export default function AdminDashboard() {
   const [patientGenderFilter, setPatientGenderFilter] = useState('ALL');
   const [patientDeptFilter, setPatientDeptFilter] = useState('ALL');
   const [deptStatusFilter, setDeptStatusFilter] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'DEACTIVE'
+  const [doctorDeptFilter, setDoctorDeptFilter] = useState('ALL');
 
   // Modals & Custom Popups
   const [showAddDeptModal, setShowAddDeptModal] = useState(false);
@@ -324,6 +325,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     setDeptStatusFilter('ALL');
+    setDoctorDeptFilter('ALL');
     if (activeNav === 'doctors') loadDirectory('/admin/doctors');
     else if (activeNav === 'patients') loadDirectory('/admin/patients');
     else if (activeNav === 'staff') loadDirectory('/admin/receptionists');
@@ -783,15 +785,32 @@ export default function AdminDashboard() {
       return true;
     }
 
-    if (!searchTerm) return true;
-
     if (activeNav === 'doctors') {
-      return (
-        item.user?.fullName?.toLowerCase().includes(term) ||
-        item.specialization?.toLowerCase().includes(term) ||
-        item.user?.email?.toLowerCase().includes(term)
-      );
+      let matchesSearch = true;
+      if (term) {
+        matchesSearch = (
+          item.user?.fullName?.toLowerCase().includes(term) ||
+          item.fullName?.toLowerCase().includes(term) ||
+          item.specialization?.toLowerCase().includes(term) ||
+          item.user?.email?.toLowerCase().includes(term)
+        );
+      }
+      if (!matchesSearch) return false;
+
+      if (doctorDeptFilter !== 'ALL') {
+        const docDeptName = (item.department?.name || item.specialization || '').toLowerCase().trim();
+        const filterName = doctorDeptFilter.toLowerCase().trim();
+        const itemDeptId = (item.department?._id || item.department || '').toString();
+        const isIdMatch = itemDeptId && itemDeptId === doctorDeptFilter;
+        const isNameMatch = docDeptName === filterName || docDeptName.includes(filterName) || filterName.includes(docDeptName);
+
+        if (!isIdMatch && !isNameMatch) return false;
+      }
+
+      return true;
     }
+
+    if (!searchTerm) return true;
     if (activeNav === 'staff') {
       return (
         item.user?.fullName?.toLowerCase().includes(term) ||
@@ -1512,6 +1531,33 @@ export default function AdminDashboard() {
                     >
                       Show All
                     </button>
+                  </div>
+                )}
+
+                {activeNav === 'doctors' && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <select
+                      value={doctorDeptFilter}
+                      onChange={(e) => setDoctorDeptFilter(e.target.value)}
+                      className="text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-darkNavy dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer max-w-[220px] truncate shadow-2xs"
+                      title="Filter Doctors by Department"
+                    >
+                      <option value="ALL">🏬 All Departments ({allDepartments.length})</option>
+                      {allDepartments.map((dept) => (
+                        <option key={dept._id} value={dept.name}>
+                          {dept.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    {doctorDeptFilter !== 'ALL' && (
+                      <button
+                        onClick={() => setDoctorDeptFilter('ALL')}
+                        className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline px-2 py-1"
+                      >
+                        Reset Filter
+                      </button>
+                    )}
                   </div>
                 )}
 
