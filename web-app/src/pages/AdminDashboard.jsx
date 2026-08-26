@@ -1688,17 +1688,10 @@ export default function AdminDashboard() {
                                 <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-base group-hover:text-primary dark:group-hover:text-sky-300 transition-colors">
                                   {docName}
                                 </h3>
-                                <div className="mt-1">
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700 px-2.5 py-0.5 rounded-full uppercase">
-                                    <span>🩺</span>
-                                    <span>DOCTOR</span>
-                                  </span>
-                                </div>
                               </div>
                             </div>
 
                             <div className="flex flex-col items-end gap-1">
-                              <StatusBadge status={doc.approvalStatus || 'APPROVED'} isLeave={doc.onLeave} />
                               {doc.user?.active !== false ? (
                                 <span className="text-[10px] font-extrabold bg-teal-100 dark:bg-teal-950/80 text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-700 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                                   <span className="w-1.5 h-1.5 rounded-full bg-teal-600 animate-pulse"></span>
