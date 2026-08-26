@@ -713,36 +713,44 @@ export default function AdminDashboard() {
     return handleToggleUserStatus(userObj, 'staff');
   }
 
-  async function handleApproveDoctor(doctor) {
-    try {
-      await axiosClient.put(`/admin/doctors/${doctor._id}/approve`);
-      showNotify('success', 'Doctor Approved', `Dr. ${doctor.user?.fullName || ''} has been approved.`);
-      loadPending();
-      fetchStats();
-      if (activeNav === 'doctors') loadDirectory('/admin/doctors');
-    } catch {
-      showNotify('error', 'Approval Failed', 'Failed to approve doctor application.');
-    }
+  const [approvingItem, setApprovingItem] = useState(null);
+
+  function handleApproveDoctor(doctor) {
+    setApprovingItem({ item: doctor, type: 'doctor' });
   }
 
   function handleRejectDoctor(doctor) {
     setRejectingItem({ item: doctor, type: 'doctor' });
   }
 
-  async function handleApproveStaff(staff) {
-    try {
-      await axiosClient.put(`/admin/staff/${staff._id}/approve`);
-      showNotify('success', 'Staff Approved', `${staff.user?.fullName || 'Staff Member'} has been approved.`);
-      loadPending();
-      fetchStats();
-      if (activeNav === 'staff') loadDirectory('/admin/receptionists');
-    } catch {
-      showNotify('error', 'Approval Failed', 'Failed to approve staff member.');
-    }
+  function handleApproveStaff(staff) {
+    setApprovingItem({ item: staff, type: 'staff' });
   }
 
   function handleRejectStaff(staff) {
     setRejectingItem({ item: staff, type: 'staff' });
+  }
+
+  async function executeApproval() {
+    if (!approvingItem) return;
+    const { item, type } = approvingItem;
+    const endpoint = type === 'doctor' ? `/admin/doctors/${item._id}/approve` : `/admin/staff/${item._id}/approve`;
+    try {
+      await axiosClient.put(endpoint);
+      showNotify(
+        'success',
+        `${type === 'doctor' ? 'Doctor' : 'Staff'} Approved`,
+        `${type === 'doctor' ? 'Dr. ' + (item.user?.fullName || item.fullName || '') : (item.user?.fullName || item.fullName || 'Staff Member')} account activated successfully.`
+      );
+      loadPending();
+      fetchStats();
+      if (activeNav === 'doctors') loadDirectory('/admin/doctors');
+      if (activeNav === 'staff') loadDirectory('/admin/receptionists');
+    } catch {
+      showNotify('error', 'Approval Failed', `Failed to approve ${type} application.`);
+    } finally {
+      setApprovingItem(null);
+    }
   }
 
   async function executeRejection(reason) {
@@ -4044,6 +4052,16 @@ export default function AdminDashboard() {
             if (activeNav === 'doctors') loadDirectory('/admin/doctors');
             if (msg) showNotify('success', 'Doctor Profile Updated', msg);
           }}
+        />
+      )}
+
+      {/* APPROVAL CONFIRMATION MODAL */}
+      {approvingItem && (
+        <ApprovalConfirmModal
+          itemObj={approvingItem.item}
+          type={approvingItem.type}
+          onClose={() => setApprovingItem(null)}
+          onConfirm={executeApproval}
         />
       )}
 
@@ -7476,6 +7494,81 @@ function AdminReviewBlogModal({ blog, onClose, onConfirm, onReject }) {
               Submit Rejection Notice
             </button>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ApprovalConfirmModal({ itemObj, type, onClose, onConfirm }) {
+  const [approving, setApproving] = useState(false);
+
+  const rawName = itemObj?.user?.fullName || itemObj?.fullName || 'Applicant';
+  const displayName = type === 'doctor' ? (/^dr\.?/i.test(rawName) ? rawName : `Dr. ${rawName}`) : rawName;
+  const email = itemObj?.user?.email || itemObj?.email || 'N/A';
+  const phone = itemObj?.user?.phone || itemObj?.phone || 'N/A';
+  const dept = itemObj?.specialization || itemObj?.department?.name || (type === 'doctor' ? 'General Medicine' : 'Reception Desk');
+
+  async function handleConfirm() {
+    setApproving(true);
+    await onConfirm();
+    setApproving(false);
+  }
+
+  return (
+    <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-scale-up">
+        {/* Header */}
+        <div className="flex justify-between items-start border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full">
+              ✅ Application Verification
+            </span>
+            <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-lg mt-2">
+              Confirm Account Approval
+            </h3>
+            <p className="text-xs text-slateText dark:text-slate-400 mt-1">
+              Verify credentials and approve login access for <strong className="text-darkNavy dark:text-white">{displayName}</strong>.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Applicant Summary Card */}
+        <div className="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
+          <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">Applicant Name</span> <span className="font-extrabold text-darkNavy dark:text-white">{displayName}</span></div>
+          <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">Email Address</span> <span className="font-mono font-bold text-darkNavy dark:text-slate-200">{email}</span></div>
+          <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">Contact Phone</span> <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{phone}</span></div>
+          <div className="flex justify-between items-center pt-1 border-t border-slate-200/60 dark:border-slate-700/60"><span className="text-slate-400 font-bold uppercase text-[10px]">Specialization / Dept</span> <span className="font-extrabold text-primary dark:text-sky-300">{dept}</span></div>
+        </div>
+
+        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+          Approving will grant <strong>{displayName}</strong> active status, enabling instant login to their portal dashboard.
+        </p>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={approving}
+            className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-extrabold text-xs py-2.5 rounded-xl transition cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirm}
+            disabled={approving}
+            className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-xs py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            {approving ? 'Activating...' : '✅ Confirm & Approve'}
+          </button>
         </div>
       </div>
     </div>
