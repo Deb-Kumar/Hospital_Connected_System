@@ -13,6 +13,7 @@ const SystemNotice = require('../models/SystemNotice');
 const SystemSetting = require('../models/SystemSetting');
 const LeaveRequest = require('../models/LeaveRequest');
 const { sendEmail } = require('../utils/notification');
+const { promoteApprovedDoctorPhoto, deleteDoctorPhotoFile } = require('../utils/fileStorage');
 
 // GET /api/admin/dashboard  (Dashboard with Statistics)
 exports.getDashboardStats = async (req, res) => {
@@ -22,13 +23,30 @@ exports.getDashboardStats = async (req, res) => {
       Doctor.countDocuments(),
       Staff.countDocuments(),
     ]);
-    const today = new Date().toISOString().slice(0, 10);
-    const todaysAppointments = await Appointment.countDocuments({ appointmentDate: today });
 
-    const paidAppointments = await Appointment.find({ paymentStatus: 'PAID' });
-    const totalRevenue = paidAppointments.reduce((sum, a) => sum + (a.paymentAmount || 0), 0);
+    const activeStaffCount = await Staff.countDocuments({ approvalStatus: 'APPROVED' });
 
-    return res.json({ totalPatients, totalDoctors, totalStaff, todaysAppointments, totalRevenue });
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const todayAppointmentsCount = await Appointment.countDocuments({
+      date: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    const pendingApprovalsCount = await Doctor.countDocuments({ approvalStatus: 'PENDING' });
+
+    const totalBlogsCount = await (require('../models/Blog')).countDocuments();
+
+    return res.json({
+      totalPatients,
+      totalDoctors,
+      totalStaff: activeStaffCount || totalStaff,
+      todayAppointments: todayAppointmentsCount,
+      pendingApprovals: pendingApprovalsCount,
+      totalBlogs: totalBlogsCount,
+    });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -51,27 +69,25 @@ exports.updateDoctor = async (req, res) => {
       fullName,
       email,
       phone,
-      department,
-      specialization,
       qualification,
       experienceYears,
-      consultationFee,
+      departmentId,
+      specialization,
       availabilitySchedule,
     } = req.body;
 
     const doctor = await Doctor.findById(req.params.id);
     if (!doctor) {
-      return res.status(404).json({ success: false, message: 'Doctor profile not found.' });
+      return res.status(404).json({ success: false, message: 'Doctor not found.' });
     }
 
     if (fullName) doctor.fullName = fullName;
-    if (email) doctor.email = email.toLowerCase();
+    if (email) doctor.email = email;
     if (phone) doctor.phone = phone;
-    if (department) doctor.department = department;
-    if (specialization !== undefined) doctor.specialization = specialization;
-    if (qualification !== undefined) doctor.qualification = qualification;
-    if (experienceYears !== undefined) doctor.experienceYears = Number(experienceYears) || 0;
-    if (consultationFee !== undefined) doctor.consultationFee = Number(consultationFee) || 500;
+    if (qualification) doctor.qualification = qualification;
+    if (experienceYears !== undefined) doctor.experienceYears = experienceYears;
+    if (departmentId) doctor.department = departmentId;
+    if (specialization) doctor.specialization = specialization;
     if (availabilitySchedule !== undefined) doctor.availabilitySchedule = availabilitySchedule;
 
     await doctor.save();
@@ -90,8 +106,14 @@ exports.deleteDoctor = async (req, res) => {
     if (!doctor) {
       return res.status(404).json({ success: false, message: 'Doctor not found.' });
     }
+    // Delete doctor photo file from disk if present
+    const photoPath = doctor.avatarUrl || doctor.profileImage || '';
+    if (photoPath) {
+      deleteDoctorPhotoFile(photoPath);
+    }
+
     if (doctor.email) {
-      await User.deleteMany({ email: doctor.email });
+      await UserProxy.deleteMany({ email: doctor.email });
     }
     return res.json({ success: true, message: 'Doctor deleted successfully.' });
   } catch (err) {
@@ -114,14 +136,29 @@ exports.getPendingDoctors = async (req, res) => {
 // PUT /api/admin/doctors/:id/approve
 exports.approveDoctor = async (req, res) => {
   try {
-    const doctor = await Doctor.findByIdAndUpdate(
-      req.params.id,
-      { approvalStatus: 'APPROVED', rejectionReason: undefined },
-      { new: true }
-    );
+    const doctor = await Doctor.findById(req.params.id);
     if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found' });
 
+    // Promote photo from dr_<timestamp>.jpg to dr_<doctor_name>.jpg
+    const currentPhoto = doctor.avatarUrl || doctor.profileImage || '';
+    const promotedPhoto = promoteApprovedDoctorPhoto(currentPhoto, doctor.fullName);
+
+    doctor.approvalStatus = 'APPROVED';
+    doctor.rejectionReason = undefined;
+    if (promotedPhoto) {
+      doctor.avatarUrl = promotedPhoto;
+      doctor.profileImage = promotedPhoto;
+    }
+    await doctor.save();
+
     if (doctor.email) {
+      const user = await UserProxy.findOne({ email: doctor.email });
+      if (user) {
+        user.active = true;
+        if (promotedPhoto) user.avatar = promotedPhoto;
+        await user.save();
+      }
+
       await sendEmail(doctor.email, 'Application Approved',
         `Good news, Dr. ${doctor.fullName} — your hospital portal application has been approved. You can now log in and start managing appointments.`);
     }
@@ -135,12 +172,20 @@ exports.approveDoctor = async (req, res) => {
 exports.rejectDoctor = async (req, res) => {
   try {
     const { reason } = req.body;
-    const doctor = await Doctor.findByIdAndUpdate(
-      req.params.id,
-      { approvalStatus: 'REJECTED', rejectionReason: reason || 'Not specified' },
-      { new: true }
-    );
+    const doctor = await Doctor.findById(req.params.id);
     if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found' });
+
+    // Automatically remove photo file from uploads/doctors on rejection
+    const currentPhoto = doctor.avatarUrl || doctor.profileImage || '';
+    if (currentPhoto) {
+      deleteDoctorPhotoFile(currentPhoto);
+    }
+
+    doctor.approvalStatus = 'REJECTED';
+    doctor.rejectionReason = reason || 'Not specified';
+    doctor.avatarUrl = '';
+    doctor.profileImage = '';
+    await doctor.save();
 
     if (doctor.email) {
       await sendEmail(doctor.email, 'Application Update',

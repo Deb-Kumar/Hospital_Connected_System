@@ -148,7 +148,8 @@ exports.updateDoctorProfile = async (req, res) => {
     let finalPhotoUrl = '';
     if (newPhoto) {
       const docName = doctor.fullName || fullName || 'doctor';
-      const savedPath = await saveDoctorPhoto(newPhoto, docName);
+      const oldPhoto = doctor.avatarUrl || doctor.profileImage || '';
+      const savedPath = await saveDoctorPhoto(newPhoto, docName, oldPhoto);
       finalPhotoUrl = savedPath || newPhoto;
       doctor.avatarUrl = finalPhotoUrl;
       doctor.profileImage = finalPhotoUrl;

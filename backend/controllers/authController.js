@@ -9,7 +9,7 @@ const Department = require('../models/Department');
 const LoginHistory = require('../models/LoginHistory');
 const { generateToken } = require('../utils/jwt');
 const { sendEmail, sendSms, buildOtpHtml } = require('../utils/notification');
-const { saveDoctorPhoto } = require('../utils/fileStorage');
+const { saveDoctorPhoto, savePendingDoctorPhoto } = require('../utils/fileStorage');
 
 function generateOtp() {
   return String(crypto.randomInt(0, 999999)).padStart(6, '0');
@@ -119,7 +119,7 @@ exports.register = async (req, res) => {
       const availabilitySchedule = buildAvailabilitySchedule(availableDays, availableFrom, availableTo);
 
       const rawPhoto = profileImage || avatarUrl || '';
-      const savedPhotoUrl = await saveDoctorPhoto(rawPhoto);
+      const savedPhotoUrl = await savePendingDoctorPhoto(rawPhoto);
 
       createdAccount = await Doctor.create({
         fullName, email: normalizedEmail, phone, password: hashedPassword,
