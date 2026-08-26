@@ -39,19 +39,20 @@ const statusConfig = {
 };
 
 function formatToken(tokenStr, queueNumber) {
-  if (queueNumber) return `TKN #${queueNumber}`;
-  if (!tokenStr) return 'TKN #1';
+  if (queueNumber) return `Token #${queueNumber}`;
+  if (!tokenStr) return 'Token #1';
+  if (tokenStr.startsWith('Token #')) return tokenStr;
   if (tokenStr.includes('-')) {
     const parts = tokenStr.split('-');
     const lastPart = parts[parts.length - 1];
     if (/^\d+$/.test(lastPart)) {
-      return `TKN #${lastPart}`;
+      return `Token #${lastPart}`;
     }
   }
-  if (tokenStr.length > 12) {
-    return `TKN #${tokenStr.slice(-4)}`;
+  if (/^\d+$/.test(tokenStr)) {
+    return `Token #${tokenStr}`;
   }
-  return `#${tokenStr}`;
+  return `Token #${tokenStr.replace(/^[A-Za-z]+-?/, '')}`;
 }
 
 function getEffectiveStatusKey(appointment) {

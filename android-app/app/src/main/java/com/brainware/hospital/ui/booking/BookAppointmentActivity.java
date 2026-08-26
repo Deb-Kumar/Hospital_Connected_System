@@ -51,11 +51,14 @@ public class BookAppointmentActivity extends AppCompatActivity {
 
         String json = getIntent().getStringExtra(Constants.EXTRA_DOCTOR_JSON);
         if (json == null) {
-            Toast.makeText(this, "Please select a doctor first.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please select a doctor to book your OPD appointment.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, com.brainware.hospital.ui.doctors.DoctorsByDepartmentActivity.class);
+            startActivity(intent);
             finish();
             return;
         }
         doctor = new Gson().fromJson(json, Doctor.class);
+
 
         viewModel = new ViewModelProvider(this).get(BookingViewModel.class);
 

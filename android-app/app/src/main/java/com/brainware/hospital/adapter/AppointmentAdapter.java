@@ -58,9 +58,22 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
         }
         holder.tvStatus.getBackground().setTint(holder.itemView.getContext().getColor(color));
 
-        if (appt.getTokenNumber() != null && !appt.getTokenNumber().isEmpty()) {
+        String rawToken = appt.getTokenNumber();
+        if (rawToken != null && !rawToken.isEmpty()) {
             holder.tvToken.setVisibility(View.VISIBLE);
-            holder.tvToken.setText("Token: " + appt.getTokenNumber());
+            String cleanToken = rawToken;
+            if (rawToken.contains("-")) {
+                String[] parts = rawToken.split("-");
+                cleanToken = "Token #" + parts[parts.length - 1];
+            } else if (rawToken.length() > 12) {
+                cleanToken = "Token #" + rawToken.substring(rawToken.length() - 4);
+            } else if (!rawToken.startsWith("Token")) {
+                cleanToken = "Token #" + rawToken;
+            }
+            holder.tvToken.setText(cleanToken);
+        } else if (appt.getQueueNumber() > 0) {
+            holder.tvToken.setVisibility(View.VISIBLE);
+            holder.tvToken.setText("Token #" + appt.getQueueNumber());
         } else {
             holder.tvToken.setVisibility(View.GONE);
         }

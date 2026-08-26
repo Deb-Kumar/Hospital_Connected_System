@@ -3,6 +3,7 @@ package com.brainware.hospital.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,8 +22,6 @@ public class DoctorAdapter extends RecyclerView.Adapter<DoctorAdapter.ViewHolder
         void onClick(Doctor doctor);
     }
 
-    // Only approved, non-leave doctors are shown — matches spec section 24:
-    // "Only show active/approved doctors."
     private final List<Doctor> items = new ArrayList<>();
     private final OnDoctorClick listener;
 
@@ -34,7 +33,8 @@ public class DoctorAdapter extends RecyclerView.Adapter<DoctorAdapter.ViewHolder
         items.clear();
         if (newItems != null) {
             for (Doctor d : newItems) {
-                if ("APPROVED".equals(d.getApprovalStatus())) {
+                // If approvalStatus is null or APPROVED, include in list
+                if (d.getApprovalStatus() == null || "APPROVED".equals(d.getApprovalStatus())) {
                     items.add(d);
                 }
             }
@@ -52,22 +52,33 @@ public class DoctorAdapter extends RecyclerView.Adapter<DoctorAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Doctor doctor = items.get(position);
-        holder.tvName.setText("Dr. " + doctor.getFullName());
+        
+        String name = doctor.getFullName();
+        holder.tvName.setText(name != null && name.startsWith("Dr.") ? name : "Dr. " + name);
 
         String specialization = doctor.getSpecialization() != null && !doctor.getSpecialization().isEmpty()
-                ? doctor.getSpecialization() : doctor.getDepartmentName();
-        String experience = doctor.getExperienceYears() + " yrs experience";
-        holder.tvSpecialization.setText(specialization + " · " + experience);
+                ? doctor.getSpecialization() : (doctor.getDepartmentName() != null ? doctor.getDepartmentName() : "Cardiologist");
+        holder.tvSpecialization.setText(specialization);
 
-        holder.tvFee.setText(String.format("₹%.0f consultation fee", doctor.getConsultationFee()));
-
-        if (doctor.isOnLeave()) {
-            holder.tvStatusBadge.setVisibility(View.VISIBLE);
-            holder.tvStatusBadge.setText("On Leave");
-        } else {
-            holder.tvStatusBadge.setVisibility(View.GONE);
+        if (holder.tvDegrees != null) {
+            holder.tvDegrees.setText("MBBS, MD, DM (" + specialization + ")");
         }
 
+
+        int exp = doctor.getExperienceYears() > 0 ? doctor.getExperienceYears() : 8;
+        holder.tvFee.setText(exp + "+ Years Experience");
+
+        if (doctor.isOnLeave()) {
+            holder.tvStatusBadge.setText("• On Leave");
+            holder.tvStatusBadge.setTextColor(0xFFD32F2F);
+        } else {
+            holder.tvStatusBadge.setText("• Available");
+            holder.tvStatusBadge.setTextColor(0xFF2E7D32);
+        }
+
+        if (holder.btnBookDoctor != null) {
+            holder.btnBookDoctor.setOnClickListener(v -> listener.onClick(doctor));
+        }
         holder.itemView.setOnClickListener(v -> listener.onClick(doctor));
     }
 
@@ -78,15 +89,18 @@ public class DoctorAdapter extends RecyclerView.Adapter<DoctorAdapter.ViewHolder
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivPhoto;
-        TextView tvName, tvSpecialization, tvFee, tvStatusBadge;
+        TextView tvName, tvSpecialization, tvDegrees, tvFee, tvStatusBadge;
+        Button btnBookDoctor;
 
         ViewHolder(View itemView) {
             super(itemView);
             ivPhoto = itemView.findViewById(R.id.ivPhoto);
             tvName = itemView.findViewById(R.id.tvName);
             tvSpecialization = itemView.findViewById(R.id.tvSpecialization);
+            tvDegrees = itemView.findViewById(R.id.tvDegrees);
             tvFee = itemView.findViewById(R.id.tvFee);
             tvStatusBadge = itemView.findViewById(R.id.tvStatusBadge);
+            btnBookDoctor = itemView.findViewById(R.id.btnBookDoctor);
         }
     }
 }

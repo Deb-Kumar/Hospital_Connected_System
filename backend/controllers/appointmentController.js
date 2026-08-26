@@ -7,8 +7,7 @@ const { sendEmail, sendSms, sendWhatsApp, buildOpdConfirmationHtml } = require('
 const { getPatientByUserId } = require('../utils/resolvers');
 
 function buildToken(date, queueNumber) {
-  const cleanDate = date ? date.replace(/-/g, '') : new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  return `${cleanDate}-${queueNumber}`;
+  return `Token #${queueNumber || 1}`;
 }
 
 const mongoose = require('mongoose');

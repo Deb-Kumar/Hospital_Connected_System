@@ -71,18 +71,42 @@ public class AppointmentDetailActivity extends AppCompatActivity {
 
         TextView tvToken = findViewById(R.id.tvToken);
         TextView tvQueueInfo = findViewById(R.id.tvQueueInfo);
-        if (appointment.getTokenNumber() != null && !appointment.getTokenNumber().isEmpty()) {
-            tvToken.setText(appointment.getTokenNumber());
-            if (appointment.getQueueNumber() > 0) {
-                tvQueueInfo.setVisibility(View.VISIBLE);
-                tvQueueInfo.setText(String.format("Queue position %d · ~%d min estimated wait",
-                        appointment.getQueueNumber(), appointment.getEstimatedWaitMinutes()));
-            } else {
-                tvQueueInfo.setVisibility(View.GONE);
+        TextView tvRawRefId = findViewById(R.id.tvRawRefId);
+
+        String rawToken = appointment.getTokenNumber();
+        String cleanToken = "Token #1";
+        if (rawToken != null && !rawToken.isEmpty()) {
+            cleanToken = rawToken;
+            if (rawToken.contains("-")) {
+                String[] parts = rawToken.split("-");
+                cleanToken = "Token #" + parts[parts.length - 1];
+            } else if (rawToken.length() > 12) {
+                cleanToken = "Token #" + rawToken.substring(rawToken.length() - 4);
+            } else if (!rawToken.startsWith("Token")) {
+                cleanToken = "Token #" + rawToken;
             }
+        } else if (appointment.getQueueNumber() > 0) {
+            cleanToken = "Token #" + appointment.getQueueNumber();
+        }
+
+        tvToken.setText(cleanToken);
+
+        if (appointment.getQueueNumber() > 0) {
+            tvQueueInfo.setVisibility(View.VISIBLE);
+            tvQueueInfo.setText(String.format("Queue position %d · ~%d min estimated wait",
+                    appointment.getQueueNumber(), appointment.getEstimatedWaitMinutes()));
         } else {
-            tvToken.setText("—");
             tvQueueInfo.setVisibility(View.GONE);
+        }
+
+        if (tvRawRefId != null) {
+            String refId = appointment.getId() != null ? appointment.getId() : (rawToken != null ? rawToken : "");
+            if (!refId.isEmpty()) {
+                tvRawRefId.setVisibility(View.VISIBLE);
+                tvRawRefId.setText("Ref ID: " + refId);
+            } else {
+                tvRawRefId.setVisibility(View.GONE);
+            }
         }
 
         TextView tvCancellationReason = findViewById(R.id.tvCancellationReason);

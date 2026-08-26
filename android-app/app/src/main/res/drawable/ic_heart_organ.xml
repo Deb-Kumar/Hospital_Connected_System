@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="90dp"
+    android:height="90dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- Heart Background Glow -->
+    <path
+        android:fillColor="#FFCDD2"
+        android:pathData="M50,10 A35,35 0 1,0 85,45 A35,35 0 1,0 50,10 Z" />
+    <!-- Heart Main Chamber Structure -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M50,85 C30,70 15,50 15,35 C15,22 25,15 35,15 C42,15 48,19 50,23 C52,19 58,15 65,15 C75,15 85,22 85,35 C85,50 70,70 50,85 Z" />
+    <!-- Aorta Arches -->
+    <path
+        android:fillColor="#C62828"
+        android:pathData="M42,15 V5 C42,3 46,3 46,5 V15 Z M50,15 V3 C50,1 54,1 54,3 V15 Z M58,15 V7 C58,5 62,5 62,7 V15 Z" />
+    <!-- Heart Highlight & Arteries -->
+    <path
+        android:fillColor="#EF5350"
+        android:pathData="M30,30 C35,22 45,22 48,30 C42,35 35,45 30,55 Z" />
+    <path
+        android:fillColor="#1E88E5"
+        android:pathData="M65,25 C62,25 60,28 60,32 V45 H64 V32 C64,30 65,29 66,29 Z" />
+</vector>

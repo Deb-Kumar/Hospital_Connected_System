@@ -42,7 +42,7 @@ exports.registerWalkIn = async (req, res) => {
     // Use provided date or default to today
     const apptDate = appointmentDate || new Date().toISOString().split('T')[0];
     const todayCount = await Appointment.countDocuments({ appointmentDate: apptDate });
-    const tokenNumber = `TKN-${todayCount + 1}`;
+    const tokenNumber = `Token #${todayCount + 1}`;
 
     // Use provided time or default to current time
     const now = new Date();

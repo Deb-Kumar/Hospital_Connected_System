@@ -3,6 +3,8 @@ package com.brainware.hospital.ui.doctors;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,7 +18,6 @@ import com.brainware.hospital.model.Doctor;
 import com.brainware.hospital.utils.Constants;
 import com.brainware.hospital.utils.Resource;
 import com.brainware.hospital.viewmodel.DoctorsViewModel;
-import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class DoctorsByDepartmentActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rvDoctors;
     private android.widget.ProgressBar progressBar;
-    private android.widget.TextView tvError, tvEmpty;
+    private TextView tvError, tvEmpty, tvHeaderTitle, tvBannerDeptName, tvBannerDeptDesc;
 
     private DoctorsViewModel viewModel;
     private DoctorAdapter adapter;
@@ -38,10 +39,25 @@ public class DoctorsByDepartmentActivity extends AppCompatActivity {
 
         departmentId = getIntent().getStringExtra(Constants.EXTRA_DEPARTMENT_ID);
         String departmentName = getIntent().getStringExtra(Constants.EXTRA_DEPARTMENT_NAME);
+        if (departmentName == null || departmentName.trim().isEmpty()) {
+            departmentName = "Cardiology";
+        }
 
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(departmentName != null ? departmentName : "All Doctors");
-        toolbar.setNavigationOnClickListener(v -> finish());
+        tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
+        tvBannerDeptName = findViewById(R.id.tvBannerDeptName);
+        tvBannerDeptDesc = findViewById(R.id.tvBannerDeptDesc);
+
+        tvHeaderTitle.setText(departmentName);
+        tvBannerDeptName.setText(departmentName);
+        tvBannerDeptDesc.setText("Comprehensive " + departmentName.toLowerCase() + " care for a healthier you.");
+
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        
+        View btnSupport = findViewById(R.id.btnContactSupport);
+        if (btnSupport != null) {
+            btnSupport.setOnClickListener(v ->
+                    Toast.makeText(this, "Hospital Care Hotline: 1800-123-4567", Toast.LENGTH_LONG).show());
+        }
 
         viewModel = new ViewModelProvider(this).get(DoctorsViewModel.class);
 

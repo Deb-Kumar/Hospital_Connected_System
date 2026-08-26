@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Green Circle Background -->
+    <path
+        android:fillColor="#43A047"
+        android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2z" />
+    <!-- White Heartbeat Line -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,21.35l-1.45,-1.32C5.4,15.36 2,12.28 2,8.5 2,5.42 4.42,3 7.5,3c1.74,0 3.41,0.81 4.5,2.09C13.09,3.81 14.76,3 16.5,3 19.58,3 22,5.42 22,8.5c0,3.78 -3.4,6.86 -8.55,11.54L12,21.35zM7.5,5C5.5,5 4,6.5 4,8.5c0,2.89 3.14,5.74 7.9,10.05l0.1,0.09 0.1,-0.09C16.86,14.24 20,11.39 20,8.5 20,6.5 18.5,5 16.5,5c-1.41,0 -2.76,0.74 -3.38,1.96h-2.24C10.26,5.74 8.91,5 7.5,5z" />
+</vector>

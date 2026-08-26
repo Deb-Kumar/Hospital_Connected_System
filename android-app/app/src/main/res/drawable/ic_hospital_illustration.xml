@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="90dp"
+    android:viewportWidth="120"
+    android:viewportHeight="90">
+    <!-- Cloud Background -->
+    <path
+        android:fillColor="#80FFFFFF"
+        android:pathData="M20,30 Q25,20 35,25 Q45,15 55,25 Q65,20 70,30 Z" />
+    <!-- Building Body -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M35,25 H85 V85 H35 Z" />
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M48,15 H72 V25 H48 Z" />
+    <!-- Red/Blue Medical Cross -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M56,17 H64 V23 H56 Z M58,15 H62 V25 H58 Z" />
+    <!-- Windows Grid -->
+    <path
+        android:fillColor="#90CAF9"
+        android:pathData="M42,35 H52 V45 H42 Z M68,35 H78 V45 H68 Z M42,50 H52 V60 H42 Z M68,50 H78 V60 H68 Z" />
+    <!-- Main Entrance Door -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M54,65 H66 V85 H54 Z" />
+    <!-- Trees on left and right -->
+    <path
+        android:fillColor="#66BB6A"
+        android:pathData="M18,70 A10,10 0 1,0 30,70 V85 H18 Z M90,70 A10,10 0 1,0 102,70 V85 H90 Z" />
+</vector>

@@ -2,9 +2,12 @@ package com.brainware.hospital.ui.departments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +29,7 @@ public class DoctorsTabFragment extends Fragment {
     private RecyclerView rvDepartments;
     private android.widget.ProgressBar progressBar;
     private android.widget.TextView tvError;
+    private EditText etSearchDept;
 
     private DepartmentsViewModel viewModel;
     private DepartmentAdapter adapter;
@@ -46,6 +50,7 @@ public class DoctorsTabFragment extends Fragment {
         rvDepartments = view.findViewById(R.id.rvDepartments);
         progressBar = view.findViewById(R.id.progressBar);
         tvError = view.findViewById(R.id.tvError);
+        etSearchDept = view.findViewById(R.id.etSearchDept);
 
         adapter = new DepartmentAdapter(department -> {
             Intent intent = new Intent(requireContext(), DoctorsByDepartmentActivity.class);
@@ -56,8 +61,20 @@ public class DoctorsTabFragment extends Fragment {
         rvDepartments.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvDepartments.setAdapter(adapter);
 
-        view.findViewById(R.id.tvViewAll).setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), DoctorsByDepartmentActivity.class)));
+        View btnBack = view.findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
+        }
+
+        if (etSearchDept != null) {
+            etSearchDept.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    adapter.filter(s != null ? s.toString() : "");
+                }
+                @Override public void afterTextChanged(Editable s) {}
+            });
+        }
 
         swipeRefresh.setOnRefreshListener(this::load);
         load();

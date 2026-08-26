@@ -63,6 +63,16 @@
                         android:layout_marginTop="4dp"
                         android:textColor="#D8E1F0"
                         tools:text="6 patients ahead · ~25 min wait" />
+
+                    <TextView
+                        android:id="@+id/tvRawRefId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="#8AA2C8"
+                        android:textSize="11sp"
+                        android:fontFamily="monospace"
+                        tools:text="Booking Ref ID: 6a71d52c8b910f" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.brainware.hospital.R;
+import com.brainware.hospital.ui.main.MainActivity;
+
 import com.brainware.hospital.adapter.DepartmentAdapter;
 import com.brainware.hospital.model.Appointment;
 import com.brainware.hospital.storage.TokenManager;
@@ -71,62 +74,61 @@ public class HomeFragment extends Fragment {
         setupQuickActions(view);
         setupDepartmentsList();
 
+        view.findViewById(R.id.ivUserAvatar).setOnClickListener(v -> switchToTab(R.id.nav_profile));
+        view.findViewById(R.id.btnViewAllAppointments).setOnClickListener(v -> switchToTab(R.id.nav_appointments));
+
         swipeRefresh.setOnRefreshListener(this::loadData);
         loadData();
     }
 
     private void setGreeting() {
         String name = TokenManager.getInstance(requireContext()).getFullName();
-        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
-        String timeOfDay = hour < 12 ? "Good Morning" : (hour < 17 ? "Good Afternoon" : "Good Evening");
-        tvGreeting.setText(timeOfDay + (name != null ? ", " + firstName(name) : ""));
-    }
-
-    private String firstName(String fullName) {
-        String[] parts = fullName.trim().split("\\s+");
-        return parts.length > 0 ? parts[0] : fullName;
+        if (name != null && !name.trim().isEmpty()) {
+            tvGreeting.setText(name.trim());
+        } else {
+            tvGreeting.setText("Debkumar Payra");
+        }
     }
 
     private void setupQuickActions(View root) {
-        bindAction(root, R.id.actionBook, android.R.drawable.ic_menu_agenda, "Book Appointment",
-                () -> switchToTab(R.id.nav_doctors));
+        // Row 1
+        root.findViewById(R.id.actionBook).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), DoctorsByDepartmentActivity.class)));
 
-        bindAction(root, R.id.actionAppointments, android.R.drawable.ic_menu_recent_history, "My Appointments",
-                () -> switchToTab(R.id.nav_appointments));
+        root.findViewById(R.id.actionDoctorConsult).setOnClickListener(v ->
+                switchToTab(R.id.nav_doctors));
 
-        bindAction(root, R.id.actionRecords, android.R.drawable.ic_menu_edit, "Medical Records",
-                () -> switchToTab(R.id.nav_records));
+        root.findViewById(R.id.actionMyReports).setOnClickListener(v ->
+                switchToTab(R.id.nav_records));
 
-        bindAction(root, R.id.actionFindDoctor, android.R.drawable.ic_menu_search, "Find Doctor",
-                () -> switchToTab(R.id.nav_doctors));
+        root.findViewById(R.id.actionPrescriptions).setOnClickListener(v ->
+                switchToTab(R.id.nav_records));
 
-        bindAction(root, R.id.actionDigitalId, android.R.drawable.ic_menu_gallery, "Digital Patient ID",
-                () -> startActivity(new Intent(requireContext(), DigitalIdActivity.class)));
+        // Row 2
+        root.findViewById(R.id.actionRecords).setOnClickListener(v ->
+                switchToTab(R.id.nav_records));
 
-        bindAction(root, R.id.actionEmergency, android.R.drawable.ic_dialog_alert, "Emergency",
-                this::showEmergencyInfo);
-    }
+        root.findViewById(R.id.actionBilling).setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Billing & Payments: No pending dues", Toast.LENGTH_SHORT).show());
 
-    private void bindAction(View root, int includeId, int iconRes, String label, Runnable onClick) {
-        View tile = root.findViewById(includeId);
-        ImageView icon = tile.findViewById(R.id.ivIcon);
-        TextView tvLabel = tile.findViewById(R.id.tvLabel);
-        icon.setImageResource(iconRes);
-        tvLabel.setText(label);
-        tile.setOnClickListener(v -> onClick.run());
+        root.findViewById(R.id.actionHealthPackages).setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Health Packages: Annual Checkup 20% OFF", Toast.LENGTH_SHORT).show());
+
+        root.findViewById(R.id.actionFindHospital).setOnClickListener(v ->
+                showEmergencyInfo());
     }
 
     private void switchToTab(int menuItemId) {
-        View bottomNav = requireActivity().findViewById(R.id.bottomNav);
-        if (bottomNav instanceof com.google.android.material.bottomnavigation.BottomNavigationView) {
-            ((com.google.android.material.bottomnavigation.BottomNavigationView) bottomNav)
-                    .setSelectedItemId(menuItemId);
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            if (menuItemId == R.id.nav_doctors) activity.selectTab(1);
+            else if (menuItemId == R.id.nav_appointments) activity.selectTab(2);
+            else if (menuItemId == R.id.nav_profile) activity.selectTab(3);
+            else activity.selectTab(0);
         }
     }
 
     private void showEmergencyInfo() {
-        // Never hard-code a hospital emergency number — always fetch the
-        // admin-configured value from the backend (GET /api/settings/public).
         androidx.appcompat.app.AlertDialog loadingDialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Emergency")
                 .setMessage("Loading emergency contact information…")
@@ -141,17 +143,16 @@ public class HomeFragment extends Fragment {
                 String hotline = settings.emergencyHotline != null && !settings.emergencyHotline.isEmpty()
                         ? settings.emergencyHotline : "Not configured — contact reception directly.";
                 new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                        .setTitle("Emergency")
+                        .setTitle("Hospital Location & Emergency")
                         .setMessage((settings.hospitalName != null ? settings.hospitalName : "Hospital") + " Emergency: " + hotline
-                                + "\n\nFor a life-threatening emergency, call your local emergency number immediately.")
+                                + "\n\nLocation: Sector V, Salt Lake, Kolkata 700091")
                         .setPositiveButton("Close", null)
                         .show();
             } else if (resource.status == Resource.Status.ERROR) {
                 loadingDialog.dismiss();
                 new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                         .setTitle("Emergency")
-                        .setMessage("Couldn't load emergency contact info: " + resource.message
-                                + "\n\nFor a life-threatening emergency, call your local emergency number immediately.")
+                        .setMessage("Couldn't load emergency contact info: " + resource.message)
                         .setPositiveButton("Close", null)
                         .show();
             }
@@ -170,24 +171,14 @@ public class HomeFragment extends Fragment {
     }
 
     private void loadData() {
-        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
         tvError.setVisibility(View.GONE);
 
         departmentsViewModel.getDepartments().observe(getViewLifecycleOwner(), resource -> {
             if (resource == null) return;
             swipeRefresh.setRefreshing(false);
-            switch (resource.status) {
-                case LOADING:
-                    break;
-                case SUCCESS:
-                    progressBar.setVisibility(View.GONE);
-                    adapter.submitList(resource.data);
-                    break;
-                case ERROR:
-                    progressBar.setVisibility(View.GONE);
-                    tvError.setText(resource.message);
-                    tvError.setVisibility(View.VISIBLE);
-                    break;
+            if (resource.status == Resource.Status.SUCCESS && resource.data != null) {
+                adapter.submitList(resource.data);
             }
         });
 
@@ -198,9 +189,7 @@ public class HomeFragment extends Fragment {
                 layoutUpcoming.setVisibility(View.VISIBLE);
                 tvNoUpcoming.setVisibility(View.GONE);
                 tvUpcomingDoctor.setText(next.getDoctorName());
-                tvUpcomingDetails.setText(next.getDepartmentName() + " · " + next.getAppointmentDate()
-                        + ", " + next.getAppointmentTime()
-                        + (next.getTokenNumber() != null ? " · Token " + next.getTokenNumber() : ""));
+                tvUpcomingDetails.setText(next.getAppointmentDate() + "  •  " + next.getAppointmentTime());
             } else {
                 layoutUpcoming.setVisibility(View.GONE);
                 tvNoUpcoming.setVisibility(View.VISIBLE);

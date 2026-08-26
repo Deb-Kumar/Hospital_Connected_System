@@ -121,7 +121,7 @@ export default function AppointmentSection({ initialDept = '', initialDoctor = n
       setBookingResult({
         success: true,
         appointment: {
-          tokenNumber: res.data.tokenNumber || `BW-${Math.floor(100000 + Math.random() * 900000)}`,
+          tokenNumber: res.data.tokenNumber || 'Token #1',
           patientName: res.data.patientName || form.patientName,
           doctor: res.data.doctorName || 'Senior Specialist',
           appointmentDate: res.data.appointmentDate || form.appointmentDate,
@@ -508,7 +508,7 @@ export default function AppointmentSection({ initialDept = '', initialDoctor = n
                 <div className="flex justify-between items-center border-b border-slate-200 pb-2">
                   <span className="text-gray-400 font-semibold uppercase text-[10px]">Queue Token No.</span>
                   <span className="font-poppins font-extrabold text-lg text-primary">
-                    {bookingResult.appointment?.tokenNumber || bookingResult.appointment?.token || 'BW-782910'}
+                    {bookingResult.appointment?.tokenNumber || bookingResult.appointment?.token || 'Token #1'}
                   </span>
                 </div>
                 <div className="flex justify-between">

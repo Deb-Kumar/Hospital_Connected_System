@@ -49,17 +49,21 @@ public class ProfileFragment extends Fragment {
         tvError = view.findViewById(R.id.tvError);
         progressBar = view.findViewById(R.id.progressBar);
 
-        view.findViewById(R.id.btnEditProfile).setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), EditProfileActivity.class)));
+        View.OnClickListener onEdit = v -> startActivity(new Intent(requireContext(), EditProfileActivity.class));
+        view.findViewById(R.id.btnEditProfile).setOnClickListener(onEdit);
+        view.findViewById(R.id.cardEditProfile).setOnClickListener(onEdit);
 
-        view.findViewById(R.id.btnDigitalId).setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), DigitalIdActivity.class)));
+        View.OnClickListener onDigitalId = v -> startActivity(new Intent(requireContext(), DigitalIdActivity.class));
+        view.findViewById(R.id.btnDigitalId).setOnClickListener(onDigitalId);
+        view.findViewById(R.id.cardDigitalId).setOnClickListener(onDigitalId);
 
-        view.findViewById(R.id.btnFamilyMembers).setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), FamilyMembersActivity.class)));
+        View.OnClickListener onFamily = v -> startActivity(new Intent(requireContext(), FamilyMembersActivity.class));
+        view.findViewById(R.id.btnFamilyMembers).setOnClickListener(onFamily);
+        view.findViewById(R.id.cardFamilyMembers).setOnClickListener(onFamily);
 
-        view.findViewById(R.id.btnAccountSettings).setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), AccountSettingsActivity.class)));
+        View.OnClickListener onSettings = v -> startActivity(new Intent(requireContext(), AccountSettingsActivity.class));
+        view.findViewById(R.id.btnAccountSettings).setOnClickListener(onSettings);
+        view.findViewById(R.id.cardAccountSettings).setOnClickListener(onSettings);
 
         view.findViewById(R.id.btnLogout).setOnClickListener(v -> confirmLogout());
 
@@ -101,10 +105,11 @@ public class ProfileFragment extends Fragment {
         tvPatientId.setText("Patient ID: " + shortId(patient.getId()));
         tvEmail.setText(patient.getEmail());
         tvPhone.setText(patient.getPhone() != null ? patient.getPhone() : "Not provided");
-        tvBloodGroup.setText("Blood Group: " + orNotSet(patient.getBloodGroup()));
-        tvAge.setText("Age: " + (patient.getAge() != null ? patient.getAge() : "Not set"));
+        tvBloodGroup.setText(orNotSet(patient.getBloodGroup()));
+        tvAge.setText(patient.getAge() != null && patient.getAge() > 0 ? patient.getAge() + " Yrs" : "Not set");
         tvAllergies.setText("Allergies: " + orDefault(patient.getAllergies(), "None reported"));
     }
+
 
     private String shortId(String id) {
         if (id == null) return "";
