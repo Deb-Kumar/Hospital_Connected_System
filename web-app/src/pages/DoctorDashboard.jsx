@@ -687,7 +687,7 @@ export default function DoctorDashboard() {
                 )}
 
                 {/* Summary Stats Row: Pending -> Complete -> Reschedule -> Absent */}
-                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
                   {[
                     { label: 'Total Today', value: todayQueue.length, icon: '📅', color: 'from-blue-600 to-indigo-600' },
                     { label: 'Pending', value: pendingCount, icon: '⏳', color: 'from-amber-500 to-orange-500' },
@@ -708,22 +708,25 @@ export default function DoctorDashboard() {
                 {/* Bookings Card */}
                 <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
                   {/* Header with Filters */}
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-slate-100 dark:border-slate-800">
-                    <div>
-                      <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
-                        📅 Today's OPD Bookings
-                        <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
-                          {filteredBookings.length} Showing
-                        </span>
-                      </h3>
-                      <p className="text-xs text-slateText dark:text-slate-400 mt-0.5">
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} — Refreshes daily at midnight.
-                      </p>
+                  <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-lg sm:text-xl flex items-center gap-2 flex-wrap">
+                          <span>📅 Today's OPD Bookings</span>
+                          <span className="text-xs font-black px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-950/90 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+                            {filteredBookings.length} Showing
+                          </span>
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} — Refreshes daily at midnight.
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                      {/* Search */}
-                      <div className="relative flex-1 sm:w-56">
+                    {/* Controls Row: Search + Status Filter Tabs */}
+                    <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 pt-1">
+                      {/* Search Bar */}
+                      <div className="relative flex-1 min-w-[220px]">
                         <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
                         <input
                           type="text"
@@ -735,7 +738,7 @@ export default function DoctorDashboard() {
                       </div>
 
                       {/* Status Filter Tabs: All -> Pending -> Complete -> Reschedule -> Absent */}
-                      <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700 flex-wrap">
+                      <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/90 rounded-2xl p-1.5 border border-slate-200 dark:border-slate-700 overflow-x-auto max-w-full scrollbar-none">
                         {[
                           { key: 'ALL', label: 'All', count: todayQueue.length },
                           { key: 'PENDING', label: 'Pending', count: pendingCount },
@@ -746,17 +749,17 @@ export default function DoctorDashboard() {
                           <button
                             key={tab.key}
                             onClick={() => setBookingStatusFilter(tab.key)}
-                            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95 ${
                               bookingStatusFilter === tab.key
                                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
-                                : 'text-slateText dark:text-slate-400 hover:text-darkNavy dark:hover:text-white hover:bg-white dark:hover:bg-slate-700'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-darkNavy dark:hover:text-white hover:bg-white dark:hover:bg-slate-700'
                             }`}
                           >
-                            {tab.label}
-                            <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full ${
+                            <span>{tab.label}</span>
+                            <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full font-extrabold ${
                               bookingStatusFilter === tab.key
                                 ? 'bg-white/20 text-white'
-                                : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                                : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
                             }`}>
                               {tab.count}
                             </span>
