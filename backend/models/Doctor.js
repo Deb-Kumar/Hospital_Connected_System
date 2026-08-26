@@ -38,14 +38,22 @@ const doctorSchema = new mongoose.Schema({
   specialization: {
      type: String 
     },
+  profileImage: {
+    type: String,
+    default: ''
+  },
+  avatarUrl: {
+    type: String,
+    default: ''
+  },
   bio: {
-     type: String, 
-     default: '' 
-    },
+    type: String, 
+    default: '' 
+  },
   experienceYears: {
-     type: Number, 
-     default: 0 
-    },
+    type: Number, 
+    default: 0 
+  },
   consultationFee: {
      type: Number, 
      default: 500 
