@@ -1327,7 +1327,7 @@ export default function AdminDashboard() {
                                   )}
                                   <div className="min-w-0 flex-1">
                                     <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-base truncate">{displayName}</h3>
-                                    <p className="text-xs font-mono text-slateText dark:text-slate-400 truncate">{doc.user?.email || doc.email}</p>
+                                    <p className="text-xs font-mono font-extrabold text-slate-900 dark:text-white truncate">{doc.user?.email || doc.email}</p>
                                     <p className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">{doc.user?.phone || doc.phone || 'Contact N/A'}</p>
                                   </div>
                                 </div>
@@ -1388,7 +1388,7 @@ export default function AdminDashboard() {
                             <div className="flex justify-between items-start gap-3">
                               <div className="min-w-0 flex-1">
                                 <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-base truncate">{staff.user?.fullName || staff.fullName}</h3>
-                                <p className="text-xs font-mono text-slateText dark:text-slate-400 truncate">{staff.user?.email || staff.email}</p>
+                                <p className="text-xs font-mono font-extrabold text-slate-900 dark:text-white truncate">{staff.user?.email || staff.email}</p>
                                 <p className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">{staff.user?.phone || staff.phone || 'Contact N/A'}</p>
                               </div>
                               <span className="text-[10px] font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
@@ -1913,9 +1913,9 @@ export default function AdminDashboard() {
                               </p>
                               <div className="space-y-1 text-xs">
                                 {doc.user?.email && (
-                                  <p className="flex items-center gap-1.5 text-darkNavy dark:text-slate-200 truncate">
+                                  <p className="flex items-center gap-1.5 text-darkNavy dark:text-white truncate">
                                     <span className="text-slate-400">📧</span>
-                                    <span className="font-medium truncate" title={doc.user.email}>{doc.user.email}</span>
+                                    <span className="font-extrabold text-slate-900 dark:text-white truncate" title={doc.user.email}>{doc.user.email}</span>
                                   </p>
                                 )}
                                 {doc.user?.phone && (
