@@ -130,10 +130,15 @@ export default function DoctorsPage() {
   // Database doctors directly
   const doctorList = dbDoctors || [];
 
-  // Extract department names dynamically from database (and doctor specializations)
-  const dbDeptNames = departments.map((d) => d.name).filter(Boolean);
-  const docSpecNames = doctorList.map((d) => d.specialization || d.department?.name).filter(Boolean);
-  const departmentOptions = Array.from(new Set([...dbDeptNames, ...docSpecNames])).sort();
+  // Extract clean department names dynamically from database
+  const departmentOptions = (
+    departments.length > 0
+      ? departments.map((d) => d.name)
+      : doctorList.map((d) => d.department?.name || d.specialization)
+  )
+    .filter(Boolean)
+    .filter((val, idx, arr) => arr.indexOf(val) === idx)
+    .sort();
 
   // Filtered Doctors List
   const filteredDoctors = doctorList.filter((doc) => {
@@ -148,10 +153,17 @@ export default function DoctorsPage() {
       docQual.toLowerCase().includes(searchTerm.toLowerCase()) ||
       docDeptName.toLowerCase().includes(searchTerm.toLowerCase());
 
+    const targetDept = selectedDept.toLowerCase().trim();
+    const docDeptLower = docDeptName.toLowerCase().trim();
+    const docSpecLower = docSpec.toLowerCase().trim();
+
     const matchesDept =
       selectedDept === 'ALL' ||
-      docDeptName.toLowerCase() === selectedDept.toLowerCase() ||
-      docSpec.toLowerCase() === selectedDept.toLowerCase();
+      docDeptLower === targetDept ||
+      docDeptLower.includes(targetDept) ||
+      targetDept.includes(docDeptLower) ||
+      docSpecLower.includes(targetDept) ||
+      targetDept.includes(docSpecLower);
 
     const matchesPill =
       activeFilterPill === 'All' ||
