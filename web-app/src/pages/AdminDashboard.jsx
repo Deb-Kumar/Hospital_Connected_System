@@ -775,6 +775,14 @@ export default function AdminDashboard() {
       return true;
     }
 
+    if (activeNav === 'departments') {
+      const matchesSearch = !term || item.name?.toLowerCase().includes(term) || item.description?.toLowerCase().includes(term);
+      if (!matchesSearch) return false;
+      if (deptStatusFilter === 'ACTIVE') return item.active !== false;
+      if (deptStatusFilter === 'DEACTIVE') return item.active === false;
+      return true;
+    }
+
     if (!searchTerm) return true;
 
     if (activeNav === 'doctors') {
@@ -790,13 +798,6 @@ export default function AdminDashboard() {
         item.user?.phone?.includes(term) ||
         item.user?.email?.toLowerCase().includes(term)
       );
-    }
-    if (activeNav === 'departments') {
-      const matchesSearch = !term || item.name?.toLowerCase().includes(term) || item.description?.toLowerCase().includes(term);
-      if (!matchesSearch) return false;
-      if (deptStatusFilter === 'ACTIVE') return item.active !== false;
-      if (deptStatusFilter === 'DEACTIVE') return item.active === false;
-      return true;
     }
     if (activeNav === 'appointments') {
       return (
