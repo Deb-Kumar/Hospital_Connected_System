@@ -4047,7 +4047,18 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* CONFIRM DELETE DOCTOR MODAL */}
+      {/* REJECTION REASON MODAL */}
+      {rejectingItem && (
+        <RejectionReasonModal
+          itemObj={rejectingItem.item}
+          type={rejectingItem.type}
+          onClose={() => setRejectingItem(null)}
+          onConfirm={(reason) => {
+            executeRejection(reason);
+            setRejectingItem(null);
+          }}
+        />
+      )}
       {deletingDoctor && (
         <ConfirmDeleteDoctorModal
           doctor={deletingDoctor}
@@ -7466,6 +7477,118 @@ function AdminReviewBlogModal({ blog, onClose, onConfirm, onReject }) {
             </button>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function RejectionReasonModal({ itemObj, type, onClose, onConfirm }) {
+  const [reason, setReason] = useState('');
+  const [selectedPreset, setSelectedPreset] = useState('');
+
+  const PRESETS = [
+    'Incomplete medical license verification documents',
+    'Invalid or unreachable contact phone number',
+    'Qualification credentials require further hospital verification',
+    'Duplicate account registration request',
+    'Inaccurate registration details provided'
+  ];
+
+  function handleSelectPreset(preset) {
+    setSelectedPreset(preset);
+    setReason(preset);
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!reason.trim()) return;
+    onConfirm(reason.trim());
+  }
+
+  const name = itemObj?.user?.fullName || itemObj?.fullName || 'Applicant';
+  const email = itemObj?.user?.email || itemObj?.email || '';
+
+  return (
+    <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-scale-up">
+        {/* Header */}
+        <div className="flex justify-between items-start border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-rose-500 bg-rose-500/10 border border-rose-500/30 px-2.5 py-1 rounded-full">
+              ⚠️ Application Rejection
+            </span>
+            <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-lg mt-2">
+              Reason of Rejection
+            </h3>
+            <p className="text-xs text-slateText dark:text-slate-400 mt-1">
+              Specify official rejection reason for <strong className="text-darkNavy dark:text-white">{type === 'doctor' ? 'Dr. ' + name : name}</strong> ({email}).
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Quick Select Presets */}
+        <div className="space-y-2">
+          <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300">
+            ⚡ Select Reason Preset:
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {PRESETS.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => handleSelectPreset(preset)}
+                className={`text-[11px] px-2.5 py-1 rounded-xl border transition cursor-pointer font-medium text-left ${
+                  selectedPreset === preset
+                    ? 'bg-rose-500 text-white border-rose-500 font-bold shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-rose-300'
+                }`}
+              >
+                {preset}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Custom Reason Textarea */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-extrabold text-darkNavy dark:text-slate-200 mb-1.5">
+              ✍️ Reason for Rejection *
+            </label>
+            <textarea
+              rows={3}
+              required
+              value={reason}
+              onChange={(e) => { setReason(e.target.value); setSelectedPreset(''); }}
+              placeholder="Enter official reason for rejecting this application..."
+              className="w-full border border-slate-300 dark:border-slate-700 rounded-2xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-extrabold text-xs py-2.5 rounded-xl transition cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!reason.trim()}
+              className="flex-1 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white font-extrabold text-xs py-2.5 rounded-xl shadow-lg shadow-rose-600/20 transition cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <span>✕</span> Confirm Rejection
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
