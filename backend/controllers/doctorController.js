@@ -12,7 +12,9 @@ const { saveDoctorPhoto } = require('../utils/fileStorage');
 // GET /api/doctor/all
 exports.getAll = async (req, res) => {
   try {
-    const doctors = await Doctor.find({ approvalStatus: 'APPROVED' }).populate('department');
+    const doctors = await Doctor.find({
+      approvalStatus: { $nin: ['PENDING', 'REJECTED'] }
+    }).populate('department');
     return res.json(doctors);
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
