@@ -2059,20 +2059,6 @@ function DoctorProfileView({ user, doctorProfile, showNotify, onProfileUpdated }
               🩺
             </div>
             <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
-                  🩺 DOCTOR PROFILE
-                </span>
-                {doctorProfile?.onLeave ? (
-                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-950 text-amber-300 border border-amber-800 uppercase">
-                    ON LEAVE
-                  </span>
-                ) : (
-                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 uppercase">
-                    ON DUTY
-                  </span>
-                )}
-              </div>
               <h2 className="font-poppins font-extrabold text-2xl sm:text-3xl text-white">
                 {docName}
               </h2>
@@ -2090,6 +2076,21 @@ function DoctorProfileView({ user, doctorProfile, showNotify, onProfileUpdated }
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Right Side: ON DUTY / ON LEAVE Badge */}
+          <div className="flex items-center self-start md:self-center">
+            {doctorProfile?.onLeave ? (
+              <span className="text-xs font-black px-4 py-2 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-lg tracking-wide uppercase inline-flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                <span>ON LEAVE</span>
+              </span>
+            ) : (
+              <span className="text-xs font-black px-4 py-2 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg tracking-wide uppercase inline-flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>ON DUTY</span>
+              </span>
+            )}
           </div>
         </div>
       </div>
