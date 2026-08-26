@@ -2047,6 +2047,7 @@ function DoctorProfileView({ user, doctorProfile, showNotify, onProfileUpdated }
   }
 
   const docName = user?.fullName ? `Dr. ${user.fullName}` : 'Specialist Doctor';
+  const docAvatarUrl = doctorProfile?.profileImage || doctorProfile?.avatarUrl || user?.avatarUrl || user?.profileImage;
 
   return (
     <div className="space-y-6">
@@ -2054,8 +2055,18 @@ function DoctorProfileView({ user, doctorProfile, showNotify, onProfileUpdated }
       <div className="bg-slate-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-slate-800">
         <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-emerald-500/30 rounded-full blur-3xl pointer-events-none"></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-primary text-white font-extrabold text-2xl sm:text-3xl flex items-center justify-center shadow-lg border-2 border-emerald-400/30">
+          <div className="flex items-center gap-4 sm:gap-5">
+            {docAvatarUrl ? (
+              <img
+                src={docAvatarUrl}
+                alt={docName}
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-emerald-400/40 shadow-xl shrink-0"
+                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+              />
+            ) : null}
+            <div
+              className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-primary text-white font-extrabold text-2xl sm:text-3xl items-center justify-center shadow-lg border-2 border-emerald-400/30 shrink-0 ${docAvatarUrl ? 'hidden' : 'flex'}`}
+            >
               🩺
             </div>
             <div className="space-y-1">
