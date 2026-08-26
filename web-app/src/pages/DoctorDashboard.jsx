@@ -1372,19 +1372,19 @@ export default function DoctorDashboard() {
               <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 relative overflow-hidden">
                 <div className="flex flex-col md:flex-row items-center md:items-center justify-between gap-6 relative z-10">
                   {/* Left Side: Avatar & Doctor Info */}
-                  <div className="flex flex-col md:flex-row items-center md:items-start gap-6 flex-1 min-w-0">
+                  <div className="flex flex-col md:flex-row items-center md:items-center gap-6 flex-1 min-w-0">
                     <div className="relative shrink-0 group">
                       <img
                         src={(uploadedPhotoPreview && uploadedPhotoPreview.startsWith('data:')) 
                           ? uploadedPhotoPreview 
-                          : (uploadedPhotoPreview?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${uploadedPhotoPreview}` : '') ||
-                            (doctorProfile?.avatarUrl?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${doctorProfile.avatarUrl}` : doctorProfile?.avatarUrl) ||
-                            (doctorProfile?.profileImage?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${doctorProfile.profileImage}` : doctorProfile?.profileImage) ||
-                            (user?.avatar?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${user.avatar}` : user?.avatar) ||
-                            (user?.photoUrl?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${user.photoUrl}` : user?.photoUrl) ||
+                          : (uploadedPhotoPreview?.startsWith('/uploads/') ? `http://localhost:5000${uploadedPhotoPreview}` : '') ||
+                            (doctorProfile?.avatarUrl?.startsWith('/uploads/') ? `http://localhost:5000${doctorProfile.avatarUrl}` : doctorProfile?.avatarUrl) ||
+                            (doctorProfile?.profileImage?.startsWith('/uploads/') ? `http://localhost:5000${doctorProfile.profileImage}` : doctorProfile?.profileImage) ||
+                            (user?.avatar?.startsWith('/uploads/') ? `http://localhost:5000${user.avatar}` : user?.avatar) ||
+                            (user?.photoUrl?.startsWith('/uploads/') ? `http://localhost:5000${user.photoUrl}` : user?.photoUrl) ||
                             'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300'}
                         alt={docName}
-                        className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover border-4 border-emerald-500/30 shadow-2xl transition group-hover:brightness-75"
+                        className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover object-top border-4 border-emerald-500/30 shadow-2xl transition group-hover:brightness-75"
                       />
                       <label
                         htmlFor="doctor-photo-upload-input"
@@ -2666,7 +2666,8 @@ function DoctorProfileView({ user, doctorProfile, showNotify, onProfileUpdated, 
   }
 
   const docName = user?.fullName ? `Dr. ${user.fullName}` : 'Specialist Doctor';
-  const docAvatarUrl = doctorProfile?.profileImage || doctorProfile?.avatarUrl || user?.avatarUrl || user?.profileImage;
+  const rawDocAvatarUrl = uploadedPhotoPreview || doctorProfile?.profileImage || doctorProfile?.avatarUrl || user?.avatarUrl || user?.profileImage || user?.avatar || user?.photoUrl;
+  const docAvatarUrl = rawDocAvatarUrl ? (rawDocAvatarUrl.startsWith('/uploads/') ? `http://localhost:5000${rawDocAvatarUrl}` : rawDocAvatarUrl) : '';
 
   return (
     <div className="space-y-6">

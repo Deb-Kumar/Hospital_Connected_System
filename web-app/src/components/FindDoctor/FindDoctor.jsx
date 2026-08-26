@@ -118,7 +118,8 @@ export default function FindDoctor({ onSelectDoctor }) {
               const qual = doc.qualification || 'MBBS, MD';
               const exp = doc.experienceYears || 10;
               const fee = doc.consultationFee || doc.department?.consultationFee || 500;
-              const avatar = doc.avatarUrl || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=400';
+              const rawAvatar = doc.avatarUrl || doc.profileImage || doc.photoUrl || (doc.user && (doc.user.avatarUrl || doc.user.profileImage || doc.user.avatar || doc.user.photoUrl));
+              const avatar = rawAvatar ? (rawAvatar.startsWith('/uploads/') ? `http://localhost:5000${rawAvatar}` : rawAvatar) : 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=400';
 
               return (
                 <div

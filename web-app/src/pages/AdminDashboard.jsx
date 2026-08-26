@@ -1739,7 +1739,8 @@ export default function AdminDashboard() {
                   {filteredList.map((doc) => {
                     const rawName = (doc.user?.fullName || doc.fullName || '').replace(/^dr\.\s+/i, '').trim();
                     const docName = rawName ? `Dr. ${rawName}` : 'Specialist Doctor';
-                    const avatarUrl = doc.profileImage || doc.avatarUrl || doc.user?.avatarUrl || doc.user?.profileImage;
+                    const rawAvatarUrl = doc.profileImage || doc.avatarUrl || doc.user?.avatarUrl || doc.user?.profileImage || doc.user?.avatar || doc.user?.photoUrl;
+                    const avatarUrl = rawAvatarUrl ? (rawAvatarUrl.startsWith('/uploads/') ? `http://localhost:5000${rawAvatarUrl}` : rawAvatarUrl) : '';
                     const initials = rawName
                       ? rawName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
                       : 'DR';
