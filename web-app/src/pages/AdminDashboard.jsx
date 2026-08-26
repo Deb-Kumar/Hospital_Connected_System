@@ -1263,23 +1263,23 @@ export default function AdminDashboard() {
                           <div key={doc._id} className="bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 space-y-4 shadow-xs hover:shadow-cardHover transition duration-300 flex flex-col justify-between">
                             <div className="space-y-3">
                               <div className="flex justify-between items-start gap-3">
-                                <div className="flex items-center gap-3 min-w-0">
+                                <div className="flex items-center gap-3.5 min-w-0">
                                   {avatarUrl ? (
                                     <img
                                       src={avatarUrl}
                                       alt={displayName}
-                                      className="w-11 h-11 rounded-xl object-cover border border-emerald-500/30 shrink-0"
+                                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover object-top border-2 border-emerald-500/40 shadow-md shrink-0"
                                       onError={(e) => { e.target.style.display = 'none'; }}
                                     />
                                   ) : (
-                                    <div className="w-11 h-11 rounded-xl bg-emerald-600/20 text-emerald-500 font-extrabold text-sm flex items-center justify-center border border-emerald-500/30 shrink-0">
+                                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-primary text-white font-extrabold text-2xl flex items-center justify-center border-2 border-emerald-500/40 shadow-md shrink-0">
                                       🩺
                                     </div>
                                   )}
                                   <div className="min-w-0 flex-1">
                                     <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-base truncate">{displayName}</h3>
                                     <p className="text-xs font-mono text-slateText dark:text-slate-400 truncate">{doc.user?.email || doc.email}</p>
-                                    <p className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">{doc.user?.phone || doc.phone || 'Contact N/A'}</p>
+                                    <p className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">{doc.user?.phone || doc.phone || 'Contact N/A'}</p>
                                   </div>
                                 </div>
 
@@ -1291,8 +1291,17 @@ export default function AdminDashboard() {
                               <div className="space-y-2 text-xs bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/70">
                                 <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">Specialization</span> <span className="font-extrabold text-darkNavy dark:text-white">{doc.specialization || doc.department?.name || 'General Medicine'}</span></div>
                                 <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">Clinical Experience</span> <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{doc.experienceYears || 0} Years</span></div>
-                                <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">OPD Time / Schedule</span> <span className="font-mono font-extrabold text-sky-600 dark:text-sky-400">{doc.availabilitySchedule || doc.opdTime || 'MON-FRI: 09:00 AM - 02:00 PM'}</span></div>
                                 <div className="pt-1 border-t border-slate-100 dark:border-slate-800"><span className="text-slate-400 font-bold uppercase text-[10px] block mb-0.5">Qualifications</span> <span className="font-extrabold text-darkNavy dark:text-white block">{doc.qualifications || doc.qualification || 'MBBS, MD'}</span></div>
+                              </div>
+
+                              {/* Bottom-Up OPD Schedule Banner */}
+                              <div className="bg-gradient-to-r from-sky-500/10 via-teal-500/10 to-emerald-500/10 border border-sky-500/30 dark:border-sky-400/30 rounded-xl p-3 space-y-1">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-sky-600 dark:text-sky-300 flex items-center gap-1.5">
+                                  <span>🕒</span> OPD Consultation Schedule:
+                                </span>
+                                <p className="font-mono font-extrabold text-xs text-darkNavy dark:text-white">
+                                  {doc.availabilitySchedule || doc.opdTime || 'MON-FRI: 09:00 AM - 02:00 PM'}
+                                </p>
                               </div>
                             </div>
 
@@ -1784,17 +1793,17 @@ export default function AdminDashboard() {
                         <div className="space-y-3.5">
                           {/* Avatar & Header */}
                           <div className="flex justify-between items-start gap-2">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3.5">
                               {avatarUrl ? (
                                 <img
                                   src={avatarUrl}
                                   alt={docName}
-                                  className="w-12 h-12 rounded-2xl object-cover border border-primary/20 shadow-md group-hover:scale-105 transition-transform"
+                                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover object-top border-2 border-primary/30 shadow-md group-hover:scale-105 transition-transform shrink-0"
                                   onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                                 />
                               ) : null}
                               <div
-                                className={`w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-primaryDark text-white font-poppins font-extrabold text-base items-center justify-center shadow-md group-hover:scale-105 transition-transform ${avatarUrl ? 'hidden' : 'flex'}`}
+                                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-primary to-primaryDark text-white font-poppins font-extrabold text-2xl items-center justify-center shadow-md group-hover:scale-105 transition-transform shrink-0 ${avatarUrl ? 'hidden' : 'flex'}`}
                               >
                                 {initials}
                               </div>
