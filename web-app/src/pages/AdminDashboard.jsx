@@ -11,6 +11,43 @@ import {
 } from 'lucide-react';
 import OpdSchedulePicker from '../components/Appointment/OpdSchedulePicker';
 
+function formatOpdScheduleDisplay(scheduleStr) {
+  if (!scheduleStr || typeof scheduleStr !== 'string' || !scheduleStr.trim()) {
+    return ['MON-FRI: 09:00 AM - 02:00 PM'];
+  }
+
+  const formatTime = (t) => {
+    if (!t) return '';
+    const clean = t.trim();
+    if (/am|pm/i.test(clean)) return clean;
+    const parts = clean.split(':');
+    if (parts.length < 2) return clean;
+    let h = parseInt(parts[0], 10);
+    const m = parts[1].substring(0, 2);
+    if (isNaN(h)) return clean;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${h < 10 ? '0' + h : h}:${m} ${ampm}`;
+  };
+
+  const items = scheduleStr.split(',').map((s) => s.trim()).filter(Boolean);
+  if (items.length === 0) return [scheduleStr];
+
+  return items.map((item) => {
+    const colonIdx = item.indexOf(':');
+    if (colonIdx !== -1) {
+      const day = item.substring(0, colonIdx).trim().toUpperCase();
+      const timePart = item.substring(colonIdx + 1).trim();
+      if (timePart.includes('-')) {
+        const [from, to] = timePart.split('-').map((s) => s.trim());
+        return `${day}: ${formatTime(from)} - ${formatTime(to)}`;
+      }
+      return `${day}: ${formatTime(timePart)}`;
+    }
+    return item;
+  });
+}
+
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -1307,13 +1344,17 @@ export default function AdminDashboard() {
                               </div>
 
                               {/* Bottom-Up OPD Schedule Banner */}
-                              <div className="bg-gradient-to-r from-sky-500/10 via-teal-500/10 to-emerald-500/10 border border-sky-500/30 dark:border-sky-400/30 rounded-xl p-3 space-y-1">
+                              <div className="bg-gradient-to-r from-sky-500/10 via-teal-500/10 to-emerald-500/10 border border-sky-500/30 dark:border-sky-400/30 rounded-xl p-3 space-y-1.5">
                                 <span className="text-[10px] font-black uppercase tracking-wider text-sky-600 dark:text-sky-300 flex items-center gap-1.5">
                                   <span>🕒</span> OPD Consultation Schedule:
                                 </span>
-                                <p className="font-mono font-extrabold text-xs text-darkNavy dark:text-white">
-                                  {doc.availabilitySchedule || doc.opdTime || 'MON-FRI: 09:00 AM - 02:00 PM'}
-                                </p>
+                                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                                  {formatOpdScheduleDisplay(doc.availabilitySchedule || doc.opdTime).map((sched, idx) => (
+                                    <span key={idx} className="bg-white/80 dark:bg-slate-900/90 border border-sky-500/20 text-darkNavy dark:text-sky-200 text-[11px] font-mono font-extrabold px-2.5 py-1 rounded-lg shadow-2xs">
+                                      {sched}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
                             </div>
 
