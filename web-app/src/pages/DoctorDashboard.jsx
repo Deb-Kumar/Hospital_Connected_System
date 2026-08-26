@@ -370,13 +370,6 @@ export default function DoctorDashboard() {
               )}
               <div className="space-y-1">
                 <SidebarNavLink
-                  icon={<Calendar size={18} />}
-                  label="OPD Schedule & Hours"
-                  active={activeNav === 'schedule'}
-                  collapsed={isSidebarCollapsed}
-                  onClick={() => { setActiveNav('schedule'); setIsMobileSidebarOpen(false); }}
-                />
-                <SidebarNavLink
                   icon={<Clock size={18} />}
                   label="Leave Manager"
                   badge={doctorProfile?.onLeave ? 'ACTIVE' : undefined}
@@ -954,47 +947,7 @@ export default function DoctorDashboard() {
           </div>
         )}
 
-          {/* VIEW 4: OPD SCHEDULE & HOURS */}
-          {activeNav === 'schedule' && (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-card space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-                <div>
-                  <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
-                    📅 OPD Availability & Duty Hours Configuration
-                  </h3>
-                  <p className="text-xs text-slateText dark:text-slate-400 mt-0.5">
-                    Configure your weekly consultation timings shown on the hospital portal.
-                  </p>
-                </div>
 
-                <button
-                  onClick={() => setShowScheduleModal(true)}
-                  className="bg-primary hover:bg-primaryDark text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-xs"
-                >
-                  ✏️ Edit Schedule
-                </button>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-3">
-                  <span className="text-2xl block">🏬</span>
-                  <h4 className="font-bold text-darkNavy dark:text-white text-sm">Assigned Hospital Wing</h4>
-                  <p className="text-xs text-slateText dark:text-slate-300">
-                    Department: <strong className="text-darkNavy dark:text-white">{doctorProfile?.department?.name || doctorProfile?.specialization || 'General Medicine'}</strong><br />
-                    Consultation Fee: <strong className="text-emerald-700 dark:text-emerald-300 font-mono">₹{doctorProfile?.consultationFee ?? 500}</strong>
-                  </p>
-                </div>
-
-                <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-3">
-                  <span className="text-2xl block">⏰</span>
-                  <h4 className="font-bold text-darkNavy dark:text-white text-sm">Configured Weekly Schedule</h4>
-                  <p className="text-xs font-mono text-darkNavy dark:text-sky-300 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3">
-                    {doctorProfile?.availabilitySchedule || 'MON - FRI • 09:00 AM - 01:00 PM'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* VIEW 5: LEAVE MANAGER */}
           {activeNav === 'leave' && (
