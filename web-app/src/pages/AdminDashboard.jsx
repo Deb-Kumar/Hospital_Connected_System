@@ -1654,9 +1654,11 @@ export default function AdminDashboard() {
                 /* RICH DOCTOR DIRECTORY PROFILE CARD GRID */
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredList.map((doc) => {
-                    const docName = doc.user?.fullName ? `Dr. ${doc.user.fullName}` : 'Specialist Doctor';
-                    const initials = doc.user?.fullName
-                      ? doc.user.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+                    const rawName = (doc.user?.fullName || doc.fullName || '').replace(/^dr\.\s+/i, '').trim();
+                    const docName = rawName ? `Dr. ${rawName}` : 'Specialist Doctor';
+                    const avatarUrl = doc.profileImage || doc.avatarUrl || doc.user?.avatarUrl || doc.user?.profileImage;
+                    const initials = rawName
+                      ? rawName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
                       : 'DR';
                     const specIcon = getDeptIcon(doc.specialization || '');
 
@@ -1669,7 +1671,17 @@ export default function AdminDashboard() {
                           {/* Avatar & Header */}
                           <div className="flex justify-between items-start gap-2">
                             <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-primaryDark text-white font-poppins font-extrabold text-base flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                              {avatarUrl ? (
+                                <img
+                                  src={avatarUrl}
+                                  alt={docName}
+                                  className="w-12 h-12 rounded-2xl object-cover border border-primary/20 shadow-md group-hover:scale-105 transition-transform"
+                                  onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                />
+                              ) : null}
+                              <div
+                                className={`w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-primaryDark text-white font-poppins font-extrabold text-base items-center justify-center shadow-md group-hover:scale-105 transition-transform ${avatarUrl ? 'hidden' : 'flex'}`}
+                              >
                                 {initials}
                               </div>
                               <div>
@@ -5098,7 +5110,8 @@ function ConfirmDeleteDoctorModal({ doctor, onClose, onDeleted }) {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
 
-  const docName = doctor.user?.fullName ? `Dr. ${doctor.user.fullName}` : 'Specialist Doctor';
+  const rawDocName = (doctor.user?.fullName || doctor.fullName || '').replace(/^dr\.\s+/i, '').trim();
+  const docName = rawDocName ? `Dr. ${rawDocName}` : 'Specialist Doctor';
 
   async function handleDelete() {
     setError('');
