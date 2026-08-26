@@ -142,7 +142,7 @@ exports.getBlogById = async (req, res) => {
 // POST /api/blogs
 exports.createBlog = async (req, res) => {
   try {
-    const { title, category, desc, author, role, readTime, image, fullText, status, showOnHome } = req.body;
+    const { title, category, desc, author, role, readTime, image, fullText, status, showOnHome, authorUserId } = req.body;
     if (!title || !desc || !fullText) {
       return res.status(400).json({ success: false, message: 'Title, summary description, and full article text are required' });
     }
@@ -158,6 +158,7 @@ exports.createBlog = async (req, res) => {
       fullText,
       status: status || 'PUBLISHED',
       showOnHome: Boolean(showOnHome),
+      authorUserId: authorUserId || '',
     });
 
     res.status(201).json({ success: true, message: 'Blog article created in database', blog: newBlog });
@@ -207,3 +208,79 @@ exports.deleteBlog = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// GET /api/blogs/doctor/:authorUserId (Fetch doctor submitted blogs)
+exports.getDoctorBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.find({ authorUserId: req.params.authorUserId }).sort({ createdAt: -1 });
+    res.json({ success: true, blogs });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// POST /api/blogs/doctor-create (Doctor submits new blog for Admin approval)
+exports.createDoctorBlog = async (req, res) => {
+  try {
+    const { title, category, desc, author, role, readTime, image, fullText, authorUserId } = req.body;
+    if (!title || !desc || !fullText) {
+      return res.status(400).json({ success: false, message: 'Title, summary description, and full article text are required' });
+    }
+
+    const newBlog = await Blog.create({
+      title,
+      category: category || 'General Health',
+      desc,
+      author: author || 'Doctor Specialist',
+      role: role || 'Clinical Specialist',
+      readTime: readTime || '5 min read',
+      image: image || 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&q=80&w=600',
+      fullText,
+      status: 'PENDING',
+      authorUserId: authorUserId || '',
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Blog submitted successfully! Awaiting Admin review and publication.',
+      blog: newBlog,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// PUT /api/blogs/:id/review (Admin confirms or rejects doctor blog)
+exports.reviewBlog = async (req, res) => {
+  try {
+    const { status, rejectionReason, category, role, author } = req.body;
+    if (!['PUBLISHED', 'REJECTED'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status. Must be PUBLISHED or REJECTED.' });
+    }
+
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Blog article not found' });
+
+    blog.status = status;
+    if (category) blog.category = category;
+    if (role) blog.role = role;
+    if (author) blog.author = author;
+
+    if (status === 'REJECTED') {
+      blog.rejectionReason = rejectionReason || 'Content did not meet hospital publication guidelines.';
+    } else {
+      blog.rejectionReason = '';
+    }
+
+    await blog.save();
+
+    res.json({
+      success: true,
+      message: `Blog "${blog.title}" has been ${status === 'PUBLISHED' ? 'CONFIRMED & PUBLISHED' : 'REJECTED'}.`,
+      blog,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

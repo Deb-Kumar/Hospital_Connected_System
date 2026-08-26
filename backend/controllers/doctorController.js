@@ -7,6 +7,7 @@ const LeaveRequest = require('../models/LeaveRequest');
 const { sendEmail } = require('../utils/notification');
 const ai = require('../utils/ai');
 const { getDoctorByUserId } = require('../utils/resolvers');
+const { saveDoctorPhoto } = require('../utils/fileStorage');
 
 // GET /api/doctor/all
 exports.getAll = async (req, res) => {
@@ -122,19 +123,45 @@ exports.getDoctorProfile = async (req, res) => {
 // PUT /api/doctor/:id/profile
 exports.updateDoctorProfile = async (req, res) => {
   try {
-    const doctor = await getDoctorByUserId(req.params.id);
+    let doctor = await getDoctorByUserId(req.params.id);
+    if (!doctor) {
+      doctor = await DoctorProxy.findById(req.params.id);
+    }
     if (!doctor) return res.status(404).json({ success: false, message: 'Doctor profile not found' });
 
-    const { consultationFee, qualification, experienceYears, phone, specialization, bio } = req.body;
+    const { fullName, email, consultationFee, qualifications, qualification, experienceYears, phone, specialization, bio, avatarUrl, profileImage, photoUrl } = req.body;
     if (consultationFee !== undefined) doctor.consultationFee = consultationFee;
-    if (qualification !== undefined) doctor.qualification = qualification;
+    if (qualifications !== undefined) {
+      doctor.qualifications = qualifications;
+      doctor.qualification = qualifications;
+    }
+    if (qualification !== undefined) {
+      doctor.qualifications = qualification;
+      doctor.qualification = qualification;
+    }
     if (experienceYears !== undefined) doctor.experienceYears = experienceYears;
     if (specialization !== undefined) doctor.specialization = specialization;
     if (bio !== undefined) doctor.bio = bio;
-    if (phone !== undefined) {
-      doctor.phone = phone;
-      if (doctor.user) {
-        await UserProxy.findByIdAndUpdate(doctor.user, { phone });
+    if (phone !== undefined) doctor.phone = phone;
+
+    const newPhoto = avatarUrl || profileImage || photoUrl;
+    let finalPhotoUrl = '';
+    if (newPhoto) {
+      const docName = doctor.fullName || fullName || 'doctor';
+      const savedPath = await saveDoctorPhoto(newPhoto, docName);
+      finalPhotoUrl = savedPath || newPhoto;
+      doctor.avatarUrl = finalPhotoUrl;
+      doctor.profileImage = finalPhotoUrl;
+    }
+
+    if (doctor.user) {
+      const userUpdates = {};
+      if (fullName) userUpdates.fullName = fullName;
+      if (email) userUpdates.email = email;
+      if (phone) userUpdates.phone = phone;
+      if (finalPhotoUrl) userUpdates.avatar = finalPhotoUrl;
+      if (Object.keys(userUpdates).length > 0) {
+        await UserProxy.findByIdAndUpdate(doctor.user, userUpdates);
       }
     }
 

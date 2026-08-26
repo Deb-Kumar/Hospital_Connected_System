@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Header/Navbar';
 import Footer from '../components/Footer/Footer';
 import axiosClient from '../api/axiosClient';
+import FormattedArticleContent from '../components/FormattedArticleContent';
 
 export default function Blogs() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -194,8 +195,8 @@ export default function Blogs() {
             </p>
 
             <div className="p-4 bg-softBg rounded-2xl text-xs text-darkNavy leading-relaxed border border-slate-200/80">
-              <p className="font-semibold mb-2 text-primary">📌 Detailed Clinical Guidance:</p>
-              <p>{activeArticle.fullText}</p>
+              <p className="font-extrabold mb-3 text-primary text-xs uppercase tracking-wide">📌 Detailed Clinical Guidance & Medical Insights:</p>
+              <FormattedArticleContent content={activeArticle.fullText} />
             </div>
 
             <div className="pt-2 flex justify-end">

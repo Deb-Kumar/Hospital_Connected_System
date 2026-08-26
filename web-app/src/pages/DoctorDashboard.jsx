@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
+import FormattedArticleContent from '../components/FormattedArticleContent';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Sun, Moon, Search, RefreshCw, UserCheck, Calendar, DollarSign, Clock, FileText, Activity, MapPin, Phone, Mail, Shield, AlertCircle, Bell, ChevronLeft, ChevronRight, Menu, Users, Megaphone, BarChart3 } from 'lucide-react';
 import OpdSchedulePicker from '../components/Appointment/OpdSchedulePicker';
@@ -77,6 +78,7 @@ export default function DoctorDashboard() {
   const [prescriptions, setPrescriptions] = useState([]);
   const [notices, setNotices] = useState([]);
   const [leaveRequests, setLeaveRequests] = useState([]);
+  const [doctorBlogs, setDoctorBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Search & Filter
@@ -90,6 +92,10 @@ export default function DoctorDashboard() {
   const [viewingPatient, setViewingPatient] = useState(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [showCreateBlogModal, setShowCreateBlogModal] = useState(false);
+  const [viewingBlogDoc, setViewingBlogDoc] = useState(null);
+  const [showPassResetModal, setShowPassResetModal] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [notifyPopup, setNotifyPopup] = useState(null);
 
@@ -106,8 +112,64 @@ export default function DoctorDashboard() {
     }
   }, [isDark]);
 
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadedPhotoPreview, setUploadedPhotoPreview] = useState(null);
+
   function showNotify(type, title, message) {
     setNotifyPopup({ type, title, message });
+  }
+
+  async function handleDoctorPhotoUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showNotify('error', 'File Too Large', 'Please select an image file under 5MB.');
+      return;
+    }
+    setUploadingPhoto(true);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Photo = reader.result;
+      setUploadedPhotoPreview(base64Photo);
+      setDoctorProfile(prev => ({
+        ...(prev || {}),
+        avatarUrl: base64Photo,
+        profileImage: base64Photo,
+        photoUrl: base64Photo
+      }));
+
+      const docId = user?._id || user?.id || doctorProfile?._id || doctorProfile?.id;
+      try {
+        const res = await axiosClient.put(`/doctor/${docId}/profile`, {
+          avatarUrl: base64Photo,
+          profileImage: base64Photo,
+          photoUrl: base64Photo
+        });
+        const serverPhotoUrl = res.data?.doctor?.avatarUrl || res.data?.doctor?.profileImage || base64Photo;
+        setUploadedPhotoPreview(serverPhotoUrl);
+        setDoctorProfile(prev => ({
+          ...(prev || {}),
+          avatarUrl: serverPhotoUrl,
+          profileImage: serverPhotoUrl,
+          photoUrl: serverPhotoUrl
+        }));
+
+        try {
+          const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+          storedUser.avatar = serverPhotoUrl;
+          storedUser.photoUrl = serverPhotoUrl;
+          localStorage.setItem('user', JSON.stringify(storedUser));
+        } catch (e) {}
+
+        showNotify('success', 'Photo Updated', 'Your doctor profile picture has been successfully updated.');
+        loadDoctorData();
+      } catch (err) {
+        showNotify('error', 'Upload Failed', err.response?.data?.message || 'Failed to update profile photo.');
+      } finally {
+        setUploadingPhoto(false);
+      }
+    };
+    reader.readAsDataURL(file);
   }
 
   // Fetch All Doctor Data
@@ -115,13 +177,14 @@ export default function DoctorDashboard() {
     if (!user?.id) return;
     setLoading(true);
     try {
-      const [queueRes, profRes, patientsRes, rxRes, noticesRes, leaveReqsRes] = await Promise.allSettled([
+      const [queueRes, profRes, patientsRes, rxRes, noticesRes, leaveReqsRes, blogsRes] = await Promise.allSettled([
         axiosClient.get(`/doctor/${user.id}/queue/today`),
         axiosClient.get(`/doctor/${user.id}/profile`),
         axiosClient.get(`/doctor/${user.id}/patients`),
         axiosClient.get(`/doctor/${user.id}/prescriptions`),
         axiosClient.get('/admin/notices'),
         axiosClient.get(`/doctor/${user.id}/leave-requests`),
+        axiosClient.get(`/blogs/doctor/${user.id}`),
       ]);
 
       if (queueRes.status === 'fulfilled') setQueue(queueRes.value.data || []);
@@ -130,6 +193,26 @@ export default function DoctorDashboard() {
       if (rxRes.status === 'fulfilled') setPrescriptions(rxRes.value.data || []);
       if (noticesRes.status === 'fulfilled') setNotices(noticesRes.value.data || []);
       if (leaveReqsRes.status === 'fulfilled') setLeaveRequests(leaveReqsRes.value.data?.requests || []);
+
+      let doctorBlogsList = [];
+      if (blogsRes.status === 'fulfilled') {
+        doctorBlogsList = blogsRes.value.data?.blogs || [];
+      } else {
+        // Fallback if /blogs/doctor/:id is 404 on server
+        try {
+          const allRes = await axiosClient.get('/blogs/admin/all');
+          const all = allRes.data?.blogs || allRes.data || [];
+          const uid = String(user?.id || user?._id || '');
+          const docNameLower = String(user?.fullName || user?.name || '').toLowerCase();
+          doctorBlogsList = Array.isArray(all) ? all.filter(b =>
+            (b.authorUserId && String(b.authorUserId) === uid) ||
+            (b.author && docNameLower && String(b.author).toLowerCase().includes(docNameLower))
+          ) : [];
+        } catch (fErr) {
+          console.warn('Fallback blogs load failed:', fErr.message);
+        }
+      }
+      setDoctorBlogs(doctorBlogsList);
     } catch (err) {
       console.error('Error loading doctor data:', err);
     } finally {
@@ -140,6 +223,17 @@ export default function DoctorDashboard() {
   useEffect(() => {
     loadDoctorData();
   }, [user?.id]);
+
+  async function handleDeleteDoctorBlog(blogId) {
+    if (!window.confirm('Are you sure you want to delete this blog article submission?')) return;
+    try {
+      await axiosClient.delete(`/blogs/${blogId}`);
+      showNotify('success', 'Article Deleted', 'Blog article successfully removed.');
+      loadDoctorData();
+    } catch (err) {
+      showNotify('error', 'Delete Failed', err.response?.data?.message || 'Failed to delete blog article.');
+    }
+  }
 
   // Appointment Status Updates
   async function handleUpdateStatus(appointmentId, newStatus) {
@@ -379,20 +473,13 @@ export default function DoctorDashboard() {
                   onClick={() => { setActiveNav('leave'); setIsMobileSidebarOpen(false); }}
                 />
                 <SidebarNavLink
-                  icon={<Megaphone size={18} />}
-                  label="Hospital Bulletins"
-                  badge={notices.length > 0 ? notices.length : undefined}
-                  badgeColor="bg-indigo-500 text-white font-mono"
-                  active={activeNav === 'notices'}
+                  icon={<FileText size={18} />}
+                  label="Medical Articles & Blogs"
+                  badge={doctorBlogs.filter(b => b.status === 'PENDING').length ? 'IN PROGRESS' : undefined}
+                  badgeColor="bg-amber-500 text-white font-mono"
+                  active={activeNav === 'blogs'}
                   collapsed={isSidebarCollapsed}
-                  onClick={() => { setActiveNav('notices'); setIsMobileSidebarOpen(false); }}
-                />
-                <SidebarNavLink
-                  icon={<Shield size={18} />}
-                  label="Doctor Profile & Settings"
-                  active={activeNav === 'doctor-profile'}
-                  collapsed={isSidebarCollapsed}
-                  onClick={() => { setActiveNav('doctor-profile'); setIsMobileSidebarOpen(false); }}
+                  onClick={() => { setActiveNav('blogs'); setIsMobileSidebarOpen(false); }}
                 />
               </div>
             </div>
@@ -416,7 +503,9 @@ export default function DoctorDashboard() {
             </div>
             {!isSidebarCollapsed && (
               <div className="overflow-hidden text-left min-w-0 flex-1">
-                <p className="text-xs font-bold text-white truncate">{user?.fullName || 'Doctor'}</p>
+                <p className="text-xs font-bold text-white truncate">
+                  {user?.fullName ? (user.fullName.startsWith('Dr.') ? user.fullName : `Dr. ${user.fullName}`) : 'Dr. Doctor'}
+                </p>
                 <p className="text-[10px] text-slate-400 truncate">{user?.email || ''}</p>
               </div>
             )}
@@ -951,101 +1040,103 @@ export default function DoctorDashboard() {
 
           {/* VIEW 5: LEAVE MANAGER */}
           {activeNav === 'leave' && (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-card space-y-5 animate-page-slide-left">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 gap-3">
-                <div>
-                  <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
-                    🏖️ Doctor Absence & Leave Manager
-                  </h3>
-                  <p className="text-xs text-slateText dark:text-slate-400 mt-0.5">
-                    Submit leave applications for Admin approval and monitor application status.
-                  </p>
+            <div className="space-y-5">
+              <DoctorHeroBanner
+                docName={docName}
+                doctorProfile={doctorProfile}
+                title="Doctor Absence & Leave Manager 🏖️"
+                subtitle="Submit leave applications for Admin approval, track your application history, and monitor approval responses from hospital management."
+                tag="Absence Management Portal"
+                showBadges={false}
+                bgGradient="from-amber-600 via-orange-600 to-rose-700"
+              />
+
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-card space-y-5 animate-page-slide-left">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 gap-3">
+                  <div>
+                    <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
+                      📋 Leave Application Portal
+                    </h3>
+                    <p className="text-xs text-slateText dark:text-slate-400 mt-0.5">
+                      Request leave dates and clinical reasons for Admin approval.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setShowLeaveModal(true)}
+                    className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-black px-4 py-2.5 rounded-2xl transition shadow-amber-500/20 shadow-lg cursor-pointer self-start sm:self-auto flex items-center gap-2 active:scale-95 shrink-0"
+                  >
+                    <span>🏖️ Apply For Leave</span>
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => setShowLeaveModal(true)}
-                  className="bg-amber-500 hover:bg-amber-600 text-darkNavy text-xs font-black px-4 py-2.5 rounded-xl transition shadow-xs cursor-pointer self-start sm:self-auto"
-                >
-                  🏖️ Apply For Leave
-                </button>
-              </div>
+                {/* Leave Applications History */}
+                <div className="space-y-3 pt-2">
+                  <h4 className="font-bold text-darkNavy dark:text-white text-sm flex items-center gap-2">
+                    <span>📋 My Submitted Leave Applications ({leaveRequests.length})</span>
+                  </h4>
 
-              <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-darkNavy dark:text-white">Current Duty & Absence Status</span>
-                  {doctorProfile?.onLeave ? (
-                    <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                      🏖️ ON LEAVE
-                    </span>
+                  {leaveRequests.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-950 rounded-2xl">
+                      You have not submitted any leave applications yet. Click "Apply For Leave" above to request leave.
+                    </div>
                   ) : (
-                    <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      ON DUTY (ACTIVE)
-                    </span>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px]">
+                            <th className="py-2.5 px-3 rounded-l-xl">Reason</th>
+                            <th className="py-2.5 px-3">Leave Duration (From ➔ To)</th>
+                            <th className="py-2.5 px-3">Approval Status</th>
+                            <th className="py-2.5 px-3 rounded-r-xl">Admin Comment</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                          {leaveRequests.map((req) => (
+                            <tr key={req._id}>
+                              <td className="py-3 px-3 font-semibold text-darkNavy dark:text-white">"{req.reason}"</td>
+                              <td className="py-3 px-3 font-mono text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
+                                {req.startDate ? `${req.startDate} ➔ ${req.endDate || req.startDate}` : new Date(req.createdAt).toLocaleDateString()}
+                              </td>
+                              <td className="py-3 px-3">
+                                {req.status === 'PENDING' && (
+                                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300">
+                                    ⏳ PENDING APPROVAL
+                                  </span>
+                                )}
+                                {req.status === 'APPROVED' && (
+                                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300">
+                                    ✅ APPROVED
+                                  </span>
+                                )}
+                                {req.status === 'REJECTED' && (
+                                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300">
+                                    ❌ REJECTED
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3 px-3 text-[11px]">
+                                {req.status === 'REJECTED' ? (
+                                  <span className="text-rose-600 dark:text-rose-400 font-extrabold not-italic bg-rose-50 dark:bg-rose-950/70 px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-800 inline-block">
+                                    ⚠️ Rejection Reason: "{req.adminComment || req.rejectionReason || 'Denied by Admin'}"
+                                  </span>
+                                ) : req.status === 'APPROVED' ? (
+                                  <span className="text-emerald-600 dark:text-emerald-400 font-extrabold not-italic bg-emerald-50 dark:bg-emerald-950/70 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800 inline-block">
+                                    ✅ {req.adminComment || 'Approved by Administrator'}
+                                  </span>
+                                ) : (
+                                  <span className="text-amber-600 dark:text-amber-400 font-semibold italic">
+                                    {req.adminComment || 'Awaiting Admin Review'}
+                                  </span>
+                                )}
+                               </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
-
-                {doctorProfile?.onLeave && (
-                  <p className="text-xs text-slateText dark:text-slate-300">
-                    Reason: <strong>{doctorProfile.leaveReason || 'Absence'}</strong>
-                  </p>
-                )}
-              </div>
-
-              {/* Leave Applications History */}
-              <div className="space-y-3 pt-2">
-                <h4 className="font-bold text-darkNavy dark:text-white text-sm flex items-center gap-2">
-                  <span>📋 My Submitted Leave Applications ({leaveRequests.length})</span>
-                </h4>
-
-                {leaveRequests.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-950 rounded-2xl">
-                    You have not submitted any leave applications yet. Click "Apply For Leave" above to request leave.
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead>
-                        <tr className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase text-[10px]">
-                          <th className="py-2.5 px-3 rounded-l-xl">Reason</th>
-                          <th className="py-2.5 px-3">Date Applied</th>
-                          <th className="py-2.5 px-3">Approval Status</th>
-                          <th className="py-2.5 px-3 rounded-r-xl">Admin Comment</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                        {leaveRequests.map((req) => (
-                          <tr key={req._id}>
-                            <td className="py-3 px-3 font-semibold text-darkNavy dark:text-white">"{req.reason}"</td>
-                            <td className="py-3 px-3 font-mono text-[11px] text-slate-500">
-                              {new Date(req.createdAt).toLocaleDateString()}
-                            </td>
-                            <td className="py-3 px-3">
-                              {req.status === 'PENDING' && (
-                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300">
-                                  ⏳ PENDING APPROVAL
-                                </span>
-                              )}
-                              {req.status === 'APPROVED' && (
-                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300">
-                                  ✅ APPROVED
-                                </span>
-                              )}
-                              {req.status === 'REJECTED' && (
-                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300">
-                                  ❌ REJECTED
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3 px-3 text-slate-500 italic text-[11px]">
-                              {req.adminComment || 'No comment yet'}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -1054,59 +1145,470 @@ export default function DoctorDashboard() {
 
           {/* VIEW 7: HOSPITAL NOTICES */}
           {activeNav === 'notices' && (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-card space-y-4">
-              <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-                <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
-                  📢 Hospital Broadcasts & Official Notices
-                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700">
+            <div className="space-y-5">
+              <DoctorHeroBanner
+                docName={docName}
+                doctorProfile={doctorProfile}
+                title="Hospital Broadcasts & Bulletins 📢"
+                subtitle="Stay updated with official hospital announcements, administrative policies, emergency bulletins, and medical college notices."
+                tag="Official Hospital Broadcasts"
+                showBadges={false}
+                bgGradient="from-indigo-600 via-purple-700 to-slate-900"
+              />
+
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-card space-y-4">
+                <div className="border-b border-slate-100 dark:border-slate-800 pb-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
+                      📢 Published Official Announcements
+                    </h3>
+                    <p className="text-xs text-slateText dark:text-slate-400 mt-0.5">
+                      Broadcast notices issued by hospital administration.
+                    </p>
+                  </div>
+
+                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700">
                     {notices.length} Published
                   </span>
-                </h3>
-                <p className="text-xs text-slateText dark:text-slate-400 mt-0.5">
-                  Announcements published by the hospital administration.
-                </p>
-              </div>
-
-              {notices.length === 0 ? (
-                <EmptyState icon="📢" message="No active hospital announcements." />
-              ) : (
-                <div className="space-y-3">
-                  {notices.map((n) => (
-                    <div
-                      key={n._id}
-                      className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 space-y-1.5"
-                    >
-                      <div className="flex justify-between items-start gap-2">
-                        <h4 className="font-bold text-darkNavy dark:text-white text-xs sm:text-sm">{n.title}</h4>
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700 uppercase">
-                          {n.type}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slateText dark:text-slate-300 leading-relaxed">{n.message}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">
-                        Published: {new Date(n.createdAt).toLocaleDateString('en-IN')}
-                      </p>
-                    </div>
-                  ))}
                 </div>
-              )}
+
+                {notices.length === 0 ? (
+                  <EmptyState icon="📢" message="No active hospital announcements." />
+                ) : (
+                  <div className="space-y-3">
+                    {notices.map((n) => (
+                      <div
+                        key={n._id}
+                        className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 space-y-1.5"
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="font-bold text-darkNavy dark:text-white text-xs sm:text-sm">{n.title}</h4>
+                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700 uppercase">
+                            {n.type}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slateText dark:text-slate-300 leading-relaxed">{n.message}</p>
+                        <p className="text-[10px] text-slate-400 font-mono">
+                          Published: {new Date(n.createdAt).toLocaleDateString('en-IN')}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
-          {/* VIEW 8: DOCTOR PROFILE & SETTINGS */}
+          {/* VIEW 9: MEDICAL ARTICLES & BLOGS */}
+          {activeNav === 'blogs' && (
+            <div className="space-y-5">
+              <DoctorHeroBanner
+                docName={docName}
+                doctorProfile={doctorProfile}
+                title="Medical Publications & Blogs 📝"
+                subtitle="Publish clinical research, health advice articles, and medical insights for review by hospital administration."
+                tag="Doctor Editorial Hub"
+                showBadges={false}
+                bgGradient="from-teal-600 via-emerald-700 to-indigo-900"
+              />
+
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-card space-y-5 animate-page-slide-left">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 gap-3">
+                  <div>
+                    <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
+                      📝 My Authored Articles & Publications ({doctorBlogs.length})
+                    </h3>
+                    <p className="text-xs text-slateText dark:text-slate-400 mt-0.5">
+                      Articles in progress are reviewed by Admin before appearing on the public portal.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setShowCreateBlogModal(true)}
+                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black px-4 py-2.5 rounded-2xl transition shadow-emerald-500/20 shadow-lg cursor-pointer self-start sm:self-auto flex items-center gap-2 active:scale-95 shrink-0"
+                  >
+                    <span>✍️ Write New Article / Blog</span>
+                  </button>
+                </div>
+
+                {doctorBlogs.length === 0 ? (
+                  <div className="p-8 text-center space-y-3 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <span className="text-4xl block">📝</span>
+                    <h4 className="font-bold text-darkNavy dark:text-white text-base">No Articles Written Yet</h4>
+                    <p className="text-xs text-slateText max-w-md mx-auto">
+                      Share your clinical expertise, health advice, and medical research with patients. Click "Write New Article" above to create your first post.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {doctorBlogs.map((blog) => (
+                      <div
+                        key={blog._id}
+                        className="bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-3xl overflow-hidden shadow-xs hover:shadow-xl transition duration-300 flex flex-col group"
+                      >
+                        {/* Cover Image Header with Badges */}
+                        <div
+                          onClick={() => setViewingBlogDoc(blog)}
+                          className="relative h-44 overflow-hidden bg-slate-200 dark:bg-slate-700 cursor-pointer"
+                        >
+                          <img
+                            src={blog.image || 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&q=80&w=600'}
+                            alt={blog.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+
+                          {/* Top Left: Category Badge */}
+                          <div className="absolute top-3 left-3">
+                            <span className="text-[10px] font-extrabold px-3 py-1 rounded-full bg-blue-600/90 text-white uppercase tracking-wider backdrop-blur-md shadow-xs">
+                              {blog.category || 'General Medicine'}
+                            </span>
+                          </div>
+
+                          {/* Top Right: Status Badge */}
+                          <div className="absolute top-3 right-3">
+                            {(blog.status === 'PENDING' || blog.status === 'DRAFT') && (
+                              <span className="text-[10px] font-black px-3 py-1 rounded-full bg-amber-500/95 text-white uppercase tracking-wide backdrop-blur-md flex items-center gap-1.5 shadow-xs animate-pulse">
+                                <span>⏳</span> IN PROGRESS
+                              </span>
+                            )}
+                            {blog.status === 'PUBLISHED' && (
+                              <span className="text-[10px] font-black px-3 py-1 rounded-full bg-emerald-600/95 text-white uppercase tracking-wide backdrop-blur-md flex items-center gap-1.5 shadow-xs">
+                                <span>✅</span> PUBLISHED
+                              </span>
+                            )}
+                            {blog.status === 'REJECTED' && (
+                              <span className="text-[10px] font-black px-3 py-1 rounded-full bg-rose-600/95 text-white uppercase tracking-wide backdrop-blur-md flex items-center gap-1.5 shadow-xs">
+                                <span>❌</span> REJECTED
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Card Content Body */}
+                        <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                          <div className="space-y-2">
+                            <h4
+                              onClick={() => setViewingBlogDoc(blog)}
+                              className="font-poppins font-bold text-darkNavy dark:text-white text-base leading-snug line-clamp-2 group-hover:text-primary transition-colors cursor-pointer"
+                            >
+                              {blog.title}
+                            </h4>
+
+                            <p className="text-xs text-slateText dark:text-slate-300 line-clamp-2 leading-relaxed">
+                              {blog.desc}
+                            </p>
+
+                            {/* Author & Role Meta Details */}
+                            <div className="space-y-1.5 text-xs pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+                              <div className="flex items-center gap-1.5 font-bold text-darkNavy dark:text-white">
+                                <span>✍️ Submitted By:</span>
+                                <span className="text-primary font-black">{blog.author || docName}</span>
+                              </div>
+
+                              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-medium text-[11px] flex-wrap gap-1">
+                                <span className="flex items-center gap-1">
+                                  <span>🏅 Role:</span>
+                                  <strong className="text-slate-700 dark:text-slate-300 font-bold">{blog.role || doctorProfile?.department?.name || 'Clinical Specialist'}</strong>
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <span>🏷️</span>
+                                  <strong className="text-slate-700 dark:text-slate-300 font-bold">{blog.category || 'General Medicine'}</strong>
+                                </span>
+                              </div>
+
+                              <div className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
+                                <span>🕐</span>
+                                <span>{blog.createdAt ? new Date(blog.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                              </div>
+                            </div>
+
+                            {/* Rejection Reason Alert Box */}
+                            {blog.status === 'REJECTED' && blog.rejectionReason && (
+                              <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800/80 text-xs text-rose-800 dark:text-rose-200 space-y-1">
+                                <p className="font-extrabold flex items-center gap-1.5">
+                                  <span>⚠️ Admin Rejection Reason:</span>
+                                </p>
+                                <p className="font-medium leading-relaxed italic">
+                                  "{blog.rejectionReason}"
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Footer Action Buttons */}
+                          <div className="pt-3 border-t border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setViewingBlogDoc(blog)}
+                              className="flex-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-darkNavy dark:text-white font-extrabold text-xs py-2 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+                            >
+                              <span>👁️ Read Article</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteDoctorBlog(blog._id)}
+                              className="bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-300 font-bold text-xs px-3 py-2 rounded-xl border border-rose-200 dark:border-rose-800 transition cursor-pointer flex items-center gap-1 shadow-xs"
+                              title="Delete Article"
+                            >
+                              <span>🗑️ Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* VIEW: DOCTOR PROFILE & CREDENTIALS HUB */}
           {activeNav === 'doctor-profile' && (
-            <DoctorProfileView
-              user={user}
-              doctorProfile={doctorProfile}
-              showNotify={showNotify}
-              onProfileUpdated={loadDoctorData}
-              onEditSchedule={() => setShowScheduleModal(true)}
-            />
+            <div className="space-y-6 animate-page-slide-left">
+              {/* Profile Header Hero Card */}
+              <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 relative overflow-hidden">
+                <div className="flex flex-col md:flex-row items-center md:items-center justify-between gap-6 relative z-10">
+                  {/* Left Side: Avatar & Doctor Info */}
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-6 flex-1 min-w-0">
+                    <div className="relative shrink-0 group">
+                      <img
+                        src={uploadedPhotoPreview || doctorProfile?.avatarUrl || doctorProfile?.profileImage || user?.photoUrl || doctorProfile?.photoUrl || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300'}
+                        alt={docName}
+                        className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover border-4 border-emerald-500/30 shadow-2xl transition group-hover:brightness-75"
+                      />
+                      <label
+                        htmlFor="doctor-photo-upload-input"
+                        className="absolute inset-0 rounded-3xl bg-slate-900/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center text-white cursor-pointer"
+                        title="Click to Upload Profile Photo"
+                      >
+                        <span className="text-xl">📷</span>
+                        <span className="text-[10px] font-extrabold tracking-wider uppercase mt-0.5">{uploadingPhoto ? 'Uploading...' : 'Upload Photo'}</span>
+                      </label>
+                      <input
+                        id="doctor-photo-upload-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleDoctorPhotoUpload}
+                        className="hidden"
+                      />
+                      <span className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900 shadow-md" title="Doctor Active On Duty"></span>
+                    </div>
+
+                    <div className="text-center md:text-left space-y-2 flex-1 min-w-0">
+                      <h2 className="font-poppins font-extrabold text-2xl sm:text-3xl text-white">
+                        {docName.startsWith('Dr.') ? docName : `Dr. ${docName}`}
+                      </h2>
+
+                      <p className="text-xs sm:text-sm text-teal-100/90 font-medium flex items-center justify-center md:justify-start gap-1.5">
+                        <span>🎓</span>
+                        <span>{doctorProfile?.qualifications || doctorProfile?.qualification || 'MBBS, MD - Senior Clinical Specialist'}</span>
+                      </p>
+
+                      <p className="text-xs sm:text-sm font-bold text-emerald-200 flex items-center justify-center md:justify-start gap-1.5 pt-0.5">
+                        <span>🏥</span>
+                        <span>Brainware Medical College & Hospital</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right Side: Department Badge */}
+                  <div className="flex flex-col items-center md:items-end shrink-0">
+                    <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs sm:text-sm font-extrabold px-4 py-2 rounded-full uppercase tracking-wider shadow-sm">
+                      🏢 {doctorProfile?.department?.name || doctorProfile?.specialization || 'General Medicine'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4 Feature Stat Cards Grid: Contact, Experience, OPD Fee, OPD Schedule */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* Card 1: Contact & Email */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider">Contact & Email</span>
+                    <div className="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg border border-blue-300 dark:border-blue-800">
+                      📞
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-mono font-extrabold text-darkNavy dark:text-white text-sm sm:text-base truncate">
+                      {user?.phone || doctorProfile?.phone || user?.contactNumber || '+91 98765 43210'}
+                    </p>
+                    <p className="font-mono font-extrabold text-darkNavy dark:text-white text-xs sm:text-sm truncate">
+                      {user?.email || doctorProfile?.email}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Card 2: Experience */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider">Clinical Experience</span>
+                    <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg border border-amber-300 dark:border-amber-800">
+                      ⏳
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-xl sm:text-2xl font-black text-darkNavy dark:text-white">
+                      {doctorProfile?.experienceYears || '10+'} Years
+                    </h4>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">Senior Practice Experience</p>
+                  </div>
+                </div>
+
+                {/* Card 3: OPD Fee */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider">OPD Consultation Fee</span>
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg border border-emerald-300 dark:border-emerald-800">
+                      💰
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
+                      ₹{doctorProfile?.consultationFee || 800}
+                    </h4>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">Per Patient OPD Visit</p>
+                  </div>
+                </div>
+
+                {/* Card 4: Medical Department */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider">Medical Department</span>
+                    <div className="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg border border-indigo-300 dark:border-indigo-800">
+                      🏢
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-xl sm:text-2xl font-black text-darkNavy dark:text-white truncate">
+                      {doctorProfile?.department?.name || doctorProfile?.specialization || 'General Medicine'}
+                    </h4>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">Specialized Medical Wing</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2-Column Grid: Left (Account Info + Edit Btn) | Right (Security + Update Password Btn) */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Left Card: Account Info */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-card flex flex-col justify-between space-y-6">
+                  <div className="space-y-5">
+                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 gap-2">
+                      <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-lg sm:text-xl flex items-center gap-2">
+                        <span>👤 Doctor Account Information</span>
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setShowEditProfileModal(true)}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm px-4 py-2 rounded-2xl shadow-emerald-500/20 shadow-md transition active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0"
+                      >
+                        <span>✏️ Edit Profile</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/70 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 space-y-1">
+                        <span className="text-slate-400 dark:text-slate-400 block text-xs uppercase font-black tracking-wider">Doctor Full Name</span>
+                        <span className="font-extrabold text-darkNavy dark:text-white text-base sm:text-lg truncate block">{docName.startsWith('Dr.') ? docName : `Dr. ${docName}`}</span>
+                      </div>
+
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/70 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 space-y-1">
+                        <span className="text-slate-400 dark:text-slate-400 block text-xs uppercase font-black tracking-wider">Contact Phone Number</span>
+                        <span className="font-mono font-extrabold text-darkNavy dark:text-white text-base sm:text-lg truncate block">{user?.phone || doctorProfile?.phone || user?.contactNumber || '+91 98765 43210'}</span>
+                      </div>
+
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/70 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 space-y-1 sm:col-span-2">
+                        <span className="text-slate-400 dark:text-slate-400 block text-xs uppercase font-black tracking-wider">Email Address</span>
+                        <span className="font-mono font-bold text-darkNavy dark:text-white text-sm sm:text-base truncate block">{user?.email || doctorProfile?.email}</span>
+                      </div>
+
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/70 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 space-y-1">
+                        <span className="text-slate-400 dark:text-slate-400 block text-xs uppercase font-black tracking-wider">Consultation Fee</span>
+                        <span className="font-black text-emerald-600 dark:text-emerald-400 text-lg sm:text-xl">₹{doctorProfile?.consultationFee || 800}</span>
+                      </div>
+
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/70 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 space-y-1">
+                        <span className="text-slate-400 dark:text-slate-400 block text-xs uppercase font-black tracking-wider">Qualifications</span>
+                        <span className="font-extrabold text-darkNavy dark:text-white text-sm sm:text-base">{doctorProfile?.qualifications || doctorProfile?.qualification || 'MBBS, MD'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Card: Security & Update Password */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-card flex flex-col justify-between space-y-6">
+                  <div className="space-y-5">
+                    <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-xl sm:text-2xl flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
+                      <span>🔐 Security & Portal Credentials</span>
+                    </h3>
+
+                    <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <p className="font-extrabold text-darkNavy dark:text-white text-base flex items-center gap-2">
+                        <span>🛡️ Password & Authentication Policy:</span>
+                      </p>
+                      <p className="text-xs sm:text-sm font-medium">
+                        Keep your doctor portal login password secure. To update your password, click the button below to verify your current password and set a new password.
+                      </p>
+                    </div>
+
+                    <div className="p-5 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800/80 space-y-2">
+                      <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-wider block">OPD Schedule Config</span>
+                      <div className="space-y-1 text-xs sm:text-sm font-mono font-extrabold text-emerald-900 dark:text-emerald-200">
+                        {(() => {
+                          const sched = doctorProfile?.availabilitySchedule || 'MON - FRI • 09:00 AM - 01:00 PM';
+                          const parts = sched.split(/[,;\n]/).map(s => s.trim()).filter(Boolean);
+                          const items = parts.length > 0 ? parts : [sched];
+                          return items.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <span className="text-emerald-500">🗓️</span>
+                              <span>{item}</span>
+                            </div>
+                          ));
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setShowPassResetModal(true)}
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base py-3.5 rounded-2xl shadow-blue-500/20 shadow-lg transition active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <span>🔐 Update Portal Password</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </main>
       </div>
 
       {/* MODALS */}
+      {showEditProfileModal && (
+        <DoctorEditProfileModal
+          doctorProfile={doctorProfile}
+          user={user}
+          onClose={() => setShowEditProfileModal(false)}
+          onSuccess={(updatedProfile) => {
+            loadDoctorData();
+            showNotify('success', 'Profile Updated', 'Your doctor credentials & profile details were successfully updated.');
+          }}
+        />
+      )}
+
+      {showPassResetModal && (
+        <DoctorPasswordResetModal
+          onClose={() => setShowPassResetModal(false)}
+          onSuccess={() => {
+            showNotify('success', 'Password Updated', 'Your doctor portal password has been successfully updated.');
+          }}
+        />
+      )}
+
       {prescribingFor && (
         <PrescriptionModal
           appointment={prescribingFor}
@@ -1116,6 +1618,94 @@ export default function DoctorDashboard() {
             showNotify('success', 'Prescription Issued', 'Digital Rx successfully issued and saved.');
           }}
         />
+      )}
+
+      {showCreateBlogModal && (
+        <CreateBlogModal
+          user={user}
+          doctorProfile={doctorProfile}
+          onClose={() => setShowCreateBlogModal(false)}
+          onSuccess={() => {
+            loadDoctorData();
+            showNotify('success', 'Blog Submitted', 'Article submitted! Sent to Admin for confirmation.');
+          }}
+        />
+      )}
+
+      {/* ARTICLE READER MODAL FOR DOCTOR */}
+      {viewingBlogDoc && (
+        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setViewingBlogDoc(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-darkNavy dark:hover:text-white text-xl font-bold transition cursor-pointer"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-extrabold px-3 py-1 rounded-full bg-primary text-white uppercase tracking-wider">
+                {viewingBlogDoc.category || 'General Medicine'}
+              </span>
+              {(viewingBlogDoc.status === 'PENDING' || viewingBlogDoc.status === 'DRAFT') && (
+                <span className="text-[10px] font-extrabold px-3 py-1 rounded-full bg-amber-500 text-white uppercase tracking-wider animate-pulse">
+                  ⏳ IN PROGRESS
+                </span>
+              )}
+              {viewingBlogDoc.status === 'PUBLISHED' && (
+                <span className="text-[10px] font-extrabold px-3 py-1 rounded-full bg-emerald-600 text-white uppercase tracking-wider">
+                  ✅ PUBLISHED
+                </span>
+              )}
+              {viewingBlogDoc.status === 'REJECTED' && (
+                <span className="text-[10px] font-extrabold px-3 py-1 rounded-full bg-rose-600 text-white uppercase tracking-wider">
+                  ❌ REJECTED
+                </span>
+              )}
+            </div>
+
+            <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-xl sm:text-2xl leading-snug">
+              {viewingBlogDoc.title}
+            </h3>
+
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 flex-wrap">
+              <span>✍️ {viewingBlogDoc.author || docName}</span>
+              <span>• 🏅 {viewingBlogDoc.role || 'Clinical Specialist'}</span>
+              <span>• 🕐 {viewingBlogDoc.createdAt ? new Date(viewingBlogDoc.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}</span>
+            </div>
+
+            <img
+              src={viewingBlogDoc.image || 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&q=80&w=600'}
+              alt={viewingBlogDoc.title}
+              className="w-full h-56 object-cover rounded-2xl border border-slate-200 dark:border-slate-800"
+            />
+
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/70 text-xs text-slate-600 dark:text-slate-300 italic leading-relaxed">
+              <strong>Summary Overview:</strong> {viewingBlogDoc.desc}
+            </div>
+
+            <div className="p-5 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20 space-y-3">
+              <p className="font-extrabold text-primary dark:text-sky-300 text-xs uppercase tracking-wide">📖 Full Article Content:</p>
+              <FormattedArticleContent content={viewingBlogDoc.fullText} />
+            </div>
+
+            {viewingBlogDoc.status === 'REJECTED' && viewingBlogDoc.rejectionReason && (
+              <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 text-xs text-rose-800 dark:text-rose-200 space-y-1">
+                <p className="font-extrabold">⚠️ Admin Rejection Reason:</p>
+                <p className="font-medium italic">"{viewingBlogDoc.rejectionReason}"</p>
+              </div>
+            )}
+
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setViewingBlogDoc(null)}
+                className="px-6 py-2.5 text-xs font-bold bg-slate-200 dark:bg-slate-800 text-darkNavy dark:text-white rounded-xl hover:bg-slate-300 transition cursor-pointer"
+              >
+                Close Reader
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {showScheduleModal && (
@@ -1503,15 +2093,17 @@ function PrescriptionModal({ appointment, onClose, onSuccess }) {
 function ScheduleModal({ userId, currentSchedule, onClose, onSuccess }) {
   const [schedule, setSchedule] = useState(currentSchedule || 'MON - FRI • 09:00 AM - 01:00 PM');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   async function handleSave() {
+    setError('');
     setSaving(true);
     try {
       await axiosClient.put(`/doctor/${userId}/availability`, null, { params: { schedule } });
       onSuccess();
       onClose();
-    } catch {
-      alert('Failed to update OPD schedule.');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update OPD schedule.');
     } finally {
       setSaving(false);
     }
@@ -1563,58 +2155,119 @@ function ScheduleModal({ userId, currentSchedule, onClose, onSuccess }) {
 }
 
 function LeaveModal({ userId, onClose, onSuccess }) {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const [startDate, setStartDate] = useState(todayStr);
+  const [endDate, setEndDate] = useState(todayStr);
   const [reason, setReason] = useState('');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   async function handleApply() {
     if (!reason.trim()) {
-      alert('Please enter reason for leave.');
+      setError('Please enter reason for leave application.');
       return;
     }
+    setError('');
     setSaving(true);
     try {
-      await axiosClient.post(`/doctor/${userId}/leave-request`, { reason });
-      alert('Leave application submitted! Awaiting Admin approval.');
+      await axiosClient.post(`/doctor/${userId}/leave-request`, {
+        reason: reason.trim(),
+        startDate,
+        endDate,
+      });
       onSuccess();
       onClose();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to submit leave application.');
+      setError(err.response?.data?.message || 'Failed to submit leave application.');
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-darkNavy/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-page-slide-left">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 w-full max-w-md border border-slate-200 dark:border-slate-800 space-y-4">
-        <h3 className="font-poppins font-bold text-darkNavy dark:text-white text-lg flex items-center gap-2">
-          🏖️ Apply Doctor Leave
-        </h3>
+    <div className="fixed inset-0 bg-darkNavy/70 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 sm:p-7 w-full max-w-lg border border-slate-200 dark:border-slate-800 space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h3 className="font-poppins font-black text-darkNavy dark:text-white text-xl flex items-center gap-2">
+              <span>🏖️ Apply Doctor Absence / Leave</span>
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Specify your leave dates and clinical reason for Admin approval.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-darkNavy dark:hover:text-white flex items-center justify-center font-bold text-base transition cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
 
+        {error && (
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-200 text-xs font-bold flex items-center gap-2">
+            <span>⚠️</span> {error}
+          </div>
+        )}
+
+        {/* From Date & To Date Inputs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">
+              📅 From Date *
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full text-xs font-mono font-bold border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">
+              📅 To Date *
+            </label>
+            <input
+              type="date"
+              value={endDate}
+              min={startDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full text-xs font-mono font-bold border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            />
+          </div>
+        </div>
+
+        {/* Reason Input */}
         <div>
-          <label className="block text-xs font-semibold text-darkNavy dark:text-white mb-1">Reason for Leave *</label>
-          <input
-            type="text"
+          <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">
+            💬 Clinical Reason for Leave *
+          </label>
+          <textarea
+            rows={3}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white"
-            placeholder="e.g. Attending Medical Symposium"
+            className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+            placeholder="e.g. Attending Medical Conference in New Delhi"
           />
         </div>
 
-        <div className="flex gap-2 pt-2">
+        {/* Action Buttons */}
+        <div className="flex gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
           <button
+            type="button"
             onClick={onClose}
-            className="flex-1 bg-slate-100 dark:bg-slate-800 text-slateText dark:text-slate-300 font-bold text-xs py-2.5 rounded-xl"
+            className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slateText dark:text-slate-300 font-bold text-xs py-3 rounded-2xl transition cursor-pointer"
           >
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleApply}
             disabled={saving}
-            className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-xs disabled:opacity-60"
+            className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs py-3 rounded-2xl shadow-amber-500/20 shadow-lg transition cursor-pointer active:scale-95 disabled:opacity-60"
           >
-            {saving ? 'Submitting...' : 'Submit Leave'}
+            {saving ? 'Submitting Application...' : '🏖️ Submit Leave Request'}
           </button>
         </div>
       </div>
@@ -2811,3 +3464,566 @@ function DoctorProfileView({ user, doctorProfile, showNotify, onProfileUpdated, 
     </div>
   );
 }
+
+function CreateBlogModal({ user, doctorProfile, onClose, onSuccess }) {
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
+  const [image, setImage] = useState('');
+  const [fullText, setFullText] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const docAuthor = user?.fullName || user?.name
+    ? ((user.fullName || user.name).startsWith('Dr.') ? (user.fullName || user.name) : `Dr. ${user.fullName || user.name}`)
+    : 'Specialist Doctor';
+
+  const categoryName = typeof doctorProfile?.department === 'object'
+    ? (doctorProfile.department?.name || 'General Health')
+    : (doctorProfile?.department || doctorProfile?.specialization || 'General Health');
+
+  async function handleCreate() {
+    if (!title.trim() || !desc.trim() || !fullText.trim()) {
+      setError('Please fill in article title, summary description, and full content.');
+      return;
+    }
+    setError('');
+    setSaving(true);
+    try {
+      const payload = {
+        title: title.trim(),
+        category: String(categoryName),
+        desc: desc.trim(),
+        author: docAuthor,
+        role: typeof doctorProfile?.department === 'object' ? doctorProfile.department?.name : (doctorProfile?.specialization || 'Clinical Specialist'),
+        readTime: '5 min read',
+        image: image.trim() || 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&q=80&w=600',
+        fullText: fullText.trim(),
+        status: 'PENDING',
+        authorUserId: String(user?.id || user?._id || ''),
+      };
+
+      try {
+        await axiosClient.post('/blogs/doctor-create', payload);
+      } catch (postErr) {
+        const errMsg = postErr.response?.data?.message || postErr.message || '';
+        if (postErr.response?.status === 404 || errMsg.includes('enum value')) {
+          // Fallback to /blogs with status 'DRAFT' if server rejects 'PENDING' enum or route is 404
+          await axiosClient.post('/blogs', { ...payload, status: 'DRAFT' });
+        } else {
+          throw postErr;
+        }
+      }
+
+      onSuccess();
+      onClose();
+    } catch (err) {
+      console.error('Submit blog error:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to submit blog post.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-darkNavy/70 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 sm:p-7 w-full max-w-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h3 className="font-poppins font-black text-darkNavy dark:text-white text-xl flex items-center gap-2">
+              <span>✍️ Write Medical Article / Blog</span>
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Submit your medical insight or publication for Admin confirmation.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-darkNavy dark:hover:text-white flex items-center justify-center font-bold text-base transition cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {error && (
+          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-xs text-rose-600 dark:text-rose-400 font-semibold">
+            ⚠️ {error}
+          </div>
+        )}
+
+        <div className="space-y-3 text-xs">
+          <div>
+            <label className="block font-bold text-darkNavy dark:text-slate-200 mb-1">Article Title *</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Understanding Modern Cardiovascular Preventive Care"
+              className="w-full font-bold border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            />
+          </div>
+
+          <div>
+            <label className="block font-bold text-darkNavy dark:text-slate-200 mb-1">Cover Image URL (Optional)</label>
+            <input
+              type="text"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+              placeholder="https://images.unsplash.com/photo-..."
+              className="w-full font-mono text-[11px] border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            />
+          </div>
+
+          <div>
+            <label className="block font-bold text-darkNavy dark:text-slate-200 mb-1">Summary Description *</label>
+            <textarea
+              rows={2}
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+              placeholder="A brief 2-3 sentence overview summarizing key takeaways of this article..."
+              className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            />
+          </div>
+
+          <div>
+            <label className="block font-bold text-darkNavy dark:text-slate-200 mb-1">Full Article Content *</label>
+            <textarea
+              rows={8}
+              value={fullText}
+              onChange={(e) => setFullText(e.target.value)}
+              placeholder="Write or paste full medical article content here (line breaks and paragraph formatting will be preserved)..."
+              className="w-full whitespace-pre-wrap font-sans leading-relaxed text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slateText dark:text-slate-300 font-bold text-xs py-3 rounded-2xl transition cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={saving}
+            className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs py-3 rounded-2xl shadow-emerald-500/20 shadow-lg transition cursor-pointer active:scale-95 disabled:opacity-60"
+          >
+            {saving ? 'Submitting Article...' : '📤 Submit Article for Admin Review'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   DOCTOR PASSWORD RESET MODAL
+   ========================================================================== */
+function DoctorPasswordResetModal({ onClose, onSuccess }) {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleResetPassword(e) {
+    e.preventDefault();
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setError('Please fill in all password fields.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('New password and confirm password do not match.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setError('New password must be at least 6 characters long.');
+      return;
+    }
+    setError('');
+    setSaving(false);
+    try {
+      setSaving(true);
+      await axiosClient.put('/auth/update-password', { currentPassword, newPassword });
+      onSuccess();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update password. Please check your current password.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-5 border border-slate-200 dark:border-slate-800 shadow-2xl relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-400 hover:text-darkNavy dark:hover:text-white text-xl font-bold transition cursor-pointer"
+        >
+          ✕
+        </button>
+
+        <div>
+          <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-xl flex items-center gap-2">
+            <span>🔐 Update Portal Password</span>
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Update your doctor portal account security password.
+          </p>
+        </div>
+
+        {error && (
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-200 text-xs font-bold flex items-center gap-2">
+            <span>⚠️</span> {error}
+          </div>
+        )}
+
+        <form onSubmit={handleResetPassword} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">Current Password *</label>
+            <input
+              type="password"
+              required
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password"
+              className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">New Password *</label>
+            <input
+              type="password"
+              required
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password (min 6 chars)"
+              className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">Confirm New Password *</label>
+            <input
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Re-enter new password"
+              className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs py-3 rounded-2xl transition cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-xs py-3 rounded-2xl shadow-blue-500/20 shadow-lg transition cursor-pointer disabled:opacity-60"
+            >
+              {saving ? 'Updating Password...' : '🔒 Save New Password'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   DOCTOR EDIT PROFILE MODAL
+   ========================================================================== */
+function DoctorEditProfileModal({ doctorProfile, user, onClose, onSuccess }) {
+  const [fullName, setFullName] = useState(user?.fullName || doctorProfile?.fullName || '');
+  const [phone, setPhone] = useState(user?.phone || doctorProfile?.phone || '');
+  const [email, setEmail] = useState(user?.email || doctorProfile?.email || '');
+  const [consultationFee, setConsultationFee] = useState(doctorProfile?.consultationFee || 800);
+  const [experienceYears, setExperienceYears] = useState(doctorProfile?.experienceYears || 10);
+
+  // Dynamic Qualifications Builder
+  const [qualList, setQualList] = useState(() => {
+    const raw = doctorProfile?.qualifications || doctorProfile?.qualification || 'MBBS, MD';
+    const items = raw.split(',').map(s => {
+      const match = s.trim().match(/^(.*?)(?:\s*\((.*?)\))?$/);
+      if (match) {
+        return { degree: match[1]?.trim() || s.trim(), location: match[2]?.trim() || '' };
+      }
+      return { degree: s.trim(), location: '' };
+    }).filter(q => q.degree);
+    return items.length > 0 ? items : [{ degree: 'MBBS', location: '' }];
+  });
+
+  const [selectedDegree, setSelectedDegree] = useState('');
+  const [customDegree, setCustomDegree] = useState('');
+  const [degreeLocation, setDegreeLocation] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleAddQualification = () => {
+    const finalDegree = selectedDegree === 'OTHER' ? customDegree.trim() : selectedDegree;
+    if (!finalDegree) return;
+    const newQual = { degree: finalDegree, location: degreeLocation.trim() };
+    setQualList([...qualList, newQual]);
+    setDegreeLocation('');
+    if (selectedDegree === 'OTHER') {
+      setCustomDegree('');
+    }
+    setSelectedDegree('');
+  };
+
+  const handleRemoveQualification = (index) => {
+    setQualList(qualList.filter((_, i) => i !== index));
+  };
+
+  async function handleSaveProfile(e) {
+    e.preventDefault();
+    if (!fullName || !phone || !email) {
+      setError('Doctor name, contact phone number, and email address are required.');
+      return;
+    }
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length !== 10) {
+      setError('Contact phone number must be exactly 10 digits.');
+      return;
+    }
+    setError('');
+    setSaving(true);
+    try {
+      const qualificationsStr = qualList
+        .map(q => q.location ? `${q.degree} (${q.location})` : q.degree)
+        .join(', ');
+
+      const payload = {
+        fullName,
+        phone,
+        email,
+        qualifications: qualificationsStr,
+        qualification: qualificationsStr,
+        consultationFee: Number(consultationFee),
+        experienceYears: Number(experienceYears),
+      };
+
+      const docId = user?._id || user?.id || doctorProfile?._id || doctorProfile?.id;
+      try {
+        await axiosClient.put(`/doctor/${docId}/profile`, payload);
+      } catch (err1) {
+        try {
+          await axiosClient.put(`/doctors/${docId}/profile`, payload);
+        } catch (err2) {
+          await axiosClient.put('/auth/profile', payload);
+        }
+      }
+
+      onSuccess(payload);
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update profile details.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative my-8">
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 text-slate-400 hover:text-darkNavy dark:hover:text-white text-xl font-bold transition cursor-pointer"
+        >
+          ✕
+        </button>
+
+        <div>
+          <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-base sm:text-lg flex items-center gap-2">
+            <span>✏️ Edit Doctor Profile & Credentials</span>
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Update your clinical credentials, contact information, consultation fee, and experience.
+          </p>
+        </div>
+
+        {error && (
+          <div className="p-3.5 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 rounded-2xl text-rose-700 dark:text-rose-200 text-xs font-bold flex items-center gap-2">
+            <span>⚠️</span> {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSaveProfile} className="space-y-4">
+          {/* Row 1: Full Name & Phone */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">Doctor Full Name *</label>
+              <input
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Dr. Full Name"
+                className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-semibold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">Contact Phone Number (10 Digits) *</label>
+              <input
+                type="text"
+                required
+                maxLength={10}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="9830088001"
+                className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Email Address */}
+          <div>
+            <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">Email Address *</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="doctor@hospital.edu.in"
+              className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-mono"
+            />
+          </div>
+
+          {/* Row 3: Consultation Fee & Clinical Experience */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">OPD Consultation Fee (₹)</label>
+              <input
+                type="number"
+                min="0"
+                value={consultationFee}
+                onChange={(e) => setConsultationFee(e.target.value)}
+                placeholder="800"
+                className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-mono font-bold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-darkNavy dark:text-slate-200 mb-1">Clinical Experience (Years)</label>
+              <input
+                type="number"
+                min="0"
+                value={experienceYears}
+                onChange={(e) => setExperienceYears(e.target.value)}
+                placeholder="10"
+                className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Dynamic Qualifications Builder Section */}
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-black text-darkNavy dark:text-slate-200">Qualifications & Degrees *</label>
+              <button
+                type="button"
+                onClick={handleAddQualification}
+                className="text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-blue-100/70 dark:bg-blue-950 hover:bg-blue-200/80 border border-blue-300 dark:border-blue-800 px-3 py-1 rounded-xl transition cursor-pointer flex items-center gap-1 active:scale-95"
+              >
+                <span>+ Add More</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {selectedDegree === 'OTHER' ? (
+                <div className="flex items-center gap-1 w-full">
+                  <input
+                    type="text"
+                    required
+                    value={customDegree}
+                    onChange={(e) => setCustomDegree(e.target.value)}
+                    placeholder="Type custom degree (e.g. FACC)"
+                    className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-white dark:bg-slate-900 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-bold"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDegree('MBBS')}
+                    className="text-[11px] font-extrabold text-slate-400 hover:text-darkNavy dark:hover:text-white px-2 py-1 shrink-0"
+                    title="Switch to dropdown list"
+                  >
+                    📋 List
+                  </button>
+                </div>
+              ) : (
+                <select
+                  value={selectedDegree}
+                  onChange={(e) => setSelectedDegree(e.target.value)}
+                  className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-white dark:bg-slate-900 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-bold cursor-pointer"
+                >
+                  <option value="" disabled>-- Select Degree --</option>
+                  {['MBBS', 'MD', 'MS', 'DM', 'MCh', 'DNB', 'BDS', 'MDS', 'BAMS', 'BHMS', 'Ph.D', 'Fellowship', 'Diploma', 'OTHER'].map((deg) => (
+                    <option key={deg} value={deg}>{deg === 'OTHER' ? '✏️ + Type Custom Degree' : deg}</option>
+                  ))}
+                </select>
+              )}
+
+              <input
+                type="text"
+                value={degreeLocation}
+                onChange={(e) => setDegreeLocation(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddQualification(); } }}
+                placeholder="Location (e.g. Kolkata)"
+                className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-white dark:bg-slate-900 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium"
+              />
+            </div>
+
+            {/* Added Qualifications Pills */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              {qualList.map((q, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 bg-blue-100/80 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800 text-xs font-extrabold px-3 py-1.5 rounded-xl shadow-xs"
+                >
+                  <span>📋</span>
+                  <span>{q.degree}{q.location ? ` (${q.location})` : ''}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveQualification(idx)}
+                    className="text-blue-500 hover:text-rose-500 font-extrabold ml-1 cursor-pointer"
+                    title="Remove qualification"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs py-3.5 rounded-2xl transition cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-emerald-500/20 shadow-lg transition cursor-pointer disabled:opacity-60 active:scale-95 flex items-center justify-center gap-2"
+            >
+              <span>💾 Save Profile Credentials</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+

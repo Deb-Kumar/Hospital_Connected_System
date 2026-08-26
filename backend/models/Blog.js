@@ -9,7 +9,9 @@ const blogSchema = new mongoose.Schema({
   readTime: { type: String, default: '5 min read' },
   image: { type: String, default: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&q=80&w=600' },
   fullText: { type: String, required: true },
-  status: { type: String, enum: ['PUBLISHED', 'DRAFT'], default: 'PUBLISHED' },
+  status: { type: String, default: 'PENDING' },
+  rejectionReason: { type: String, default: '' },
+  authorUserId: { type: String, default: '' },
   showOnHome: { type: Boolean, default: false },
 }, { timestamps: true });
 

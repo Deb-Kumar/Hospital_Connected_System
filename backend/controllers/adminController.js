@@ -862,16 +862,16 @@ exports.approveLeaveRequest = async (req, res) => {
   }
 };
 
-// PUT /api/admin/leaves/:id/reject (Admin rejects leave application)
+// PUT /api/admin/leaves/:id/reject (Admin rejects leave application with reason)
 exports.rejectLeaveRequest = async (req, res) => {
   try {
     const { id } = req.params;
-    const { adminComment } = req.body;
+    const { adminComment, rejectionReason } = req.body;
     const leaveReq = await LeaveRequest.findById(id);
     if (!leaveReq) return res.status(404).json({ success: false, message: 'Leave application not found' });
 
     leaveReq.status = 'REJECTED';
-    leaveReq.adminComment = adminComment || 'Rejected by Admin';
+    leaveReq.adminComment = rejectionReason || adminComment || 'Rejected by Admin';
     leaveReq.reviewedAt = new Date();
     await leaveReq.save();
 

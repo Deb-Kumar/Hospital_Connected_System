@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
+import FormattedArticleContent from '../FormattedArticleContent';
 
 export default function HealthBlog() {
   const [activeArticle, setActiveArticle] = useState(null);
@@ -126,9 +127,9 @@ export default function HealthBlog() {
               {activeArticle.desc}
             </p>
 
-            <div className="p-4 bg-softBg rounded-2xl text-xs text-darkNavy leading-relaxed">
-              <p className="font-semibold mb-2">📌 Clinical Advice:</p>
-              <p>{activeArticle.fullText}</p>
+            <div className="p-4 bg-softBg rounded-2xl text-xs text-darkNavy leading-relaxed border border-slate-200/80">
+              <p className="font-extrabold mb-3 text-primary text-xs uppercase tracking-wide">📌 Clinical Advice & Medical Insights:</p>
+              <FormattedArticleContent content={activeArticle.fullText} />
             </div>
 
             <div className="pt-2 flex justify-end">

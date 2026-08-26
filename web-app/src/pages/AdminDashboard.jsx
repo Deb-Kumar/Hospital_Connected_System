@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
+import FormattedArticleContent from '../components/FormattedArticleContent';
 import { useAuth } from '../context/AuthContext';
 import {
   LogOut, RefreshCw, ChevronLeft, ChevronRight, Menu,
@@ -71,6 +72,7 @@ export default function AdminDashboard() {
   const [editingBlog, setEditingBlog] = useState(null);
   const [deletingBlog, setDeletingBlog] = useState(null);
   const [viewingBlog, setViewingBlog] = useState(null);
+  const [reviewingBlog, setReviewingBlog] = useState(null);
   const [blogStatusFilter, setBlogStatusFilter] = useState('ALL'); // 'ALL' | 'PUBLISHED' | 'DRAFT'
   const [blogForm, setBlogForm] = useState({ title: '', category: 'General Health', desc: '', author: '', role: '', image: '', fullText: '', status: 'PUBLISHED', showOnHome: false });
 
@@ -190,9 +192,16 @@ export default function AdminDashboard() {
   }
 
   async function handleRejectLeaveRequest(requestId) {
+    const inputReason = window.prompt('Please enter the reason for rejecting this leave application:');
+    if (inputReason === null) return;
+    const rejectionReason = inputReason.trim() || 'Leave request denied due to department operational requirements.';
+
     try {
-      await axiosClient.put(`/admin/leaves/${requestId}/reject`, { adminComment: 'Rejected by Administrator' });
-      showNotify('success', 'Leave Rejected', 'Leave application has been rejected.');
+      await axiosClient.put(`/admin/leaves/${requestId}/reject`, {
+        adminComment: rejectionReason,
+        rejectionReason: rejectionReason,
+      });
+      showNotify('success', 'Leave Rejected', 'Leave application rejected with reason.');
       fetchLeavesData();
     } catch (err) {
       showNotify('error', 'Rejection Failed', err.response?.data?.message || 'Failed to reject leave.');
@@ -548,6 +557,34 @@ export default function AdminDashboard() {
       fetchBlogs();
     } catch (err) {
       showNotify('error', 'Toggle Failed', err.response?.data?.message || err.message);
+    }
+  }
+
+  async function handleReviewBlog(blogId, status, payload = {}) {
+    let rejectionReason = typeof payload === 'string' ? payload : (payload.rejectionReason || '');
+    if (status === 'REJECTED' && !rejectionReason) {
+      const input = window.prompt('Please enter the reason for rejecting this doctor blog submission:');
+      if (input === null) return;
+      rejectionReason = input.trim() || 'Content did not meet hospital editorial standards.';
+    }
+
+    try {
+      const reviewData = typeof payload === 'object' ? { status, rejectionReason, ...payload } : { status, rejectionReason };
+      try {
+        await axiosClient.put(`/blogs/${blogId}/review`, reviewData);
+      } catch (putErr) {
+        if (putErr.response?.status === 404) {
+          // Fallback to standard /blogs/:id if /blogs/:id/review is 404
+          await axiosClient.put(`/blogs/${blogId}`, reviewData);
+        } else {
+          throw putErr;
+        }
+      }
+      showNotify('success', status === 'PUBLISHED' ? 'Blog Published' : 'Blog Rejected', 'Blog status updated successfully.');
+      fetchBlogs();
+      setReviewingBlog(null);
+    } catch (err) {
+      showNotify('error', 'Review Action Failed', err.response?.data?.message || err.message);
     }
   }
 
@@ -959,8 +996,8 @@ export default function AdminDashboard() {
                 <SidebarNavLink
                   icon={<Palmtree size={18} />}
                   label="Leave Applications"
-                  badge={leavesData.pendingCount > 0 ? `${leavesData.pendingCount} PENDING` : (leavesData.totalOnLeave > 0 ? `${leavesData.totalOnLeave} ON LEAVE` : null)}
-                  badgeColor={leavesData.pendingCount > 0 ? "bg-amber-500 text-white font-mono font-black" : "bg-emerald-600 text-white font-mono"}
+                  badge={leavesData.pendingCount > 0 ? `${leavesData.pendingCount} PENDING` : null}
+                  badgeColor="bg-amber-500 text-white font-mono font-black"
                   active={activeNav === 'leaves'}
                   collapsed={isSidebarCollapsed}
                   onClick={() => { setActiveNav('leaves'); setIsMobileSidebarOpen(false); }}
@@ -2669,39 +2706,48 @@ export default function AdminDashboard() {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                              {leavesData.approvedRequests.map((req) => (
-                                <tr key={req._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                                  <td className="py-3.5 px-4 font-bold text-darkNavy dark:text-white">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-base">{req.applicantModel === 'Doctor' ? '🩺' : '📋'}</span>
-                                      <div>
-                                        <p className="font-bold text-darkNavy dark:text-white">{req.applicantName}</p>
-                                        <p className="text-[11px] font-normal text-slate-400">{req.applicantEmail}</p>
+                              {leavesData.approvedRequests.map((req) => {
+                                const formattedName = req.applicantModel === 'Doctor'
+                                  ? (req.applicantName.startsWith('Dr.') ? req.applicantName : `Dr. ${req.applicantName}`)
+                                  : req.applicantName;
+                                return (
+                                  <tr key={req._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                                    <td className="py-3.5 px-4 font-bold text-darkNavy dark:text-white">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-base">{req.applicantModel === 'Doctor' ? '🩺' : '📋'}</span>
+                                        <div>
+                                          <p className="font-bold text-darkNavy dark:text-white">{formattedName}</p>
+                                          <p className="text-[11px] font-normal text-slate-400">{req.applicantEmail}</p>
+                                        </div>
                                       </div>
-                                    </div>
-                                  </td>
-                                  <td className="py-3.5 px-4">
-                                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-300">
-                                      {req.role}
-                                    </span>
-                                  </td>
-                                  <td className="py-3.5 px-4 max-w-xs">
-                                    <p className="text-darkNavy dark:text-slate-200 text-xs">"{req.reason}"</p>
-                                  </td>
-                                  <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                                    {req.reviewedAt ? new Date(req.reviewedAt).toLocaleDateString() : 'Previously Approved'}
-                                  </td>
-                                  <td className="py-3.5 px-4 text-right">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRevokeLeaveRequest(req._id)}
-                                      className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-[11px] transition shadow-2xs cursor-pointer"
-                                    >
-                                      🟢 Revoke Leave / Resume Duty
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
+                                        req.applicantModel === 'Doctor'
+                                          ? 'bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border-blue-300'
+                                          : 'bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 border-purple-300'
+                                      }`}>
+                                        {req.applicantModel === 'Doctor' ? '🩺 DOCTOR' : (req.role || 'STAFF')}
+                                      </span>
+                                    </td>
+                                    <td className="py-3.5 px-4 max-w-xs">
+                                      <p className="text-darkNavy dark:text-slate-200 text-xs">"{req.reason}"</p>
+                                    </td>
+                                    <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                                      {req.reviewedAt ? new Date(req.reviewedAt).toLocaleDateString() : 'Previously Approved'}
+                                    </td>
+                                    <td className="py-3.5 px-4 text-right">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleRevokeLeaveRequest(req._id)}
+                                        className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-[11px] transition shadow-2xs cursor-pointer"
+                                      >
+                                        🟢 Revoke Leave / Resume Duty
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>
@@ -2722,26 +2768,56 @@ export default function AdminDashboard() {
                             <thead>
                               <tr className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px]">
                                 <th className="py-3 px-4 rounded-l-xl">Applicant Name</th>
-                                <th className="py-3 px-4">Role</th>
-                                <th className="py-3 px-4">Reason Submitted</th>
+                                <th className="py-3 px-4">Role / Department</th>
+                                <th className="py-3 px-4">Reason Submitted & Dates</th>
+                                <th className="py-3 px-4">Admin Rejection Reason</th>
                                 <th className="py-3 px-4 rounded-r-xl">Status</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                              {leavesData.rejectedRequests.map((req) => (
-                                <tr key={req._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                                  <td className="py-3.5 px-4 font-bold text-darkNavy dark:text-white">
-                                    {req.applicantName} ({req.applicantEmail})
-                                  </td>
-                                  <td className="py-3.5 px-4">{req.role}</td>
-                                  <td className="py-3.5 px-4">"{req.reason}"</td>
-                                  <td className="py-3.5 px-4">
-                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300">
-                                      ❌ REJECTED
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
+                              {leavesData.rejectedRequests.map((req) => {
+                                const formattedName = req.applicantModel === 'Doctor'
+                                  ? (req.applicantName.startsWith('Dr.') ? req.applicantName : `Dr. ${req.applicantName}`)
+                                  : req.applicantName;
+                                return (
+                                  <tr key={req._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                                    <td className="py-3.5 px-4 font-bold text-darkNavy dark:text-white">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-base">{req.applicantModel === 'Doctor' ? '🩺' : '📋'}</span>
+                                        <div>
+                                          <p className="font-bold text-darkNavy dark:text-white">{formattedName}</p>
+                                          <p className="text-[11px] font-normal text-slate-400">{req.applicantEmail}</p>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
+                                        req.applicantModel === 'Doctor'
+                                          ? 'bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border-blue-300'
+                                          : 'bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 border-purple-300'
+                                      }`}>
+                                        {req.applicantModel === 'Doctor' ? '🩺 DOCTOR' : (req.role || 'STAFF')}
+                                      </span>
+                                    </td>
+                                    <td className="py-3.5 px-4 max-w-xs">
+                                      <p className="text-darkNavy dark:text-slate-200 text-xs font-semibold">"{req.reason}"</p>
+                                      {(req.startDate || req.endDate) && (
+                                        <p className="text-[10px] text-slate-400 font-mono mt-0.5">Dates: {req.startDate || '—'} ➔ {req.endDate || '—'}</p>
+                                      )}
+                                    </td>
+                                    <td className="py-3.5 px-4 max-w-xs">
+                                      <div className="text-rose-700 dark:text-rose-300 text-xs font-extrabold bg-rose-50 dark:bg-rose-950/80 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800 leading-snug">
+                                        ⚠️ "{req.adminComment || req.rejectionReason || 'Denied by Admin'}"
+                                      </div>
+                                    </td>
+                                    <td className="py-3.5 px-4">
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 inline-flex items-center gap-1">
+                                        ❌ REJECTED
+                                      </span>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>
@@ -2769,7 +2845,10 @@ export default function AdminDashboard() {
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300">
                             {fullList.map((item) => {
                               const isDoctor = item.userType === 'DOCTOR';
-                              const roleLabel = isDoctor ? 'DOCTOR' : (item.designation || 'STAFF');
+                              const formattedName = isDoctor
+                                ? (item.fullName?.startsWith('Dr.') ? item.fullName : `Dr. ${item.fullName}`)
+                                : item.fullName;
+                              const roleLabel = isDoctor ? '🩺 DOCTOR' : (item.designation || 'STAFF');
 
                               return (
                                 <tr key={item._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
@@ -2777,7 +2856,7 @@ export default function AdminDashboard() {
                                     <div className="flex items-center gap-2">
                                       <span className="text-base">{isDoctor ? '🩺' : '📋'}</span>
                                       <div>
-                                        <p className="font-bold text-darkNavy dark:text-white">{item.fullName}</p>
+                                        <p className="font-bold text-darkNavy dark:text-white">{formattedName}</p>
                                         <p className="text-[11px] font-normal text-slate-400">{item.email}</p>
                                       </div>
                                     </div>
@@ -2785,7 +2864,7 @@ export default function AdminDashboard() {
                                   <td className="py-3.5 px-4">
                                     <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
                                       isDoctor
-                                        ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-300'
+                                        ? 'bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border-blue-300'
                                         : 'bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 border-purple-300'
                                     }`}>
                                       {roleLabel}
@@ -3236,7 +3315,7 @@ export default function AdminDashboard() {
                   
                   {/* Status Filter & Header Controls */}
                   <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
-                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 flex-wrap">
                       <button
                         onClick={() => setBlogStatusFilter('ALL')}
                         className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
@@ -3246,6 +3325,19 @@ export default function AdminDashboard() {
                         }`}
                       >
                         All ({allBlogs.length})
+                      </button>
+                      <button
+                        onClick={() => setBlogStatusFilter('PENDING')}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                          blogStatusFilter === 'PENDING'
+                            ? 'bg-amber-500 text-white shadow-xs'
+                            : 'text-slate-500 hover:text-amber-600 dark:hover:text-amber-400'
+                        }`}
+                      >
+                        <span>⏳ In Progress</span>
+                        <span className="bg-amber-950/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono font-extrabold">
+                          {allBlogs.filter((b) => b.status === 'PENDING' || b.status === 'DRAFT').length}
+                        </span>
                       </button>
                       <button
                         onClick={() => setBlogStatusFilter('PUBLISHED')}
@@ -3258,14 +3350,14 @@ export default function AdminDashboard() {
                         Published ({allBlogs.filter((b) => b.status === 'PUBLISHED').length})
                       </button>
                       <button
-                        onClick={() => setBlogStatusFilter('DRAFT')}
+                        onClick={() => setBlogStatusFilter('REJECTED')}
                         className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
-                          blogStatusFilter === 'DRAFT'
-                            ? 'bg-amber-500 text-white shadow-xs'
-                            : 'text-slate-500 hover:text-amber-600 dark:hover:text-amber-400'
+                          blogStatusFilter === 'REJECTED'
+                            ? 'bg-rose-600 text-white shadow-xs'
+                            : 'text-slate-500 hover:text-rose-600 dark:hover:text-rose-400'
                         }`}
                       >
-                        Drafts ({allBlogs.filter((b) => b.status === 'DRAFT').length})
+                        Rejected ({allBlogs.filter((b) => b.status === 'REJECTED').length})
                       </button>
                     </div>
 
@@ -3291,18 +3383,18 @@ export default function AdminDashboard() {
                     <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
                     Loading blog articles...
                   </div>
-                ) : allBlogs.filter((b) => blogStatusFilter === 'ALL' ? true : b.status === blogStatusFilter).length === 0 ? (
+                ) : allBlogs.filter((b) => blogStatusFilter === 'ALL' ? true : blogStatusFilter === 'PENDING' ? (b.status === 'PENDING' || b.status === 'DRAFT') : b.status === blogStatusFilter).length === 0 ? (
                   <div className="py-10 text-center space-y-2">
                     <span className="text-3xl block">📝</span>
                     <h4 className="font-bold text-darkNavy dark:text-white">No {blogStatusFilter !== 'ALL' ? blogStatusFilter.toLowerCase() : ''} articles found</h4>
                     <p className="text-xs text-slate-400">
-                      {blogStatusFilter === 'DRAFT' ? 'No draft articles saved.' : 'Click "Write New Blog" above to publish your first health article.'}
+                      {blogStatusFilter === 'PENDING' ? 'No doctor blog submissions awaiting review.' : 'Click "Write New Blog" above to publish your first health article.'}
                     </p>
                   </div>
                 ) : (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {allBlogs
-                      .filter((b) => blogStatusFilter === 'ALL' ? true : b.status === blogStatusFilter)
+                      .filter((b) => blogStatusFilter === 'ALL' ? true : blogStatusFilter === 'PENDING' ? (b.status === 'PENDING' || b.status === 'DRAFT') : b.status === blogStatusFilter)
                       .map((blog) => (
                         <div key={blog._id} className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-xs hover:shadow-cardHover transition duration-300 flex flex-col group">
                           {/* Blog Image */}
@@ -3329,9 +3421,11 @@ export default function AdminDashboard() {
                               <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase backdrop-blur-sm ${
                                 blog.status === 'PUBLISHED'
                                   ? 'bg-emerald-500/90 text-white'
-                                  : 'bg-amber-500/90 text-white'
+                                  : (blog.status === 'PENDING' || blog.status === 'DRAFT')
+                                  ? 'bg-amber-500/90 text-white animate-pulse'
+                                  : 'bg-rose-600/90 text-white'
                               }`}>
-                                {blog.status}
+                                {(blog.status === 'PENDING' || blog.status === 'DRAFT') ? '⏳ IN PROGRESS' : blog.status}
                               </span>
                             </div>
                           </div>
@@ -3348,46 +3442,74 @@ export default function AdminDashboard() {
                               <p className="text-[11px] text-slateText dark:text-slate-400 line-clamp-2 leading-relaxed">
                                 {blog.desc}
                               </p>
-                              <div className="flex items-center gap-2 text-[11px] text-darkNavy dark:text-white font-bold">
-                                <span>✍️ {blog.author || 'Medical Team'}</span>
-                                <span>•</span>
-                                <span>🕐 {blog.createdAt ? new Date(blog.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                              {/* Author, Role & Category Details */}
+                              <div className="space-y-1 text-[11px]">
+                                <div className="flex items-center gap-1.5 text-darkNavy dark:text-white font-bold">
+                                  <span>✍️ Submitted By:</span>
+                                  <span className="text-primary font-black">{blog.author || 'Doctor Specialist'}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-medium">
+                                  <span>🏅 Role: <strong className="text-slate-700 dark:text-slate-300">{blog.role || 'Clinical Specialist'}</strong></span>
+                                  <span>🏷️ <strong className="text-slate-700 dark:text-slate-300">{blog.category || 'General'}</strong></span>
+                                </div>
+                                <div className="text-[10px] text-slate-400 font-mono">
+                                  🕐 {blog.createdAt ? new Date(blog.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
+                                </div>
                               </div>
+
+                              {blog.status === 'REJECTED' && blog.rejectionReason && (
+                                <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-[11px] text-rose-700 dark:text-rose-300">
+                                  <strong>Rejection Reason:</strong> "{blog.rejectionReason}"
+                                </div>
+                              )}
                             </div>
 
-                            {/* Action Buttons */}
-                            <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between gap-1.5 flex-wrap">
-                              <button
-                                onClick={() => handleToggleBlogHome(blog._id)}
-                                title={blog.showOnHome ? 'Remove from Home Page' : 'Feature on Home Page'}
-                                className={`text-[10px] font-extrabold px-2.5 py-1 rounded-xl border transition cursor-pointer ${
-                                  blog.showOnHome
-                                    ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 hover:bg-amber-200'
-                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-600 hover:bg-slate-200'
-                                }`}
-                              >
-                                {blog.showOnHome ? '🏠 On Home' : '🏠 Add Home'}
-                              </button>
-                              <div className="flex items-center gap-1.5">
+                            {/* Admin Review & Actions */}
+                            <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2">
+                              {(blog.status === 'PENDING' || blog.status === 'DRAFT') && (
+                                <div className="flex items-center gap-2 pb-1">
+                                  <button
+                                    onClick={() => setReviewingBlog(blog)}
+                                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-[11px] py-2 rounded-xl shadow-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+                                  >
+                                    <span>🔍 Review, Assign Category & Role</span>
+                                  </button>
+                                </div>
+                              )}
+
+                              <div className="flex items-center justify-between gap-1.5 flex-wrap">
                                 <button
-                                  onClick={() => setViewingBlog(blog)}
-                                  className="text-[10px] font-extrabold px-2.5 py-1 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-darkNavy dark:text-white transition cursor-pointer"
-                                  title="View Full Article"
+                                  onClick={() => handleToggleBlogHome(blog._id)}
+                                  title={blog.showOnHome ? 'Remove from Home Page' : 'Feature on Home Page'}
+                                  className={`text-[10px] font-extrabold px-2.5 py-1 rounded-xl border transition cursor-pointer ${
+                                    blog.showOnHome
+                                      ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 hover:bg-amber-200'
+                                      : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-600 hover:bg-slate-200'
+                                  }`}
                                 >
-                                  👁️ Read
+                                  {blog.showOnHome ? '🏠 On Home' : '🏠 Add Home'}
                                 </button>
-                                <button
-                                  onClick={() => openEditBlog(blog)}
-                                  className="text-[10px] font-extrabold px-3 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 shadow-xs transition cursor-pointer"
-                                >
-                                  ✏️ Edit
-                                </button>
-                                <button
-                                  onClick={() => setDeletingBlog(blog)}
-                                  className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 border border-rose-200 dark:border-rose-800 transition cursor-pointer"
-                                >
-                                  🗑️ Delete
-                                </button>
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => setViewingBlog(blog)}
+                                    className="text-[10px] font-extrabold px-2.5 py-1 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-darkNavy dark:text-white transition cursor-pointer"
+                                    title="View Full Article"
+                                  >
+                                    👁️ Read
+                                  </button>
+                                  <button
+                                    onClick={() => openEditBlog(blog)}
+                                    className="text-[10px] font-extrabold px-3 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 shadow-xs transition cursor-pointer"
+                                  >
+                                    ✏️ Edit
+                                  </button>
+                                  <button
+                                    onClick={() => setDeletingBlog(blog)}
+                                    className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 border border-rose-200 dark:border-rose-800 transition cursor-pointer"
+                                  >
+                                    🗑️ Delete
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -4080,10 +4202,8 @@ export default function AdminDashboard() {
               </div>
 
               <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20 space-y-2">
-                <p className="font-bold text-primary dark:text-sky-300 text-sm">📖 Full Article Content:</p>
-                <p className="whitespace-pre-line text-darkNavy dark:text-slate-200 text-xs sm:text-sm leading-relaxed">
-                  {viewingBlog.fullText}
-                </p>
+                <p className="font-bold text-primary dark:text-sky-300 text-sm">📖 Full Article Content & Guidance:</p>
+                <FormattedArticleContent content={viewingBlog.fullText} />
               </div>
             </div>
 
@@ -4185,11 +4305,11 @@ export default function AdminDashboard() {
                 <label className="block text-xs font-bold text-darkNavy dark:text-white mb-1">Full Article Content *</label>
                 <textarea
                   required
-                  rows={5}
-                  placeholder="Write the complete blog article text here..."
+                  rows={8}
+                  placeholder="Write or paste the complete blog article text here (formatting & paragraphs preserved)..."
                   value={blogForm.fullText}
                   onChange={(e) => setBlogForm({ ...blogForm, fullText: e.target.value })}
-                  className="w-full text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full whitespace-pre-wrap font-sans leading-relaxed text-xs border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -4290,6 +4410,16 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ADMIN REVIEW DOCTOR BLOG MODAL */}
+      {reviewingBlog && (
+        <AdminReviewBlogModal
+          blog={reviewingBlog}
+          onClose={() => setReviewingBlog(null)}
+          onConfirm={(payload) => handleReviewBlog(reviewingBlog._id, 'PUBLISHED', payload)}
+          onReject={(payload) => handleReviewBlog(reviewingBlog._id, 'REJECTED', payload)}
+        />
       )}
 
       {/* SIGN OUT CONFIRMATION MODAL */}
@@ -7129,6 +7259,173 @@ function StaffRbacModal({ staff, onClose, onUpdated }) {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function AdminReviewBlogModal({ blog, onClose, onConfirm, onReject }) {
+  const [category, setCategory] = useState(blog.category || 'General Health');
+  const [role, setRole] = useState(blog.role || 'Clinical Specialist');
+  const [author, setAuthor] = useState(blog.author || 'Doctor');
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
+
+  const categoryOptions = [
+    'General Health',
+    'Cardiology',
+    'Heart Health',
+    'Diabetes Awareness',
+    'Child Care',
+    'Orthopedics & Spine',
+    'Emergency Care',
+    'Nutrition & Diet',
+    'Mental Health',
+    'Women\'s Health',
+    'Neurology',
+    'Oncology',
+    'Dental Care',
+    'Dermatology',
+    'Gastroenterology',
+    'Pulmonology',
+    'Nephrology',
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-darkNavy/75 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 sm:p-7 w-full max-w-xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h3 className="font-poppins font-black text-darkNavy dark:text-white text-lg flex items-center gap-2">
+              <span>🔍 Review & Publish Doctor Blog</span>
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Verify author information, select blog category, and set author clinical role.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-darkNavy dark:hover:text-white flex items-center justify-center font-bold text-sm transition cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Article Summary Box */}
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500 text-white uppercase font-mono">
+            ⏳ Doctor Submission
+          </span>
+          <h4 className="font-bold text-darkNavy dark:text-white text-sm">
+            {blog.title}
+          </h4>
+          <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
+            {blog.desc}
+          </p>
+        </div>
+
+        {/* Category & Role Assignment Form */}
+        <div className="space-y-3 text-xs">
+          <div>
+            <label className="block font-extrabold text-darkNavy dark:text-slate-200 mb-1">
+              ✍️ Author Doctor Name (Submitted By)
+            </label>
+            <input
+              type="text"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              className="w-full font-bold border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block font-extrabold text-darkNavy dark:text-slate-200 mb-1">
+                🏷️ Select Blog Category *
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full font-bold border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                {categoryOptions.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+                {!categoryOptions.includes(category) && (
+                  <option value={category}>{category}</option>
+                )}
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-extrabold text-darkNavy dark:text-slate-200 mb-1">
+                🏅 Assign Author Role *
+              </label>
+              <input
+                type="text"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                placeholder="e.g. Senior Consultant Cardiologist"
+                className="w-full font-bold border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 bg-slate-50 dark:bg-slate-800 text-darkNavy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+          </div>
+
+          {isRejecting && (
+            <div className="pt-2">
+              <label className="block font-extrabold text-rose-600 dark:text-rose-400 mb-1">
+                ⚠️ Rejection Reason for Doctor *
+              </label>
+              <textarea
+                rows={2}
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Specify clinical or editorial guidelines reason for rejecting..."
+                className="w-full border border-rose-300 dark:border-rose-800 rounded-xl p-2.5 bg-rose-50/50 dark:bg-rose-950/40 text-darkNavy dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Modal Buttons */}
+        <div className="flex gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slateText dark:text-slate-300 font-bold text-xs transition cursor-pointer"
+          >
+            Cancel
+          </button>
+
+          {!isRejecting ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setIsRejecting(true)}
+                className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs py-2.5 rounded-xl shadow-xs transition cursor-pointer"
+              >
+                ❌ Reject with Reason
+              </button>
+              <button
+                type="button"
+                onClick={() => onConfirm({ category, role, author })}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-2.5 rounded-xl shadow-xs transition cursor-pointer"
+              >
+                ✅ Confirm & Publish Blog
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onReject({ rejectionReason, category, role, author })}
+              className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs py-2.5 rounded-xl shadow-xs transition cursor-pointer"
+            >
+              Submit Rejection Notice
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

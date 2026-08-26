@@ -40,52 +40,52 @@ function ensureDoctorDir() {
 }
 
 /**
- * Saves a doctor profile photo (base64 string or URL) to the uploads/doctors folder.
+ * Saves a doctor profile photo (base64 string or URL) to the uploads/doctors folder with filename dr_<doctor_name>.
  * @param {string} photoInput
+ * @param {string} doctorName
  * @returns {Promise<string>} public URL path of saved image file
  */
-async function saveDoctorPhoto(photoInput) {
+async function saveDoctorPhoto(photoInput, doctorName = '') {
   if (!photoInput || typeof photoInput !== 'string') return '';
   
   if (photoInput.startsWith('http://') || photoInput.startsWith('https://') || photoInput.startsWith('/uploads/')) {
     return photoInput;
   }
 
-  let mimeType = 'image/jpeg';
-  let ext = 'jpg';
+  let ext = 'png';
   let base64Data = photoInput;
 
-  const matches = photoInput.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,(.+)$/);
-  if (matches) {
-    mimeType = matches[1];
-    ext = mimeType.split('/')[1] || 'jpg';
+  if (photoInput.includes(';base64,')) {
+    const parts = photoInput.split(';base64,');
+    const mime = parts[0].replace('data:', '');
+    ext = mime.split('/')[1] || 'png';
     if (ext === 'jpeg') ext = 'jpg';
-    base64Data = matches[2];
+    base64Data = parts[1];
   }
 
   try {
     const buffer = Buffer.from(base64Data, 'base64');
-
-    if (isCloudinaryConfigured()) {
-      const cld = getCloudinary();
-      const url = await new Promise((resolve, reject) => {
-        const stream = cld.uploader.upload_stream(
-          { folder: 'hospital-doctor-photos', resource_type: 'image' },
-          (err, result) => (err ? reject(err) : resolve(result.secure_url))
-        );
-        stream.end(buffer);
-      });
-      return url;
-    }
+    if (!buffer || buffer.length === 0) return '';
 
     ensureDoctorDir();
-    const filename = `doctor-${Date.now()}-${Math.floor(Math.random() * 10000)}.${ext}`;
+    let sanitizedName = 'doctor';
+    if (doctorName) {
+      sanitizedName = doctorName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
+      if (!sanitizedName.startsWith('dr_')) {
+        sanitizedName = `dr_${sanitizedName}`;
+      }
+    } else {
+      sanitizedName = `dr_${Date.now()}`;
+    }
+
+    const filename = `${sanitizedName}.${ext}`;
     const filePath = path.join(DOCTOR_UPLOAD_DIR, filename);
     fs.writeFileSync(filePath, buffer);
 
+    console.log(`✅ Saved doctor photo to disk: ${filePath} (${buffer.length} bytes)`);
     return `/uploads/doctors/${filename}`;
   } catch (err) {
-    console.error('Failed to save doctor photo file:', err);
+    console.error('❌ Failed to save doctor photo file:', err);
     return '';
   }
 }
