@@ -97,7 +97,11 @@ export default function AdminDashboard() {
   const [showEditSettingsModal, setShowEditSettingsModal] = useState(false);
   const [editSettingsForm, setEditSettingsForm] = useState({});
 
-  const [isDark, setIsDark] = useState(() => localStorage.getItem('theme') === 'dark');
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved === 'dark';
+    return document.documentElement.classList.contains('dark');
+  });
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -5463,10 +5467,10 @@ function ThemeToggleBtn({ isDark, onToggle }) {
       type="button"
       onClick={onToggle}
       title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-      className="h-10 flex items-center justify-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-darkNavy dark:text-amber-300 border border-slate-200 dark:border-slate-700 text-xs font-extrabold transition active:scale-95 shadow-2xs whitespace-nowrap shrink-0 cursor-pointer"
+      className="h-9 sm:h-10 flex items-center justify-center gap-1.5 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-darkNavy dark:text-amber-300 border border-slate-200 dark:border-slate-700 text-xs font-extrabold transition active:scale-95 shadow-2xs whitespace-nowrap shrink-0 cursor-pointer"
     >
-      <span>{isDark ? '☀️' : '🌙'}</span>
-      <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
+      <span>{isDark ? '🌙' : '☀️'}</span>
+      <span className="hidden sm:inline font-bold">{isDark ? 'Dark Mode' : 'Light Mode'}</span>
     </button>
   );
 }
