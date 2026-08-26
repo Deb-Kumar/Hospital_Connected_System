@@ -1373,7 +1373,14 @@ export default function DoctorDashboard() {
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-6 flex-1 min-w-0">
                     <div className="relative shrink-0 group">
                       <img
-                        src={uploadedPhotoPreview || doctorProfile?.avatarUrl || doctorProfile?.profileImage || user?.photoUrl || doctorProfile?.photoUrl || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300'}
+                        src={(uploadedPhotoPreview && uploadedPhotoPreview.startsWith('data:')) 
+                          ? uploadedPhotoPreview 
+                          : (uploadedPhotoPreview?.startsWith('/uploads/') ? `http://localhost:5000${uploadedPhotoPreview}` : '') ||
+                            (doctorProfile?.avatarUrl?.startsWith('/uploads/') ? `http://localhost:5000${doctorProfile.avatarUrl}` : doctorProfile?.avatarUrl) ||
+                            (doctorProfile?.profileImage?.startsWith('/uploads/') ? `http://localhost:5000${doctorProfile.profileImage}` : doctorProfile?.profileImage) ||
+                            (user?.avatar?.startsWith('/uploads/') ? `http://localhost:5000${user.avatar}` : user?.avatar) ||
+                            (user?.photoUrl?.startsWith('/uploads/') ? `http://localhost:5000${user.photoUrl}` : user?.photoUrl) ||
+                            'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300'}
                         alt={docName}
                         className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover border-4 border-emerald-500/30 shadow-2xl transition group-hover:brightness-75"
                       />

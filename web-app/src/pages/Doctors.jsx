@@ -85,10 +85,13 @@ const defaultDoctorPhotos = [
 
 function getDoctorAvatarUrl(doc) {
   if (!doc) return defaultDoctorPhotos[0];
-  if (doc.profileImage) return doc.profileImage;
-  if (doc.avatarUrl) return doc.avatarUrl;
-  if (doc.user && doc.user.profileImage) return doc.user.profileImage;
-  if (doc.user && doc.user.avatarUrl) return doc.user.avatarUrl;
+  let photo = doc.profileImage || doc.avatarUrl || doc.photoUrl || (doc.user && (doc.user.profileImage || doc.user.avatarUrl || doc.user.avatar || doc.user.photoUrl));
+  if (photo) {
+    if (photo.startsWith('/uploads/')) {
+      return `http://localhost:5000${photo}`;
+    }
+    return photo;
+  }
 
   const rawName = (doc.user?.fullName || doc.fullName || '').toLowerCase();
   const isFemale = rawName.includes('ananya') || rawName.includes('meera') || rawName.includes('priya') || rawName.includes('sunita') || rawName.includes('roy') || rawName.includes('banerjee') || rawName.includes('female');
