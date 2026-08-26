@@ -138,7 +138,7 @@ export default function DoctorDashboard() {
         photoUrl: base64Photo
       }));
 
-      const docId = user?._id || user?.id || doctorProfile?._id || doctorProfile?.id;
+      const docId = doctorProfile?._id || doctorProfile?.id || user?.id || user?._id;
       try {
         const res = await axiosClient.put(`/doctor/${docId}/profile`, {
           avatarUrl: base64Photo,
@@ -164,9 +164,11 @@ export default function DoctorDashboard() {
         showNotify('success', 'Photo Updated', 'Your doctor profile picture has been successfully updated.');
         loadDoctorData();
       } catch (err) {
+        console.error('Doctor photo upload error:', err);
         showNotify('error', 'Upload Failed', err.response?.data?.message || 'Failed to update profile photo.');
       } finally {
         setUploadingPhoto(false);
+        if (e.target) e.target.value = '';
       }
     };
     reader.readAsDataURL(file);
@@ -1375,11 +1377,11 @@ export default function DoctorDashboard() {
                       <img
                         src={(uploadedPhotoPreview && uploadedPhotoPreview.startsWith('data:')) 
                           ? uploadedPhotoPreview 
-                          : (uploadedPhotoPreview?.startsWith('/uploads/') ? `http://localhost:5000${uploadedPhotoPreview}` : '') ||
-                            (doctorProfile?.avatarUrl?.startsWith('/uploads/') ? `http://localhost:5000${doctorProfile.avatarUrl}` : doctorProfile?.avatarUrl) ||
-                            (doctorProfile?.profileImage?.startsWith('/uploads/') ? `http://localhost:5000${doctorProfile.profileImage}` : doctorProfile?.profileImage) ||
-                            (user?.avatar?.startsWith('/uploads/') ? `http://localhost:5000${user.avatar}` : user?.avatar) ||
-                            (user?.photoUrl?.startsWith('/uploads/') ? `http://localhost:5000${user.photoUrl}` : user?.photoUrl) ||
+                          : (uploadedPhotoPreview?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${uploadedPhotoPreview}` : '') ||
+                            (doctorProfile?.avatarUrl?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${doctorProfile.avatarUrl}` : doctorProfile?.avatarUrl) ||
+                            (doctorProfile?.profileImage?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${doctorProfile.profileImage}` : doctorProfile?.profileImage) ||
+                            (user?.avatar?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${user.avatar}` : user?.avatar) ||
+                            (user?.photoUrl?.startsWith('/uploads/') ? `https://hospital-connected-system.onrender.com${user.photoUrl}` : user?.photoUrl) ||
                             'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300'}
                         alt={docName}
                         className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover border-4 border-emerald-500/30 shadow-2xl transition group-hover:brightness-75"

@@ -88,7 +88,7 @@ function getDoctorAvatarUrl(doc) {
   let photo = doc.profileImage || doc.avatarUrl || doc.photoUrl || (doc.user && (doc.user.profileImage || doc.user.avatarUrl || doc.user.avatar || doc.user.photoUrl));
   if (photo) {
     if (photo.startsWith('/uploads/')) {
-      return `http://localhost:5000${photo}`;
+      return `https://hospital-connected-system.onrender.com${photo}`;
     }
     return photo;
   }
