@@ -1252,76 +1252,105 @@ export default function AdminDashboard() {
                   pendingDoctors.length === 0 ? (
                     <EmptyState icon="✅" message="No pending Doctor applications at this time." />
                   ) : (
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {pendingDoctors.map((doc) => (
-                        <div key={doc._id} className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-bold text-darkNavy dark:text-white text-sm">Dr. {doc.user?.fullName}</h3>
-                              <p className="text-xs text-slateText dark:text-slate-400">{doc.user?.email} • {doc.user?.phone}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {pendingDoctors.map((doc) => {
+                        const rawAvatar = doc.profileImage || doc.avatarUrl || doc.user?.avatarUrl || doc.user?.profileImage || doc.user?.avatar || doc.user?.photoUrl;
+                        const avatarUrl = rawAvatar ? (rawAvatar.startsWith('/uploads/') ? `http://localhost:5000${rawAvatar}` : rawAvatar) : '';
+                        const docName = String(doc.user?.fullName || doc.fullName || 'Doctor').trim();
+                        const displayName = /^dr\.?/i.test(docName) ? docName : `Dr. ${docName}`;
+
+                        return (
+                          <div key={doc._id} className="bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 space-y-4 shadow-xs hover:shadow-cardHover transition duration-300 flex flex-col justify-between">
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-start gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  {avatarUrl ? (
+                                    <img
+                                      src={avatarUrl}
+                                      alt={displayName}
+                                      className="w-11 h-11 rounded-xl object-cover border border-emerald-500/30 shrink-0"
+                                      onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
+                                  ) : (
+                                    <div className="w-11 h-11 rounded-xl bg-emerald-600/20 text-emerald-500 font-extrabold text-sm flex items-center justify-center border border-emerald-500/30 shrink-0">
+                                      🩺
+                                    </div>
+                                  )}
+                                  <div className="min-w-0 flex-1">
+                                    <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-base truncate">{displayName}</h3>
+                                    <p className="text-xs font-mono text-slateText dark:text-slate-400 truncate">{doc.user?.email || doc.email}</p>
+                                    <p className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">{doc.user?.phone || doc.phone || 'Contact N/A'}</p>
+                                  </div>
+                                </div>
+
+                                <span className="text-[10px] font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+                                  DOCTOR PENDING
+                                </span>
+                              </div>
+
+                              <div className="space-y-2 text-xs bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/70">
+                                <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">Specialization</span> <span className="font-extrabold text-darkNavy dark:text-white">{doc.specialization || doc.department?.name || 'General Medicine'}</span></div>
+                                <div className="flex justify-between items-center"><span className="text-slate-400 font-bold uppercase text-[10px]">Clinical Experience</span> <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{doc.experienceYears || 0} Years</span></div>
+                                <div className="pt-1 border-t border-slate-100 dark:border-slate-800"><span className="text-slate-400 font-bold uppercase text-[10px] block mb-0.5">Qualifications</span> <span className="font-extrabold text-darkNavy dark:text-white block">{doc.qualifications || doc.qualification || 'MBBS, MD'}</span></div>
+                              </div>
                             </div>
-                            <span className="text-[10px] font-extrabold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full">
-                              DOCTOR PENDING
-                            </span>
-                          </div>
 
-                          <div className="grid grid-cols-2 gap-2 text-xs bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-                            <div><span className="text-slateText dark:text-slate-400">Specialization:</span> <span className="font-semibold text-darkNavy dark:text-white">{doc.specialization}</span></div>
-                            <div><span className="text-slateText dark:text-slate-400">Experience:</span> <span className="font-semibold text-darkNavy dark:text-white">{doc.experienceYears} Years</span></div>
-                            <div className="col-span-2"><span className="text-slateText dark:text-slate-400">Qualifications:</span> <span className="font-semibold text-darkNavy dark:text-white">{doc.qualification}</span></div>
+                            <div className="flex gap-2.5 pt-1">
+                              <button
+                                onClick={() => handleApproveDoctor(doc)}
+                                className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                              >
+                                <span>✓</span> Approve Doctor
+                              </button>
+                              <button
+                                onClick={() => handleRejectDoctor(doc)}
+                                className="flex-1 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-extrabold py-2.5 rounded-xl transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                              >
+                                <span>✕</span> Reject
+                              </button>
+                            </div>
                           </div>
-
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleApproveDoctor(doc)}
-                              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-xl shadow-xs transition active:scale-95"
-                            >
-                              ✓ Approve Doctor
-                            </button>
-                            <button
-                              onClick={() => handleRejectDoctor(doc)}
-                              className="flex-1 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-300 dark:border-rose-700 text-rose-600 dark:text-rose-400 text-xs font-bold py-2 rounded-xl transition active:scale-95"
-                            >
-                              ✕ Reject
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )
                 ) : (
                   pendingStaff.length === 0 ? (
                     <EmptyState icon="✅" message="No pending Staff Member applications at this time." />
                   ) : (
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       {pendingStaff.map((staff) => (
-                        <div key={staff._id} className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-bold text-darkNavy dark:text-white text-sm">{staff.user?.fullName}</h3>
-                              <p className="text-xs text-slateText dark:text-slate-400">{staff.user?.email} • {staff.user?.phone}</p>
+                        <div key={staff._id} className="bg-slate-50/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 space-y-4 shadow-xs hover:shadow-cardHover transition duration-300 flex flex-col justify-between">
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-start gap-3">
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-base truncate">{staff.user?.fullName || staff.fullName}</h3>
+                                <p className="text-xs font-mono text-slateText dark:text-slate-400 truncate">{staff.user?.email || staff.email}</p>
+                                <p className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">{staff.user?.phone || staff.phone || 'Contact N/A'}</p>
+                              </div>
+                              <span className="text-[10px] font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+                                STAFF PENDING
+                              </span>
                             </div>
-                            <span className="text-[10px] font-extrabold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full">
-                              STAFF PENDING
-                            </span>
+
+                            <div className="text-xs bg-white dark:bg-slate-900/90 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/70 space-y-1">
+                              <span className="text-slate-400 font-bold uppercase text-[10px] block">Assigned Role</span>
+                              <span className="font-extrabold text-darkNavy dark:text-white block">Hospital Staff Member (Reception Desk)</span>
+                            </div>
                           </div>
 
-                          <div className="text-xs bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
-                            <p><span className="text-slateText dark:text-slate-400">Role Assigned:</span> <span className="font-semibold text-darkNavy dark:text-white">Hospital Staff Member (Reception Desk)</span></p>
-                          </div>
-
-                          <div className="flex gap-2">
+                          <div className="flex gap-2.5 pt-1">
                             <button
                               onClick={() => handleApproveStaff(staff)}
-                              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-xl shadow-xs transition active:scale-95"
+                              className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
                             >
-                              ✓ Approve Staff Member
+                              <span>✓</span> Approve Staff
                             </button>
                             <button
                               onClick={() => handleRejectStaff(staff)}
-                              className="flex-1 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-300 dark:border-rose-700 text-rose-600 dark:text-rose-400 text-xs font-bold py-2 rounded-xl transition active:scale-95"
+                              className="flex-1 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-extrabold py-2.5 rounded-xl transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
                             >
-                              ✕ Reject
+                              <span>✕</span> Reject
                             </button>
                           </div>
                         </div>
