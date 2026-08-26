@@ -1403,6 +1403,44 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
+              {/* Department Summary Cards (Total, Active, Deactivated) */}
+              {activeNav === 'departments' && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+                  <div className="bg-gradient-to-br from-indigo-500/10 via-slate-900/60 to-slate-900/90 border border-indigo-500/30 rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-cardHover transition-all">
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400">Total Departments</span>
+                      <h4 className="text-2xl font-black text-white mt-1">{allDepartments.length}</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">All registered clinical specialties</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl">
+                      🏬
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-emerald-500/10 via-slate-900/60 to-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-cardHover transition-all">
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Active Departments</span>
+                      <h4 className="text-2xl font-black text-white mt-1">{allDepartments.filter(d => d.active !== false).length}</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Active operational wings</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl">
+                      ✅
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-rose-500/10 via-slate-900/60 to-slate-900/90 border border-rose-500/30 rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-cardHover transition-all">
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-400">Deactivated Departments</span>
+                      <h4 className="text-2xl font-black text-white mt-1">{allDepartments.filter(d => d.active === false).length}</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Temporarily suspended wings</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-2xl">
+                      🚫
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Search & Filter Controls */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <div className="max-w-md w-full relative">
