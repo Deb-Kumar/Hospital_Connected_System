@@ -52,14 +52,17 @@ async function saveDoctorPhoto(photoInput, doctorName = '') {
     return photoInput;
   }
 
-  let ext = 'png';
+  let ext = 'jpg';
   let base64Data = photoInput;
 
   if (photoInput.includes(';base64,')) {
     const parts = photoInput.split(';base64,');
-    const mime = parts[0].replace('data:', '');
-    ext = mime.split('/')[1] || 'png';
-    if (ext === 'jpeg') ext = 'jpg';
+    const mime = parts[0].replace('data:', '').toLowerCase();
+    if (mime.includes('png')) {
+      ext = 'png';
+    } else {
+      ext = 'jpg';
+    }
     base64Data = parts[1];
   }
 
