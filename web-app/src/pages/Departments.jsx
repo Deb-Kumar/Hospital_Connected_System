@@ -44,12 +44,54 @@ const ICON_MAP = {
 };
 
 function getDeptIcon(deptName = '') {
-  if (!deptName) return '🏬';
-  const nameLower = deptName.toLowerCase();
-  const foundKey = Object.keys(ICON_MAP).find((key) =>
-    nameLower.includes(key.toLowerCase()) || key.toLowerCase().includes(nameLower)
-  );
-  return foundKey ? ICON_MAP[foundKey] : '🏬';
+  if (!deptName) return '🏥';
+  const n = deptName.toLowerCase().trim();
+  if (n.includes('anesthes') || n.includes('pain')) return '💉';
+  if (n.includes('cardiothoracic') || n.includes('cardio thoracic')) return '🫀';
+  if (n.includes('cardio')) return '❤️';
+  if (n.includes('child guidance')) return '🧸';
+  if (n.includes('paediatric nephro') || n.includes('pediatric nephro')) return '💧';
+  if (n.includes('paediatric ortho') || n.includes('pediatric ortho')) return '🩼';
+  if (n.includes('paediatric surg') || n.includes('pediatric surg')) return '🍼';
+  if (n.includes('paediatric') || n.includes('pediatric') || n.includes('child')) return '🚼';
+  if (n.includes('nutrition') || n.includes('diet')) return '🥗';
+  if (n.includes('critical') || n.includes('icu')) return '🚨';
+  if (n.includes('dent')) return '🦷';
+  if (n.includes('derm')) return '🧴';
+  if (n.includes('diabet') || n.includes('endo')) return '🧪';
+  if (n.includes('ent')) return '👂';
+  if (n.includes('emergency') || n.includes('trauma')) return '🚑';
+  if (n.includes('gastro surg')) return '🔪';
+  if (n.includes('gastro')) return '🫄';
+  if (n.includes('geriatric')) return '👨‍🦳';
+  if (n.includes('gynae onco')) return '🎀';
+  if (n.includes('gynae') || n.includes('obste') || n.includes('women')) return '🤰';
+  if (n.includes('thalass') || n.includes('haemoglob')) return '🧬';
+  if (n.includes('haemat') || n.includes('hemat')) return '🩸';
+  if (n.includes('immuno') || n.includes('allergy')) return '🌿';
+  if (n.includes('infect')) return '🦠';
+  if (n.includes('nephro')) return '💧';
+  if (n.includes('neuro surg') || n.includes('neurosurg')) return '⚡';
+  if (n.includes('neuro')) return '🧠';
+  if (n.includes('nuclear') || n.includes('pet scan')) return '☢️';
+  if (n.includes('onco surg')) return '✂️';
+  if (n.includes('radiation onco')) return '📡';
+  if (n.includes('onco') || n.includes('cancer')) return '🎗️';
+  if (n.includes('ophthal')) return '👁️';
+  if (n.includes('ortho')) return '🦴';
+  if (n.includes('pathol') || n.includes('lab')) return '🔬';
+  if (n.includes('physic') || n.includes('rehab')) return '🏋️';
+  if (n.includes('plast')) return '🩹';
+  if (n.includes('psych')) return '🗣️';
+  if (n.includes('pulmo') || n.includes('resp') || n.includes('lung')) return '🫁';
+  if (n.includes('radiol') || n.includes('imaging') || n.includes('x-ray')) return '🩻';
+  if (n.includes('reproduc') || n.includes('ivf')) return '🧫';
+  if (n.includes('rheum')) return '🤲';
+  if (n.includes('uro')) return '🚿';
+  if (n.includes('vascul')) return '💓';
+  if (n.includes('surg')) return '🔪';
+  if (n.includes('medicine')) return '🩺';
+  return '🏥';
 }
 
 // Full Catalogue — provides icons, categories, and descriptions only.
