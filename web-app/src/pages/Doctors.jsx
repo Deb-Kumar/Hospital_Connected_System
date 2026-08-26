@@ -91,6 +91,9 @@ function getDoctorAvatarUrl(doc) {
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
       return trimmed;
     }
+    if (trimmed.startsWith('/uploads/') || trimmed.startsWith('uploads/')) {
+      return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    }
     const apiBase = (import.meta.env.VITE_API_URL || 'https://hospital-connected-system.onrender.com/api')
       .replace(/\/api\/?$/, '');
     return `${apiBase}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;

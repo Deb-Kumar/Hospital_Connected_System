@@ -1703,11 +1703,18 @@ export default function AdminDashboard() {
                     const rawName = (doc.user?.fullName || doc.fullName || '').replace(/^dr\.\s+/i, '').trim();
                     const docName = rawName ? `Dr. ${rawName}` : 'Specialist Doctor';
                     const rawAvatar = doc.profileImage || doc.avatarUrl || doc.user?.avatarUrl || doc.user?.profileImage;
-                    const avatarUrl = (rawAvatar && typeof rawAvatar === 'string' && rawAvatar.trim())
-                      ? (rawAvatar.trim().startsWith('http')
-                          ? rawAvatar.trim()
-                          : `${(import.meta.env.VITE_API_URL || 'https://hospital-connected-system.onrender.com/api').replace(/\/api\/?$/, '')}${rawAvatar.trim().startsWith('/') ? '' : '/'}${rawAvatar.trim()}`)
-                      : null;
+                    let avatarUrl = null;
+                    if (rawAvatar && typeof rawAvatar === 'string' && rawAvatar.trim()) {
+                      const trimmed = rawAvatar.trim();
+                      if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+                        avatarUrl = trimmed;
+                      } else if (trimmed.startsWith('/uploads/') || trimmed.startsWith('uploads/')) {
+                        avatarUrl = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+                      } else {
+                        const apiBase = (import.meta.env.VITE_API_URL || 'https://hospital-connected-system.onrender.com/api').replace(/\/api\/?$/, '');
+                        avatarUrl = `${apiBase}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+                      }
+                    }
                     const initials = rawName
                       ? rawName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
                       : 'DR';
