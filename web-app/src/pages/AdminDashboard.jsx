@@ -323,6 +323,7 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
+    setDeptStatusFilter('ALL');
     if (activeNav === 'doctors') loadDirectory('/admin/doctors');
     else if (activeNav === 'patients') loadDirectory('/admin/patients');
     else if (activeNav === 'staff') loadDirectory('/admin/receptionists');
@@ -628,7 +629,13 @@ export default function AdminDashboard() {
     axiosClient.get('/admin/doctors').then((res) => setAllDoctors(res.data || [])).catch(() => {});
     axiosClient.get('/admin/appointments').then((res) => setAllAppointments(res.data || [])).catch(() => {});
     axiosClient.get(endpoint)
-      .then((res) => setListData(res.data || []))
+      .then((res) => {
+        const data = res.data || [];
+        setListData(data);
+        if (endpoint.includes('departments')) {
+          setAllDepartments(data);
+        }
+      })
       .catch(() => setListData([]))
       .finally(() => setLoadingList(false));
   }
@@ -1409,63 +1416,70 @@ export default function AdminDashboard() {
                 </div>
 
               {/* Department Summary Cards (Total, Active, Deactivated) */}
-              {activeNav === 'departments' && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-                  <div
-                    onClick={() => setDeptStatusFilter('ALL')}
-                    className={`cursor-pointer bg-gradient-to-br from-indigo-500/10 via-slate-900/60 to-slate-900/90 border rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-cardHover transition-all ${
-                      deptStatusFilter === 'ALL'
-                        ? 'border-indigo-500 ring-2 ring-indigo-500/50 shadow-indigo-500/20 scale-[1.01]'
-                        : 'border-indigo-500/30 opacity-85 hover:opacity-100'
-                    }`}
-                  >
-                    <div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400">Total Departments</span>
-                      <h4 className="text-2xl font-black text-white mt-1">{allDepartments.length}</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Click to show all registered wings</p>
-                    </div>
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl">
-                      🏬
-                    </div>
-                  </div>
+              {activeNav === 'departments' && (() => {
+                const targetList = listData.length > 0 ? listData : allDepartments;
+                const totalCount = targetList.length;
+                const activeCount = targetList.filter(d => d.active !== false).length;
+                const deactiveCount = targetList.filter(d => d.active === false).length;
 
-                  <div
-                    onClick={() => setDeptStatusFilter('ACTIVE')}
-                    className={`cursor-pointer bg-gradient-to-br from-emerald-500/10 via-slate-900/60 to-slate-900/90 border rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-cardHover transition-all ${
-                      deptStatusFilter === 'ACTIVE'
-                        ? 'border-emerald-500 ring-2 ring-emerald-500/50 shadow-emerald-500/20 scale-[1.01]'
-                        : 'border-emerald-500/30 opacity-85 hover:opacity-100'
-                    }`}
-                  >
-                    <div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Active Departments</span>
-                      <h4 className="text-2xl font-black text-white mt-1">{allDepartments.filter(d => d.active !== false).length}</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Click to show active wings only</p>
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+                    <div
+                      onClick={() => setDeptStatusFilter('ALL')}
+                      className={`cursor-pointer bg-gradient-to-br from-indigo-500/10 via-slate-900/60 to-slate-900/90 border rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-cardHover transition-all ${
+                        deptStatusFilter === 'ALL'
+                          ? 'border-indigo-500 ring-2 ring-indigo-500/50 shadow-indigo-500/20 scale-[1.01]'
+                          : 'border-indigo-500/30 opacity-85 hover:opacity-100'
+                      }`}
+                    >
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400">Total Departments</span>
+                        <h4 className="text-2xl font-black text-white mt-1">{totalCount}</h4>
+                        <p className="text-[11px] text-slate-400 mt-0.5">Click to show all registered wings</p>
+                      </div>
+                      <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl">
+                        🏬
+                      </div>
                     </div>
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl">
-                      ✅
-                    </div>
-                  </div>
 
-                  <div
-                    onClick={() => setDeptStatusFilter('DEACTIVE')}
-                    className={`cursor-pointer bg-gradient-to-br from-rose-500/10 via-slate-900/60 to-slate-900/90 border rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-cardHover transition-all ${
-                      deptStatusFilter === 'DEACTIVE'
-                        ? 'border-rose-500 ring-2 ring-rose-500/50 shadow-rose-500/20 scale-[1.01]'
-                        : 'border-rose-500/30 opacity-85 hover:opacity-100'
-                    }`}
-                  >
-                    <div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-400">Deactivated Departments</span>
-                      <h4 className="text-2xl font-black text-white mt-1">{allDepartments.filter(d => d.active === false).length}</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Click to show deactivated wings only</p>
+                    <div
+                      onClick={() => setDeptStatusFilter('ACTIVE')}
+                      className={`cursor-pointer bg-gradient-to-br from-emerald-500/10 via-slate-900/60 to-slate-900/90 border rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-cardHover transition-all ${
+                        deptStatusFilter === 'ACTIVE'
+                          ? 'border-emerald-500 ring-2 ring-emerald-500/50 shadow-emerald-500/20 scale-[1.01]'
+                          : 'border-emerald-500/30 opacity-85 hover:opacity-100'
+                      }`}
+                    >
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Active Departments</span>
+                        <h4 className="text-2xl font-black text-white mt-1">{activeCount}</h4>
+                        <p className="text-[11px] text-slate-400 mt-0.5">Click to show active wings only</p>
+                      </div>
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl">
+                        ✅
+                      </div>
                     </div>
-                    <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-2xl">
-                      🚫
+
+                    <div
+                      onClick={() => setDeptStatusFilter('DEACTIVE')}
+                      className={`cursor-pointer bg-gradient-to-br from-rose-500/10 via-slate-900/60 to-slate-900/90 border rounded-2xl p-4 flex items-center justify-between shadow-card hover:shadow-cardHover transition-all ${
+                        deptStatusFilter === 'DEACTIVE'
+                          ? 'border-rose-500 ring-2 ring-rose-500/50 shadow-rose-500/20 scale-[1.01]'
+                          : 'border-rose-500/30 opacity-85 hover:opacity-100'
+                      }`}
+                    >
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-400">Deactivated Departments</span>
+                        <h4 className="text-2xl font-black text-white mt-1">{deactiveCount}</h4>
+                        <p className="text-[11px] text-slate-400 mt-0.5">Click to show deactivated wings only</p>
+                      </div>
+                      <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-2xl">
+                        🚫
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Search & Filter Controls */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
