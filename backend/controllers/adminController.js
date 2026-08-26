@@ -90,6 +90,9 @@ exports.deleteDoctor = async (req, res) => {
     if (!doctor) {
       return res.status(404).json({ success: false, message: 'Doctor not found.' });
     }
+    if (doctor.email) {
+      await User.deleteMany({ email: doctor.email });
+    }
     return res.json({ success: true, message: 'Doctor deleted successfully.' });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });

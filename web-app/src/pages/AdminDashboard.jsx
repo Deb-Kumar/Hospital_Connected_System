@@ -4087,6 +4087,7 @@ export default function AdminDashboard() {
           onClose={() => setDeletingDoctor(null)}
           onDeleted={(msg) => {
             fetchStats();
+            loadPending();
             if (activeNav === 'doctors') loadDirectory('/admin/doctors');
             showNotify('success', 'Doctor Deleted', msg || 'Doctor deleted successfully.');
           }}
