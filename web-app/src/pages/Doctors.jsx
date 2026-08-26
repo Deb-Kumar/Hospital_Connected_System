@@ -85,9 +85,16 @@ const defaultDoctorPhotos = [
 
 function getDoctorAvatarUrl(doc) {
   if (!doc) return defaultDoctorPhotos[0];
-  if (doc.avatarUrl) return doc.avatarUrl;
-  if (doc.profileImage) return doc.profileImage;
-  if (doc.user && doc.user.avatarUrl) return doc.user.avatarUrl;
+  const url = doc.avatarUrl || doc.profileImage || (doc.user && doc.user.avatarUrl);
+  if (url && typeof url === 'string' && url.trim()) {
+    const trimmed = url.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    const apiBase = (import.meta.env.VITE_API_URL || 'https://hospital-connected-system.onrender.com/api')
+      .replace(/\/api\/?$/, '');
+    return `${apiBase}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+  }
 
   const rawName = (doc.user?.fullName || doc.fullName || '').toLowerCase();
   const isFemale = rawName.includes('ananya') || rawName.includes('meera') || rawName.includes('priya') || rawName.includes('sunita') || rawName.includes('roy') || rawName.includes('banerjee') || rawName.includes('female');

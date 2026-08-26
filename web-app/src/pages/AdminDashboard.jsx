@@ -1702,7 +1702,12 @@ export default function AdminDashboard() {
                   {filteredList.map((doc) => {
                     const rawName = (doc.user?.fullName || doc.fullName || '').replace(/^dr\.\s+/i, '').trim();
                     const docName = rawName ? `Dr. ${rawName}` : 'Specialist Doctor';
-                    const avatarUrl = doc.profileImage || doc.avatarUrl || doc.user?.avatarUrl || doc.user?.profileImage;
+                    const rawAvatar = doc.profileImage || doc.avatarUrl || doc.user?.avatarUrl || doc.user?.profileImage;
+                    const avatarUrl = (rawAvatar && typeof rawAvatar === 'string' && rawAvatar.trim())
+                      ? (rawAvatar.trim().startsWith('http')
+                          ? rawAvatar.trim()
+                          : `${(import.meta.env.VITE_API_URL || 'https://hospital-connected-system.onrender.com/api').replace(/\/api\/?$/, '')}${rawAvatar.trim().startsWith('/') ? '' : '/'}${rawAvatar.trim()}`)
+                      : null;
                     const initials = rawName
                       ? rawName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
                       : 'DR';
