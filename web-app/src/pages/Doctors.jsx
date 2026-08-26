@@ -302,11 +302,11 @@ export default function DoctorsPage() {
                 >
                   <div>
                     {/* Photo Header */}
-                    <div className="relative h-56 overflow-hidden bg-slate-100">
+                    <div className="relative h-64 overflow-hidden bg-slate-100">
                       <img
                         src={avatar}
                         alt={name}
-                        className="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500"
+                        className="w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-darkNavy/80 via-transparent to-transparent"></div>
                       
