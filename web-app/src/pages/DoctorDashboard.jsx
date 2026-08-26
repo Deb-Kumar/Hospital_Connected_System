@@ -1144,6 +1144,7 @@ export default function DoctorDashboard() {
               doctorProfile={doctorProfile}
               showNotify={showNotify}
               onProfileUpdated={loadDoctorData}
+              onEditSchedule={() => setShowScheduleModal(true)}
             />
           )}
         </main>
@@ -1775,7 +1776,7 @@ function ConfirmSignOutModal({ isOpen, onClose, onConfirm }) {
   );
 }
 
-function DoctorProfileView({ user, doctorProfile, showNotify, onProfileUpdated }) {
+function DoctorProfileView({ user, doctorProfile, showNotify, onProfileUpdated, onEditSchedule }) {
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
@@ -2263,6 +2264,61 @@ function DoctorProfileView({ user, doctorProfile, showNotify, onProfileUpdated }
                 <span>✏️</span>
                 <span>Edit Password</span>
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* OPD Availability & Duty Hours Schedule Card */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-200 dark:border-slate-800 shadow-card space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 gap-3">
+          <div>
+            <h3 className="font-poppins font-extrabold text-darkNavy dark:text-white text-base sm:text-lg flex items-center gap-2">
+              <span>📅 OPD Availability & Duty Hours Schedule</span>
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Weekly consultation timings displayed to patients on the hospital booking portal.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onEditSchedule}
+            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black px-4 py-2.5 rounded-2xl transition shadow-emerald-500/20 shadow-lg cursor-pointer self-start sm:self-auto flex items-center gap-2 shrink-0 active:scale-95"
+          >
+            <span>✏️ Edit OPD Schedule</span>
+          </button>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🏬</span>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Assigned Hospital Department</p>
+                <h4 className="font-bold text-darkNavy dark:text-white text-sm">
+                  {doctorProfile?.department?.name || doctorProfile?.specialization || 'General Medicine'}
+                </h4>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-slate-200/80 dark:border-slate-700/80 text-xs flex items-center justify-between">
+              <span className="text-slate-500 dark:text-slate-400">Consultation Fee:</span>
+              <strong className="text-emerald-600 dark:text-emerald-400 font-mono font-extrabold text-sm">₹{doctorProfile?.consultationFee ?? 800}</strong>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⏰</span>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Configured Duty Hours</p>
+                <h4 className="font-bold text-darkNavy dark:text-white text-sm">Live Formatted OPD Schedule</h4>
+              </div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-3">
+              <p className="text-xs font-mono font-bold text-emerald-300 break-words">
+                {doctorProfile?.availabilitySchedule || 'MON - FRI • 09:00 AM - 01:00 PM'}
+              </p>
             </div>
           </div>
         </div>
