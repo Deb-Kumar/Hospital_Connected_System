@@ -131,8 +131,8 @@ export default function DoctorsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Only display APPROVED doctors in the public directory
-  const doctorList = (dbDoctors || []).filter(doc => doc.approvalStatus === 'APPROVED' || (doc.approvalStatus !== 'PENDING' && doc.approvalStatus !== 'REJECTED'));
+  // Strictly filter and display ONLY APPROVED doctors in the public directory
+  const doctorList = (dbDoctors || []).filter((doc) => doc.approvalStatus === 'APPROVED');
 
   // Extract clean department names dynamically from database
   const departmentOptions = (
