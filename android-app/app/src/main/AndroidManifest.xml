@@ -44,6 +44,10 @@
         <activity android:name=".ui.profile.DigitalIdActivity" android:exported="false" />
         <activity android:name=".ui.profile.FamilyMembersActivity" android:exported="false" />
         <activity android:name=".ui.records.AddRecordActivity" android:exported="false" />
+        <activity android:name=".ui.records.PrescriptionsActivity" android:exported="false" />
+        <activity android:name=".ui.profile.BillingActivity" android:exported="false" />
+        <activity android:name=".ui.home.NotificationsActivity" android:exported="false" />
+        <activity android:name=".ui.home.HospitalInfoActivity" android:exported="false" />
 
     </application>
 

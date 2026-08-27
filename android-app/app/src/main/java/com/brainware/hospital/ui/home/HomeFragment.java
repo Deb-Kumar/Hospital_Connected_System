@@ -102,20 +102,27 @@ public class HomeFragment extends Fragment {
                 switchToTab(R.id.nav_records));
 
         root.findViewById(R.id.actionPrescriptions).setOnClickListener(v ->
-                switchToTab(R.id.nav_records));
+                startActivity(new Intent(requireContext(), com.brainware.hospital.ui.records.PrescriptionsActivity.class)));
 
         // Row 2
         root.findViewById(R.id.actionRecords).setOnClickListener(v ->
                 switchToTab(R.id.nav_records));
 
         root.findViewById(R.id.actionBilling).setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Billing & Payments: No pending dues", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), com.brainware.hospital.ui.profile.BillingActivity.class)));
 
         root.findViewById(R.id.actionHealthPackages).setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Health Packages: Annual Checkup 20% OFF", Toast.LENGTH_SHORT).show());
 
         root.findViewById(R.id.actionFindHospital).setOnClickListener(v ->
-                showEmergencyInfo());
+                startActivity(new Intent(requireContext(), HospitalInfoActivity.class)));
+
+        View btnNotif = root.findViewById(R.id.btnNotification);
+        if (btnNotif != null) {
+            btnNotif.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), NotificationsActivity.class)));
+        }
+
     }
 
     private void switchToTab(int menuItemId) {

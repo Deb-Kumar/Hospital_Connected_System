@@ -1,10 +1,12 @@
 package com.brainware.hospital.ui.appointments;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +19,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.brainware.hospital.R;
 import com.brainware.hospital.adapter.AppointmentAdapter;
 import com.brainware.hospital.model.Appointment;
+import com.brainware.hospital.ui.doctors.DoctorsByDepartmentActivity;
 import com.brainware.hospital.utils.Constants;
 import com.brainware.hospital.viewmodel.AppointmentsViewModel;
 import com.google.android.material.tabs.TabLayout;
@@ -28,14 +31,13 @@ import java.util.List;
 public class AppointmentsFragment extends Fragment {
 
     private static final List<String> UPCOMING_STATUSES = Arrays.asList("PENDING", "ACCEPTED");
-    private static final List<String> COMPLETED_STATUSES = Arrays.asList("COMPLETED");
-    private static final List<String> CANCELLED_STATUSES = Arrays.asList("CANCELLED", "REJECTED");
+    private static final List<String> PAST_STATUSES = Arrays.asList("COMPLETED", "CANCELLED", "REJECTED");
 
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rvAppointments;
     private TabLayout tabLayout;
+    private TextView tabUpcoming, tabPast, tvError, tvEmpty;
     private android.widget.ProgressBar progressBar;
-    private android.widget.TextView tvError, tvEmpty;
 
     private AppointmentsViewModel viewModel;
     private AppointmentAdapter adapter;
@@ -57,9 +59,27 @@ public class AppointmentsFragment extends Fragment {
         swipeRefresh = view.findViewById(R.id.swipeRefresh);
         rvAppointments = view.findViewById(R.id.rvAppointments);
         tabLayout = view.findViewById(R.id.tabLayout);
+        tabUpcoming = view.findViewById(R.id.tabUpcoming);
+        tabPast = view.findViewById(R.id.tabPast);
         progressBar = view.findViewById(R.id.progressBar);
         tvError = view.findViewById(R.id.tvError);
         tvEmpty = view.findViewById(R.id.tvEmpty);
+
+        View btnBack = view.findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
+        }
+
+        View btnCta = view.findViewById(R.id.btnBookAppointmentCta);
+        if (btnCta != null) {
+            btnCta.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), DoctorsByDepartmentActivity.class)));
+        }
+
+        if (tabUpcoming != null && tabPast != null) {
+            tabUpcoming.setOnClickListener(v -> setSegmentedTab(0));
+            tabPast.setOnClickListener(v -> setSegmentedTab(1));
+        }
 
         adapter = new AppointmentAdapter(appointment -> {
             Intent intent = new Intent(requireContext(), AppointmentDetailActivity.class);
@@ -69,26 +89,35 @@ public class AppointmentsFragment extends Fragment {
         rvAppointments.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvAppointments.setAdapter(adapter);
 
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                selectedTab = tab.getPosition();
-                applyFilter();
-            }
-
-            @Override public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override public void onTabReselected(TabLayout.Tab tab) {}
-        });
-
         swipeRefresh.setOnRefreshListener(this::load);
         load();
+    }
+
+    private void setSegmentedTab(int index) {
+        selectedTab = index;
+        if (index == 0) {
+            tabUpcoming.setBackgroundResource(R.drawable.bg_tile_card);
+            tabUpcoming.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#1976D2")));
+            tabUpcoming.setTextColor(Color.WHITE);
+
+            tabPast.setBackgroundResource(R.drawable.bg_tile_card);
+            tabPast.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F5F5F5")));
+            tabPast.setTextColor(Color.parseColor("#616161"));
+        } else {
+            tabPast.setBackgroundResource(R.drawable.bg_tile_card);
+            tabPast.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#1976D2")));
+            tabPast.setTextColor(Color.WHITE);
+
+            tabUpcoming.setBackgroundResource(R.drawable.bg_tile_card);
+            tabUpcoming.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F5F5F5")));
+            tabUpcoming.setTextColor(Color.parseColor("#616161"));
+        }
+        applyFilter();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // Appointments may have changed elsewhere (e.g. just booked one) —
-        // refresh silently whenever this tab becomes visible again.
         load();
     }
 
@@ -117,9 +146,7 @@ public class AppointmentsFragment extends Fragment {
     }
 
     private void applyFilter() {
-        List<String> statuses = selectedTab == 0 ? UPCOMING_STATUSES
-                : selectedTab == 1 ? COMPLETED_STATUSES
-                : CANCELLED_STATUSES;
+        List<String> statuses = selectedTab == 0 ? UPCOMING_STATUSES : PAST_STATUSES;
 
         List<Appointment> filtered = new ArrayList<>();
         for (Appointment a : allAppointments) {

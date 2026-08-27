@@ -1,10 +1,12 @@
 package com.brainware.hospital.ui.records;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,17 +19,17 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.brainware.hospital.R;
 import com.brainware.hospital.adapter.RecordAdapter;
 import com.brainware.hospital.viewmodel.RecordsViewModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class RecordsFragment extends Fragment {
 
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rvRecords;
     private android.widget.ProgressBar progressBar;
-    private android.widget.TextView tvError, tvEmpty;
+    private TextView tvError, tvEmpty, tabAllRecords, tabLabReports, tabImaging;
 
     private RecordsViewModel viewModel;
     private RecordAdapter adapter;
+    private int selectedTab = 0;
 
     @Nullable
     @Override
@@ -47,21 +49,65 @@ public class RecordsFragment extends Fragment {
         tvError = view.findViewById(R.id.tvError);
         tvEmpty = view.findViewById(R.id.tvEmpty);
 
+        tabAllRecords = view.findViewById(R.id.tabAllRecords);
+        tabLabReports = view.findViewById(R.id.tabLabReports);
+        tabImaging = view.findViewById(R.id.tabImaging);
+
+        View btnBack = view.findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
+        }
+
+        View btnRequest = view.findViewById(R.id.btnRequestRecordCta);
+        if (btnRequest != null) {
+            btnRequest.setOnClickListener(v -> startActivity(new Intent(requireContext(), AddRecordActivity.class)));
+        }
+
+        if (tabAllRecords != null) tabAllRecords.setOnClickListener(v -> selectCategoryTab(0));
+        if (tabLabReports != null) tabLabReports.setOnClickListener(v -> selectCategoryTab(1));
+        if (tabImaging != null) tabImaging.setOnClickListener(v -> selectCategoryTab(2));
+
         adapter = new RecordAdapter();
         rvRecords.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvRecords.setAdapter(adapter);
-
-        FloatingActionButton fab = view.findViewById(R.id.fabAdd);
-        fab.setOnClickListener(v -> startActivity(new Intent(requireContext(), AddRecordActivity.class)));
 
         swipeRefresh.setOnRefreshListener(this::load);
         load();
     }
 
+    private void selectCategoryTab(int index) {
+        selectedTab = index;
+        resetTabPills();
+        if (index == 0) {
+            tabAllRecords.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#1976D2")));
+            tabAllRecords.setTextColor(Color.WHITE);
+        } else if (index == 1) {
+            tabLabReports.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#1976D2")));
+            tabLabReports.setTextColor(Color.WHITE);
+        } else {
+            tabImaging.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#1976D2")));
+            tabImaging.setTextColor(Color.WHITE);
+        }
+    }
+
+    private void resetTabPills() {
+        if (tabAllRecords != null) {
+            tabAllRecords.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F5F5F5")));
+            tabAllRecords.setTextColor(Color.parseColor("#616161"));
+        }
+        if (tabLabReports != null) {
+            tabLabReports.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F5F5F5")));
+            tabLabReports.setTextColor(Color.parseColor("#616161"));
+        }
+        if (tabImaging != null) {
+            tabImaging.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F5F5F5")));
+            tabImaging.setTextColor(Color.parseColor("#616161"));
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        // A record may have just been uploaded via AddRecordActivity.
         load();
     }
 

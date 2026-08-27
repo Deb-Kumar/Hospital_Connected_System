@@ -1,58 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Widget.Hospital.Card"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp">
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:padding="16dp">
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@android:drawable/ic_menu_edit"
-            app:tint="@color/medical_blue"
-            android:contentDescription="@null" />
+        <!-- Record Type Icon Circle -->
+        <FrameLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_icon_circle_purple">
 
+            <ImageView
+                android:id="@+id/ivRecordIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_qa_reports"
+                app:tint="#8E24AA" />
+        </FrameLayout>
+
+        <!-- Record Title & Date -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="14dp"
+            android:layout_marginEnd="8dp"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvTitle"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                tools:text="Blood Test Report" />
+                android:textColor="#212121"
+                tools:text="Blood Test" />
 
             <TextView
                 android:id="@+id/tvMeta"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                tools:text="LAB_REPORT · 12 Aug 2026" />
+                android:textColor="#757575"
+                tools:text="20 May 2025" />
 
             <TextView
                 android:id="@+id/tvSummary"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="12sp"
-                android:textColor="@color/soft_teal"
-                android:visibility="gone"
-                tools:text="AI summary: Normal ranges across all markers." />
+                android:layout_marginTop="2dp"
+                android:textSize="11sp"
+                android:textColor="#1976D2"
+                android:visibility="gone" />
         </LinearLayout>
 
+        <!-- Download Action Icon -->
+        <ImageView
+            android:id="@+id/btnDownloadRecord"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_qa_reports"
+            app:tint="#1565C0"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true" />
+
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</androidx.cardview.widget.CardView>

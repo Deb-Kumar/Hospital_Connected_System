@@ -1,17 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="#F8F9FA">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <!-- Top Action Toolbar Header -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/deep_navy"
-        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
-        app:navigationIconTint="@color/clinical_white" />
+        android:layout_height="56dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="#FFFFFF">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_back_arrow" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/btnFavorite"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_heart_outline" />
+
+            <ImageView
+                android:id="@+id/btnShare"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_chevron_right"
+                android:rotation="270"
+                app:tint="#1A237E" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -22,87 +56,177 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="40dp">
 
+            <!-- Hero Section Doctor Avatar -->
             <ImageView
-                android:layout_width="88dp"
-                android:layout_height="88dp"
-                android:layout_gravity="center"
-                android:src="@android:drawable/sym_def_app_icon"
-                android:contentDescription="@null" />
+                android:id="@+id/ivDoctorPhoto"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/ic_user_circle" />
 
+            <!-- Doctor Name -->
             <TextView
                 android:id="@+id/tvName"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:gravity="center"
-                android:textAppearance="@style/TextAppearance.Hospital.Title"
-                android:textSize="20sp"
-                tools:text="Dr. Anjali Sharma" />
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="14dp"
+                android:textColor="#212121"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                tools:text="Dr. Arindam Sen" />
 
+            <!-- Role / Specialization -->
             <TextView
                 android:id="@+id/tvSpecialization"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="2dp"
-                android:gravity="center"
-                android:textColor="@color/medical_blue"
+                android:textColor="#1976D2"
+                android:textSize="14sp"
+                android:textStyle="bold"
                 tools:text="Cardiologist" />
 
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.Hospital.Card"
-                android:layout_width="match_parent"
+            <!-- Degrees & Qualification -->
+            <TextView
+                android:id="@+id/tvQualification"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp">
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="2dp"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                tools:text="MBBS, MD (Cardiology)" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+            <!-- Experience -->
+            <TextView
+                android:id="@+id/tvExperience"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                tools:text="12+ Years Experience" />
 
-                    <TextView android:id="@+id/tvQualification" style="@style/TextAppearance.Hospital.Body"
-                        android:layout_width="match_parent" android:layout_height="wrap_content"
-                        tools:text="Qualification: MBBS, MD (Cardiology)" />
+            <!-- Rating Chip Pill -->
+            <TextView
+                android:id="@+id/tvRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_tile_card"
+                android:backgroundTint="#FFF8E1"
+                android:text="★ 4.8  (230 Reviews)"
+                android:textColor="#F57F17"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp" />
 
-                    <TextView android:id="@+id/tvExperience" style="@style/TextAppearance.Hospital.Body"
-                        android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        tools:text="Experience: 8 years" />
-
-                    <TextView android:id="@+id/tvDepartment" style="@style/TextAppearance.Hospital.Body"
-                        android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        tools:text="Department: Cardiology" />
-
-                    <TextView android:id="@+id/tvFee" style="@style/TextAppearance.Hospital.Body"
-                        android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        tools:text="Consultation Fee: ₹500" />
-
-                    <TextView android:id="@+id/tvAvailability" style="@style/TextAppearance.Hospital.Body"
-                        android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        tools:text="Availability: Mon, Wed 9:00 AM–1:00 PM" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
+            <!-- Section 1: About Doctor -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="About"
-                android:textAppearance="@style/TextAppearance.Hospital.Title"
-                android:textSize="16sp" />
+                android:layout_marginTop="24dp"
+                android:text="About Doctor"
+                android:textColor="#1A237E"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvBio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textAppearance="@style/TextAppearance.Hospital.Body"
-                tools:text="Dr. Sharma has 8 years of experience in interventional cardiology..." />
+                android:textColor="#616161"
+                android:textSize="13sp"
+                android:lineSpacingExtra="3dp"
+                tools:text="Dr. Arindam Sen is a senior consultant cardiologist specializing in interventional cardiology, angioplasty, and heart failure management with over 12 years of clinical experience." />
+
+            <!-- Section 2: Specializations Checklist Header -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:text="Specializations"
+                    android:textColor="#1A237E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="View All"
+                    android:textColor="#1976D2"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <!-- Specializations Checklist Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✓  Interventional Cardiology"
+                        android:textColor="#2E7D32"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✓  Angioplasty &amp; Stenting"
+                        android:textColor="#2E7D32"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✓  Echocardiography (ECHO)"
+                        android:textColor="#2E7D32"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✓  Heart Failure Management"
+                        android:textColor="#2E7D32"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:id="@+id/tvOnLeaveNotice"
@@ -110,20 +234,61 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:padding="12dp"
-                android:background="@drawable/bg_badge"
-                android:textColor="@color/clinical_white"
+                android:background="@drawable/bg_tile_card"
+                android:backgroundTint="#FFEBEE"
+                android:textColor="#D32F2F"
                 android:visibility="gone"
                 android:text="This doctor is currently on leave and not accepting new bookings." />
 
         </LinearLayout>
     </ScrollView>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnBook"
-        style="@style/Widget.Hospital.Button.Primary"
+    <!-- Bottom Fixed Action Booking Bar -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:text="@string/book_appointment" />
+        android:layout_height="72dp"
+        android:background="#FFFFFF"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Consultation Fee"
+                android:textColor="#757575"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvFee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#212121"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="₹600" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnBook"
+            android:layout_width="170dp"
+            android:layout_height="46dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:backgroundTint="#1976D2"
+            android:text="Book Appointment"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            app:cornerRadius="23dp" />
+    </RelativeLayout>
 
 </LinearLayout>

@@ -1,8 +1,10 @@
 package com.brainware.hospital.adapter;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,39 +45,39 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Appointment appt = items.get(position);
-        holder.tvDoctorName.setText(appt.getDoctorName());
-        holder.tvDepartment.setText(appt.getDepartmentName() != null ? appt.getDepartmentName() : "");
-        holder.tvDateTime.setText(appt.getAppointmentDate() + " · " + appt.getAppointmentTime());
-        holder.tvStatus.setText(appt.getStatus());
+        
+        String doctorName = appt.getDoctorName();
+        holder.tvDoctorName.setText(doctorName != null && doctorName.startsWith("Dr.") ? doctorName : "Dr. " + (doctorName != null ? doctorName : "Specialist"));
+        holder.tvDepartment.setText(appt.getDepartmentName() != null && !appt.getDepartmentName().isEmpty() ? appt.getDepartmentName() : "General Medicine");
+        holder.tvDateTime.setText(appt.getAppointmentDate() + "  •  " + appt.getAppointmentTime());
 
-        int color;
-        switch (appt.getStatus() == null ? "" : appt.getStatus()) {
-            case "ACCEPTED": color = R.color.status_accepted; break;
-            case "COMPLETED": color = R.color.status_completed; break;
-            case "CANCELLED": color = R.color.status_cancelled; break;
-            case "REJECTED": color = R.color.status_rejected; break;
-            default: color = R.color.status_pending;
-        }
-        holder.tvStatus.getBackground().setTint(holder.itemView.getContext().getColor(color));
-
-        String rawToken = appt.getTokenNumber();
-        if (rawToken != null && !rawToken.isEmpty()) {
-            holder.tvToken.setVisibility(View.VISIBLE);
-            String cleanToken = rawToken;
-            if (rawToken.contains("-")) {
-                String[] parts = rawToken.split("-");
-                cleanToken = "Token #" + parts[parts.length - 1];
-            } else if (rawToken.length() > 12) {
-                cleanToken = "Token #" + rawToken.substring(rawToken.length() - 4);
-            } else if (!rawToken.startsWith("Token")) {
-                cleanToken = "Token #" + rawToken;
-            }
-            holder.tvToken.setText(cleanToken);
-        } else if (appt.getQueueNumber() > 0) {
-            holder.tvToken.setVisibility(View.VISIBLE);
-            holder.tvToken.setText("Token #" + appt.getQueueNumber());
+        String status = appt.getStatus() != null ? appt.getStatus().toUpperCase() : "PENDING";
+        if ("ACCEPTED".equals(status) || "CONFIRMED".equals(status)) {
+            holder.tvStatus.setText("Confirmed");
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_tile_card);
+            holder.tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#E8F5E9")));
+            holder.tvStatus.setTextColor(Color.parseColor("#2E7D32"));
+        } else if ("PENDING".equals(status) || "SCHEDULED".equals(status)) {
+            holder.tvStatus.setText("Scheduled");
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_tile_card);
+            holder.tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#E3F2FD")));
+            holder.tvStatus.setTextColor(Color.parseColor("#1976D2"));
+        } else if ("COMPLETED".equals(status)) {
+            holder.tvStatus.setText("Completed");
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_tile_card);
+            holder.tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F3E5F5")));
+            holder.tvStatus.setTextColor(Color.parseColor("#7B1FA2"));
         } else {
-            holder.tvToken.setVisibility(View.GONE);
+            holder.tvStatus.setText("Cancelled");
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_tile_card);
+            holder.tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFEBEE")));
+            holder.tvStatus.setTextColor(Color.parseColor("#D32F2F"));
+        }
+
+        if (holder.tvToken != null) {
+            String token = appt.getTokenNumber() != null && !appt.getTokenNumber().isEmpty()
+                    ? appt.getTokenNumber() : (appt.getQueueNumber() > 0 ? "OPD " + appt.getQueueNumber() : "OPD Main Wing");
+            holder.tvToken.setText("Brainware Hospital, " + token);
         }
 
         holder.itemView.setOnClickListener(v -> listener.onClick(appt));
@@ -87,10 +89,12 @@ public class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivPhoto;
         TextView tvDoctorName, tvDepartment, tvDateTime, tvStatus, tvToken;
 
         ViewHolder(View itemView) {
             super(itemView);
+            ivPhoto = itemView.findViewById(R.id.ivPhoto);
             tvDoctorName = itemView.findViewById(R.id.tvDoctorName);
             tvDepartment = itemView.findViewById(R.id.tvDepartment);
             tvDateTime = itemView.findViewById(R.id.tvDateTime);
