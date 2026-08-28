@@ -1,0 +1,26 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="44"
+    android:viewportHeight="44">
+
+  <!-- Light Indigo Background Circle -->
+  <path
+      android:pathData="M22,22m-20,0a20,20 0,1 0,40 0a20,20 0,1 0,-40 0"
+      android:fillColor="#E8EAF6"/>
+
+  <!-- ENT Ear/Sound Wave Icon -->
+  <path
+      android:pathData="M18,14C15.5,14 13.5,16 13.5,18.5C13.5,23.5 21.5,26 21.5,30C21.5,31.5 20.2,32.5 18.5,32.5C16.8,32.5 15.5,31.5 15.5,30H13.5C13.5,32.5 15.8,34.5 18.5,34.5C21.5,34.5 23.5,32.5 23.5,29.5C23.5,24.5 15.5,22.5 15.5,18.5C15.5,17.2 16.6,16 18,16C19.4,16 20.5,17 20.5,18.5H22.5C22.5,16 20.5,14 18,14Z"
+      android:fillColor="#3F51B5"/>
+  <path
+      android:pathData="M26,17C28,19 28,23 26,25"
+      android:strokeWidth="2"
+      android:strokeColor="#3F51B5"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M29,14C32,17 32,25 29,28"
+      android:strokeWidth="2"
+      android:strokeColor="#3F51B5"
+      android:strokeLineCap="round"/>
+</vector>

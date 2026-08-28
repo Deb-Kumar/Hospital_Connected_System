@@ -153,7 +153,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="24dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="#FFFFFF">
@@ -181,7 +181,7 @@
                         android:weightSum="4"
                         android:layout_marginBottom="12dp">
 
-                        <!-- Item 1: Book Appointment (Light Blue) -->
+                        <!-- Item 1: Book Appointment -->
                         <LinearLayout
                             android:id="@+id/actionBook"
                             android:layout_width="0dp"
@@ -212,7 +212,7 @@
                                 android:layout_marginTop="4dp" />
                         </LinearLayout>
 
-                        <!-- Item 2: Doctor Consultation (Light Green) -->
+                        <!-- Item 2: Doctor Consultation -->
                         <LinearLayout
                             android:id="@+id/actionDoctorConsult"
                             android:layout_width="0dp"
@@ -244,7 +244,7 @@
                                 android:layout_marginTop="4dp" />
                         </LinearLayout>
 
-                        <!-- Item 3: My Reports (Light Purple) -->
+                        <!-- Item 3: My Reports -->
                         <LinearLayout
                             android:id="@+id/actionMyReports"
                             android:layout_width="0dp"
@@ -276,7 +276,7 @@
                                 android:layout_marginTop="4dp" />
                         </LinearLayout>
 
-                        <!-- Item 4: Prescriptions (Light Orange) -->
+                        <!-- Item 4: Prescriptions -->
                         <LinearLayout
                             android:id="@+id/actionPrescriptions"
                             android:layout_width="0dp"
@@ -304,7 +304,7 @@
                                 android:textSize="10sp"
                                 android:textStyle="bold"
                                 android:gravity="center"
-                                android:layout_marginTop="6dp" />
+                                android:layout_marginTop="4dp" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -315,7 +315,7 @@
                         android:orientation="horizontal"
                         android:weightSum="4">
 
-                        <!-- Item 5: Medical Records (Light Teal) -->
+                        <!-- Item 5: Health Records -->
                         <LinearLayout
                             android:id="@+id/actionRecords"
                             android:layout_width="0dp"
@@ -323,7 +323,7 @@
                             android:layout_weight="1"
                             android:layout_marginEnd="4dp"
                             android:background="@drawable/bg_tile_card"
-                            android:backgroundTint="#E0F2F1"
+                            android:backgroundTint="#E0F7FA"
                             android:orientation="vertical"
                             android:gravity="center"
                             android:padding="6dp"
@@ -338,49 +338,17 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Medical\nRecords"
-                                android:textColor="#00695C"
+                                android:text="Health\nRecords"
+                                android:textColor="#00838F"
                                 android:textSize="10sp"
                                 android:textStyle="bold"
                                 android:gravity="center"
                                 android:layout_marginTop="4dp" />
                         </LinearLayout>
 
-                        <!-- Item 6: Billing & Payments (Light Gold) -->
+                        <!-- Item 6: Billing & Pay -->
                         <LinearLayout
                             android:id="@+id/actionBilling"
-                            android:layout_width="0dp"
-                            android:layout_height="88dp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="2dp"
-                            android:layout_marginEnd="2dp"
-                            android:background="@drawable/bg_tile_card"
-                            android:backgroundTint="#FFF8E1"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:padding="6dp"
-                            android:clickable="true"
-                            android:focusable="true">
-
-                            <ImageView
-                                android:layout_width="26dp"
-                                android:layout_height="26dp"
-                                android:src="@drawable/ic_qa_billing" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Billing &amp;\nPayments"
-                                android:textColor="#F57F17"
-                                android:textSize="10sp"
-                                android:textStyle="bold"
-                                android:gravity="center"
-                                android:layout_marginTop="4dp" />
-                        </LinearLayout>
-
-                        <!-- Item 7: Health Packages (Light Pink) -->
-                        <LinearLayout
-                            android:id="@+id/actionHealthPackages"
                             android:layout_width="0dp"
                             android:layout_height="88dp"
                             android:layout_weight="1"
@@ -397,12 +365,12 @@
                             <ImageView
                                 android:layout_width="26dp"
                                 android:layout_height="26dp"
-                                android:src="@drawable/ic_qa_packages" />
+                                android:src="@drawable/ic_qa_billing" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Health\nPackages"
+                                android:text="Billing &amp;\nPay"
                                 android:textColor="#C2185B"
                                 android:textSize="10sp"
                                 android:textStyle="bold"
@@ -410,7 +378,39 @@
                                 android:layout_marginTop="4dp" />
                         </LinearLayout>
 
-                        <!-- Item 8: Find Hospital (Light Indigo) -->
+                        <!-- Item 7: Health Packages -->
+                        <LinearLayout
+                            android:id="@+id/actionHealthPackages"
+                            android:layout_width="0dp"
+                            android:layout_height="88dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="2dp"
+                            android:layout_marginEnd="2dp"
+                            android:background="@drawable/bg_tile_card"
+                            android:backgroundTint="#F0F4C3"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="6dp"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
+                                android:src="@drawable/ic_qa_packages" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Health\nPackages"
+                                android:textColor="#827717"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:gravity="center"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+
+                        <!-- Item 8: Hospital Info -->
                         <LinearLayout
                             android:id="@+id/actionFindHospital"
                             android:layout_width="0dp"
@@ -433,7 +433,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Find\nHospital"
+                                android:text="Hospital\nInfo"
                                 android:textColor="#283593"
                                 android:textSize="10sp"
                                 android:textStyle="bold"
@@ -445,224 +445,864 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Upcoming Appointment Section Header -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:text="Upcoming Appointment"
-                    android:textColor="#1A237E"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/btnViewAllAppointments"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:text="View All"
-                    android:textColor="#1E88E5"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:clickable="true"
-                    android:focusable="true" />
-            </RelativeLayout>
-
-            <!-- Upcoming Appointment Card -->
+            <!-- SECTION 1: Comprehensive Emergency Infrastructure -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                app:cardCornerRadius="16dp"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="#FFFFFF">
+                app:cardBackgroundColor="#FEF2F2">
 
                 <LinearLayout
-                    android:id="@+id/layoutUpcoming"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <ImageView
-                            android:id="@+id/ivDoctorAvatar"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"
-                            android:src="@drawable/ic_user_circle" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_toEndOf="@id/ivDoctorAvatar"
-                            android:layout_toStartOf="@id/tvStatusBadge"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="12dp"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tvUpcomingDoctor"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="#212121"
-                                android:textSize="15sp"
-                                android:textStyle="bold"
-                                tools:text="Dr. Arindam Sen" />
-
-                            <TextView
-                                android:id="@+id/tvUpcomingSpecialty"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="#757575"
-                                android:textSize="13sp"
-                                android:layout_marginTop="1dp"
-                                tools:text="Cardiologist" />
-                        </LinearLayout>
-
-                        <!-- Confirmed Pill Badge -->
-                        <TextView
-                            android:id="@+id/tvStatusBadge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:background="@drawable/bg_tile_card"
-                            android:backgroundTint="#E8F5E9"
-                            android:textColor="#2E7D32"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:paddingStart="10dp"
-                            android:paddingEnd="10dp"
-                            android:paddingTop="4dp"
-                            android:paddingBottom="4dp"
-                            android:text="Confirmed" />
-                    </RelativeLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="#EEEEEE"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="12dp" />
-
-                    <!-- Date & Time Row -->
+                    <!-- Red Emergency Hotline Banner Header -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_qa_book_app"
-                            app:tint="#757575" />
+                        android:background="@drawable/bg_tile_card"
+                        android:backgroundTint="#DC2626"
+                        android:orientation="vertical"
+                        android:padding="14dp"
+                        android:layout_marginBottom="14dp">
 
                         <TextView
-                            android:id="@+id/tvUpcomingDetails"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:textColor="#616161"
-                            android:textSize="12sp"
-                            tools:text="25 May 2025  •  11:00 AM" />
+                            android:text="⚡ 24×7 EMERGENCY HOTLINE"
+                            android:textColor="#FEF08A"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Immediate Critical Support\nWhen Every Second Counts"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <Button
+                            android:id="@+id/btnCallAmbulance"
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:layout_marginTop="10dp"
+                            android:backgroundTint="#FFFFFF"
+                            android:text="📞 CALL AMBULANCE: 108"
+                            android:textColor="#DC2626"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="12dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Comprehensive Emergency Infrastructure"
+                        android:textColor="#991B1B"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="10dp" />
+
+                    <!-- Emergency Infrastructure Items Grid -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#FFFFFF"
+                                android:padding="10dp"
+                                android:text="🚨 24×7 Emergency Care\nSenior trauma specialists on duty continuously."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#FFFFFF"
+                                android:padding="10dp"
+                                android:text="🚑 GPS Ambulance Fleet\nALS &amp; Mobile ICU ambulances ready."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#FFFFFF"
+                                android:padding="10dp"
+                                android:text="🏥 Level-1 Trauma Unit\nDedicated surgical suites for accidental &amp; cardiac trauma."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#FFFFFF"
+                                android:padding="10dp"
+                                android:text="🩸 24x7 Blood &amp; Lab\nInstant cross-matching and statutory reports."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
                     </LinearLayout>
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvNoUpcoming"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="20dp"
-                    android:gravity="center"
-                    android:text="No upcoming appointments. Book an appointment above."
-                    android:textColor="#757575"
-                    android:textSize="13sp"
-                    android:visibility="gone" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Health Tips Section Header -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:text="Health Tips"
-                    android:textColor="#1A237E"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/btnViewAllTips"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:text="View All"
-                    android:textColor="#1E88E5"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:clickable="true"
-                    android:focusable="true" />
-            </RelativeLayout>
-
-            <!-- Health Tips Card -->
+            <!-- SECTION 2: Why Choose Brainware Medical College & Hospital? -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#F1F8E9">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:orientation="vertical"
                     android:padding="16dp">
 
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/ic_heartbeat" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Why Patients Trust Us"
+                        android:textColor="#2563EB"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="14dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Stay hydrated and eat healthy food to keep your body and mind healthy."
-                        android:textColor="#33691E"
-                        android:textSize="13sp"
-                        android:lineSpacingExtra="2dp" />
+                        android:layout_marginTop="2dp"
+                        android:text="Why Choose Brainware Medical College &amp; Hospital?"
+                        android:textColor="#1E293B"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_chevron_right" />
+                    <!-- Reasons Grid (4 Rows of 2 Columns) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F8FAFC"
+                                android:padding="10dp"
+                                android:text="👨‍⚕️ Experienced Doctors\n100+ senior consultants with fellowships."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F8FAFC"
+                                android:padding="10dp"
+                                android:text="🔬 Advanced Tech\n3T MRI, 128-Slice CT Scan &amp; Cath Labs."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F8FAFC"
+                                android:padding="10dp"
+                                android:text="🏥 Modern Infrastructure\n500+ beds &amp; modular operating theatres."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F8FAFC"
+                                android:padding="10dp"
+                                android:text="❤️ Patient-Centered Care\nEmpathetic nursing &amp; transparent billing."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F8FAFC"
+                                android:padding="10dp"
+                                android:text="💻 Online Booking\nInstant doctor slots booked in 60 seconds."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F8FAFC"
+                                android:padding="10dp"
+                                android:text="📑 Digital Records\nSecure cloud access to lab reports &amp; Rx."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Hidden Departments List RecyclerView for logic compatibility -->
+            <!-- SECTION 3: Major Hospital Services -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Major Hospital Services"
+                        android:textColor="#1E293B"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Major Services List -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Service 1: OPD -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_tile_card"
+                            android:backgroundTint="#EFF6FF"
+                            android:orientation="vertical"
+                            android:padding="12dp"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🩺 Outpatient Department (OPD)"
+                                android:textColor="#1E40AF"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Consultations across 25+ medical specialties with senior doctors.\n🕒 Mon-Sat (8:00 AM - 8:00 PM)"
+                                android:textColor="#475569"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <!-- Service 2: IPD -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_tile_card"
+                            android:backgroundTint="#F0FDF4"
+                            android:orientation="vertical"
+                            android:padding="12dp"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🛏️ Inpatient Department (IPD)"
+                                android:textColor="#166534"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Deluxe private rooms, semi-private wards, and round-the-clock nursing.\n🕒 24×7 Admission Care"
+                                android:textColor="#475569"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <!-- Service 3: Emergency & Trauma -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_tile_card"
+                            android:backgroundTint="#FEF2F2"
+                            android:orientation="vertical"
+                            android:padding="12dp"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🚨 Emergency &amp; Trauma Care"
+                                android:textColor="#991B1B"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Level-1 unit for polytrauma, cardiac arrests, stroke management, &amp; burns.\n🕒 24×7 Round-the-Clock"
+                                android:textColor="#475569"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <!-- Service 4: ICU / CCU -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_tile_card"
+                            android:backgroundTint="#FAF5FF"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🫁 Intensive Care Unit (ICU/CCU)"
+                                android:textColor="#6B21A8"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Ultra-modern ventilators, cardiac monitoring &amp; 1:1 nursing ratio.\n🕒 24×7 Monitoring"
+                                android:textColor="#475569"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- SECTION 4: Hospital Facilities & Patient Amenities -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="World-Class Infrastructure"
+                        android:textColor="#0D9488"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Hospital Facilities &amp; Patient Amenities"
+                        android:textColor="#1E293B"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Facilities Grid (4 Rows of 2 Columns) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F0FDFA"
+                                android:padding="10dp"
+                                android:text="🛋️ Deluxe Patient Suites\nAir-conditioned suites with SMART TV."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F0FDFA"
+                                android:padding="10dp"
+                                android:text="🔪 Modular OTs\nLaminar airflow HEPA filtered surgical suites."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F0FDFA"
+                                android:padding="10dp"
+                                android:text="🔬 Diagnostic Centre\n3T MRI, 128-slice CT scan &amp; Pathology."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F0FDFA"
+                                android:padding="10dp"
+                                android:text="💊 24×7 In-House Pharmacy\nGenuine prescrbed medications &amp; vaccines."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F0FDFA"
+                                android:padding="10dp"
+                                android:text="☕ Hygienic Cafeteria\nNutritious meals curated by dietitians."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#F0FDFA"
+                                android:padding="10dp"
+                                android:text="💳 Cashless Insurance\nOn-site TPA pre-authorization helpdesk."
+                                android:textColor="#1E293B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- SECTION 5: Latest Medical Insights & Articles -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Health Awareness &amp; Tips"
+                        android:textColor="#2563EB"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Latest Medical Insights &amp; Articles"
+                        android:textColor="#1E293B"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Article Cards -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_tile_card"
+                            android:backgroundTint="#F8FAFC"
+                            android:orientation="vertical"
+                            android:padding="12dp"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🫀 CARDIOLOGY CARE"
+                                android:textColor="#2563EB"
+                                android:textSize="10sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Preventing Cardiac Arrest: 5 Key Lifestyle Changes"
+                                android:textColor="#1E293B"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Regular cardio checkups, low-sodium diet, and early cholesterol management save lives."
+                                android:textColor="#64748B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_tile_card"
+                            android:backgroundTint="#F8FAFC"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🧠 NEUROLOGY WELLNESS"
+                                android:textColor="#7C3AED"
+                                android:textSize="10sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Recognizing Early Warning Signs of Stroke (F.A.S.T)"
+                                android:textColor="#1E293B"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Face drooping, Arm weakness, and Speech difficulty require immediate ER response within the 3-hour golden window."
+                                android:textColor="#64748B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- SECTION 6: What Our Patients Say (Centered Swipeable Carousel with Indicator Dots) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardReviewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:padding="18dp">
+
+                    <!-- Centered Section Titles -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Patient Stories &amp; Reviews"
+                        android:textColor="#D97706"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center"
+                        android:text="What Our Patients Say"
+                        android:textColor="#1E293B"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="14dp" />
+
+                    <!-- Native ViewPager2 for 100% Smooth Horizontal Finger Swiping -->
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/viewPagerReviews"
+                        android:layout_width="match_parent"
+                        android:layout_height="145dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Centered Indicator Dots Row -->
+                    <LinearLayout
+                        android:id="@+id/layoutDotsContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="4dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- SECTION 7: Our Healthcare Statistics -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="#172033">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Impact in Numbers"
+                        android:textColor="#34D399"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Our Healthcare Statistics"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="14dp" />
+
+                    <!-- 8 Stats Grid (4 Rows of 2 Columns) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#1F293D"
+                                android:padding="10dp"
+                                android:text="🏥 20+ Years\nHealthcare Experience"
+                                android:textColor="#FBBF24"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#1F293D"
+                                android:padding="10dp"
+                                android:text="👨‍⚕️ 100+ Doctors\nSenior Specialists"
+                                android:textColor="#FBBF24"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#1F293D"
+                                android:padding="10dp"
+                                android:text="😊 50,000+ Patients\nHappy Patients Served"
+                                android:textColor="#FBBF24"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#1F293D"
+                                android:padding="10dp"
+                                android:text="🩺 25+ Departments\nSuper-Specialty Care"
+                                android:textColor="#FBBF24"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#1F293D"
+                                android:padding="10dp"
+                                android:text="🛏️ 500+ Beds\nHospital Bed Capacity"
+                                android:textColor="#FBBF24"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_tile_card"
+                                android:backgroundTint="#1F293D"
+                                android:padding="10dp"
+                                android:text="🔪 10,000+ Surgeries\nSuccessful Major Surgeries"
+                                android:textColor="#FBBF24"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Hidden Departments List & Progress Views for logic compatibility -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvDepartments"
                 android:layout_width="match_parent"

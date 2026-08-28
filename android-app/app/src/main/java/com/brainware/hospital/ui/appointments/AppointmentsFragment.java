@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,7 +20,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.brainware.hospital.R;
 import com.brainware.hospital.adapter.AppointmentAdapter;
 import com.brainware.hospital.model.Appointment;
-import com.brainware.hospital.ui.doctors.DoctorsByDepartmentActivity;
+import com.brainware.hospital.ui.booking.BookAppointmentModalDialog;
+import com.brainware.hospital.ui.main.MainActivity;
+import com.brainware.hospital.ui.view.MortarLoaderView;
 import com.brainware.hospital.utils.Constants;
 import com.brainware.hospital.viewmodel.AppointmentsViewModel;
 import com.google.android.material.tabs.TabLayout;
@@ -36,8 +39,9 @@ public class AppointmentsFragment extends Fragment {
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rvAppointments;
     private TabLayout tabLayout;
-    private TextView tabUpcoming, tabPast, tvError, tvEmpty;
-    private android.widget.ProgressBar progressBar;
+    private TextView tabUpcoming, tabPast, tvError;
+    private CardView cardEmptyState;
+    private MortarLoaderView mortarLoader;
 
     private AppointmentsViewModel viewModel;
     private AppointmentAdapter adapter;
@@ -61,19 +65,27 @@ public class AppointmentsFragment extends Fragment {
         tabLayout = view.findViewById(R.id.tabLayout);
         tabUpcoming = view.findViewById(R.id.tabUpcoming);
         tabPast = view.findViewById(R.id.tabPast);
-        progressBar = view.findViewById(R.id.progressBar);
+        mortarLoader = view.findViewById(R.id.mortarLoader);
+        cardEmptyState = view.findViewById(R.id.cardEmptyState);
         tvError = view.findViewById(R.id.tvError);
-        tvEmpty = view.findViewById(R.id.tvEmpty);
 
         View btnBack = view.findViewById(R.id.btnBack);
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
+            btnBack.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).selectTab(0);
+                } else {
+                    requireActivity().onBackPressed();
+                }
+            });
         }
 
         View btnCta = view.findViewById(R.id.btnBookAppointmentCta);
         if (btnCta != null) {
-            btnCta.setOnClickListener(v ->
-                    startActivity(new Intent(requireContext(), DoctorsByDepartmentActivity.class)));
+            btnCta.setOnClickListener(v -> {
+                BookAppointmentModalDialog dialog = BookAppointmentModalDialog.newInstance();
+                dialog.show(getChildFragmentManager(), "BookAppointmentModalDialog");
+            });
         }
 
         if (tabUpcoming != null && tabPast != null) {
@@ -122,8 +134,8 @@ public class AppointmentsFragment extends Fragment {
     }
 
     private void load() {
-        progressBar.setVisibility(View.VISIBLE);
-        tvError.setVisibility(View.GONE);
+        if (mortarLoader != null) mortarLoader.setVisibility(View.VISIBLE);
+        if (tvError != null) tvError.setVisibility(View.GONE);
 
         viewModel.getHistory().observe(getViewLifecycleOwner(), resource -> {
             if (resource == null) return;
@@ -132,14 +144,16 @@ public class AppointmentsFragment extends Fragment {
                 case LOADING:
                     break;
                 case SUCCESS:
-                    progressBar.setVisibility(View.GONE);
+                    if (mortarLoader != null) mortarLoader.setVisibility(View.GONE);
                     allAppointments = resource.data != null ? resource.data : new ArrayList<>();
                     applyFilter();
                     break;
                 case ERROR:
-                    progressBar.setVisibility(View.GONE);
-                    tvError.setText(resource.message);
-                    tvError.setVisibility(View.VISIBLE);
+                    if (mortarLoader != null) mortarLoader.setVisibility(View.GONE);
+                    if (tvError != null) {
+                        tvError.setText(resource.message);
+                        tvError.setVisibility(View.VISIBLE);
+                    }
                     break;
             }
         });
@@ -154,6 +168,13 @@ public class AppointmentsFragment extends Fragment {
         }
 
         adapter.submitList(filtered);
-        tvEmpty.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+
+        if (filtered.isEmpty()) {
+            if (rvAppointments != null) rvAppointments.setVisibility(View.GONE);
+            if (cardEmptyState != null) cardEmptyState.setVisibility(View.VISIBLE);
+        } else {
+            if (rvAppointments != null) rvAppointments.setVisibility(View.VISIBLE);
+            if (cardEmptyState != null) cardEmptyState.setVisibility(View.GONE);
+        }
     }
 }

@@ -41,10 +41,10 @@ async function createAppointmentForPatient(patient, doctorId, appointmentDate, a
     needsReceptionistAssignment = true;
   }
 
-  const existingCount = await Appointment.countDocuments({
-    ...(doctor ? { doctor: doctor._id } : {}),
-    appointmentDate,
-  });
+  const lastAppt = await Appointment.findOne({ appointmentDate }).sort({ queueNumber: -1 });
+  const nextQueueNumber = (lastAppt && typeof lastAppt.queueNumber === 'number' && lastAppt.queueNumber > 0)
+    ? lastAppt.queueNumber + 1
+    : 1;
 
   const pName = patient.fullName || patient.user?.fullName || 'Patient';
   const pPhone = patient.phone || patient.user?.phone || '';
@@ -67,9 +67,9 @@ async function createAppointmentForPatient(patient, doctorId, appointmentDate, a
     age: age ? Number(age) : undefined,
     bloodGroup: bloodGroup || undefined,
     videoConsultation: !!videoConsultation,
-    queueNumber: existingCount + 1,
-    tokenNumber: buildToken(appointmentDate, existingCount + 1),
-    estimatedWaitMinutes: existingCount * 15,
+    queueNumber: nextQueueNumber,
+    tokenNumber: `Token #${nextQueueNumber}`,
+    estimatedWaitMinutes: (nextQueueNumber - 1) * 15,
     paymentAmount: fee,
   });
 
@@ -200,7 +200,10 @@ exports.reschedule = async (req, res) => {
     old.status = 'RESCHEDULED';
     await old.save();
 
-    const existingCount = await Appointment.countDocuments({ doctor: old.doctor, appointmentDate: date });
+    const lastAppt = await Appointment.findOne({ appointmentDate: date }).sort({ queueNumber: -1 });
+    const nextQueueNumber = (lastAppt && typeof lastAppt.queueNumber === 'number' && lastAppt.queueNumber > 0)
+      ? lastAppt.queueNumber + 1
+      : 1;
 
     const updated = await Appointment.create({
       patient: old.patient,
@@ -209,8 +212,8 @@ exports.reschedule = async (req, res) => {
       appointmentTime: time,
       reasonForVisit: old.reasonForVisit,
       rescheduledFrom: old._id,
-      queueNumber: existingCount + 1,
-      tokenNumber: buildToken(date, existingCount + 1),
+      queueNumber: nextQueueNumber,
+      tokenNumber: buildToken(date, nextQueueNumber),
       paymentAmount: old.paymentAmount,
     });
 
@@ -226,18 +229,27 @@ exports.cancel = async (req, res) => {
     const { reason } = req.query;
     const appointment = await Appointment.findByIdAndUpdate(
       req.params.id,
-      { status: 'CANCELLED', cancellationReason: reason },
+      { status: 'CANCELLED', cancellationReason: reason || 'Cancelled by patient' },
       { new: true }
     ).populate('patient');
 
     if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found' });
 
-    const patientEmail = appointment.patient?.email || appointment.patient?.user?.email;
-    if (patientEmail) {
-      await sendEmail(patientEmail, 'Appointment Cancelled',
-        `Your appointment on ${appointment.appointmentDate} was cancelled.`);
-    }
-    return res.json(appointment);
+    // Respond INSTANTLY to HTTP client (<10ms)
+    res.json(appointment);
+
+    // Process notification in background setImmediate
+    setImmediate(async () => {
+      try {
+        const patientEmail = appointment.patient?.email || appointment.patient?.user?.email;
+        if (patientEmail && !patientEmail.includes('@guest.local') && !patientEmail.includes('@walkin.local') && !patientEmail.includes('@brainwarehospital.edu.in')) {
+          await sendEmail(patientEmail, '🏥 OPD Appointment Cancelled',
+            `Your appointment on ${appointment.appointmentDate} at ${appointment.appointmentTime} has been cancelled. Reason: ${reason || 'Cancelled by patient'}`);
+        }
+      } catch (err) {
+        console.error('Background cancel email error:', err.message);
+      }
+    });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }

@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="44"
+    android:viewportHeight="44">
+
+  <!-- Light Amber Background Circle -->
+  <path
+      android:pathData="M22,22m-20,0a20,20 0,1 0,40 0a20,20 0,1 0,-40 0"
+      android:fillColor="#FFF8E1"/>
+
+  <!-- Surgery Scalpel Cross Icon -->
+  <path
+      android:pathData="M16,28L28,16"
+      android:strokeWidth="3"
+      android:strokeColor="#F57F17"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M19,16L29,26"
+      android:strokeWidth="2"
+      android:strokeColor="#F57F17"
+      android:strokeLineCap="round"/>
+</vector>

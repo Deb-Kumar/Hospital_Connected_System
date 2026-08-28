@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="44"
+    android:viewportHeight="44">
+
+  <!-- Light Deep Orange Circle Background -->
+  <path
+      android:pathData="M22,22m-20,0a20,20 0,1 0,40 0a20,20 0,1 0,-40 0"
+      android:fillColor="#FBE9E7"/>
+
+  <!-- Stomach Digestive System Icon -->
+  <path
+      android:pathData="M20,13V17C20,19 16,21 16,25C16,28 19,30 23,30C27,30 29,27 29,24C29,20 26,18 26,16V13"
+      android:strokeWidth="2.5"
+      android:strokeColor="#D84315"
+      android:strokeLineCap="round"/>
+</vector>

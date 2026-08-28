@@ -26,6 +26,7 @@
             android:orientation="vertical"
             android:padding="20dp">
 
+            <!-- Header Token & Status Card -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Widget.Hospital.Card"
                 android:layout_width="match_parent"
@@ -36,25 +37,35 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="12dp">
 
+                    <!-- Colored Badge Format Status -->
                     <TextView
                         android:id="@+id/tvStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#B8C4D9"
+                        android:background="@drawable/bg_tile_card"
+                        android:backgroundTint="#FEF3C7"
+                        android:textColor="#D97706"
                         android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"
                         tools:text="PENDING" />
 
                     <TextView
                         android:id="@+id/tvToken"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="10dp"
                         android:textColor="@color/clinical_white"
                         android:textSize="32sp"
                         android:textStyle="bold"
-                        tools:text="A-024" />
+                        tools:text="Token #6" />
 
                     <TextView
                         android:id="@+id/tvQueueInfo"
@@ -62,20 +73,19 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:textColor="#D8E1F0"
-                        tools:text="6 patients ahead · ~25 min wait" />
+                        android:textSize="13sp"
+                        tools:text="Queue position 6 · ~75 min estimated wait" />
 
+                    <!-- Ref ID permanently hidden per user instruction -->
                     <TextView
                         android:id="@+id/tvRawRefId"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:textColor="#8AA2C8"
-                        android:textSize="11sp"
-                        android:fontFamily="monospace"
-                        tools:text="Booking Ref ID: 6a71d52c8b910f" />
+                        android:visibility="gone" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Appointment Details Card -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Widget.Hospital.Card"
                 android:layout_width="match_parent"
@@ -90,7 +100,7 @@
                     <TextView android:id="@+id/tvDoctor" style="@style/TextAppearance.Hospital.Body"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:textColor="@color/text_primary" android:textStyle="bold" android:textSize="16sp"
-                        tools:text="Dr. Anjali Sharma" />
+                        tools:text="Doctor not assigned" />
 
                     <TextView android:id="@+id/tvDepartment" style="@style/TextAppearance.Hospital.Body"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -99,14 +109,30 @@
                     <View android:layout_width="match_parent" android:layout_height="1dp"
                         android:background="@color/cool_gray" android:layout_marginTop="12dp" android:layout_marginBottom="12dp" />
 
-                    <TextView android:id="@+id/tvDateTime" style="@style/TextAppearance.Hospital.Body"
-                        android:layout_width="match_parent" android:layout_height="wrap_content"
-                        tools:text="20 Aug 2026 · 10:30 AM" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView android:id="@+id/tvDateTime" style="@style/TextAppearance.Hospital.Body"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_toStartOf="@id/tvBookingTime"
+                            android:textColor="#0F172A"
+                            android:textStyle="bold"
+                            tools:text="📅 2026-08-31 • 10:00 PM" />
+
+                        <TextView android:id="@+id/tvBookingTime" style="@style/TextAppearance.Hospital.Body"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:textColor="#64748B"
+                            android:textSize="12sp"
+                            tools:text="📝 Booked: 28 Aug, 12:17 PM" />
+                    </RelativeLayout>
 
                     <TextView android:id="@+id/tvReason" style="@style/TextAppearance.Hospital.Body"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        tools:text="Reason: Chest pain and shortness of breath" />
+                        tools:text="Reason: Stress" />
 
                     <TextView android:id="@+id/tvCancellationReason" style="@style/TextAppearance.Hospital.Body"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -118,6 +144,37 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Pending Info Note Card (Shown ONLY for Pending appointments) -->
+            <LinearLayout
+                android:id="@+id/layoutPendingNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_tile_card"
+                android:backgroundTint="#EFF6FF"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_info_circle"
+                    app:tint="#2563EB" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:text="Note: When hospital authority assigns a doctor, your appointment will be confirmed."
+                    android:textColor="#1E40AF"
+                    android:textSize="13sp"
+                    android:textStyle="italic"
+                    android:lineSpacingExtra="3dp" />
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 
@@ -128,7 +185,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:text="Reschedule" />
 
     <com.google.android.material.button.MaterialButton

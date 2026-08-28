@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.brainware.hospital.R;
 import com.brainware.hospital.model.Doctor;
 
@@ -33,7 +34,6 @@ public class DoctorAdapter extends RecyclerView.Adapter<DoctorAdapter.ViewHolder
         items.clear();
         if (newItems != null) {
             for (Doctor d : newItems) {
-                // If approvalStatus is null or APPROVED, include in list
                 if (d.getApprovalStatus() == null || "APPROVED".equals(d.getApprovalStatus())) {
                     items.add(d);
                 }
@@ -61,19 +61,33 @@ public class DoctorAdapter extends RecyclerView.Adapter<DoctorAdapter.ViewHolder
         holder.tvSpecialization.setText(specialization);
 
         if (holder.tvDegrees != null) {
-            holder.tvDegrees.setText("MBBS, MD, DM (" + specialization + ")");
+            String qual = doctor.getQualification();
+            if (qual != null && !qual.trim().isEmpty()) {
+                holder.tvDegrees.setText(qual.trim());
+            } else {
+                holder.tvDegrees.setText("MBBS, MD (" + specialization + ")");
+            }
         }
-
 
         int exp = doctor.getExperienceYears() > 0 ? doctor.getExperienceYears() : 8;
         holder.tvFee.setText(exp + "+ Years Experience");
 
-        if (doctor.isOnLeave()) {
-            holder.tvStatusBadge.setText("• On Leave");
-            holder.tvStatusBadge.setTextColor(0xFFD32F2F);
+        if (holder.tvRatingBadge != null) {
+            double rating = doctor.getRating() > 0 ? doctor.getRating() : (4.6 + (position % 4) * 0.1);
+            holder.tvRatingBadge.setText(String.format("★ %.1f", rating));
+        }
+
+        // Fetch & load doctor profile image with Glide
+        String photoUrl = doctor.getPhotoUrl();
+        if (photoUrl != null && !photoUrl.trim().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(photoUrl)
+                    .placeholder(R.drawable.ic_user_circle)
+                    .error(R.drawable.ic_user_circle)
+                    .circleCrop()
+                    .into(holder.ivPhoto);
         } else {
-            holder.tvStatusBadge.setText("• Available");
-            holder.tvStatusBadge.setTextColor(0xFF2E7D32);
+            holder.ivPhoto.setImageResource(R.drawable.ic_user_circle);
         }
 
         if (holder.btnBookDoctor != null) {
@@ -89,7 +103,7 @@ public class DoctorAdapter extends RecyclerView.Adapter<DoctorAdapter.ViewHolder
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivPhoto;
-        TextView tvName, tvSpecialization, tvDegrees, tvFee, tvStatusBadge;
+        TextView tvName, tvSpecialization, tvDegrees, tvFee, tvRatingBadge;
         Button btnBookDoctor;
 
         ViewHolder(View itemView) {
@@ -99,7 +113,7 @@ public class DoctorAdapter extends RecyclerView.Adapter<DoctorAdapter.ViewHolder
             tvSpecialization = itemView.findViewById(R.id.tvSpecialization);
             tvDegrees = itemView.findViewById(R.id.tvDegrees);
             tvFee = itemView.findViewById(R.id.tvFee);
-            tvStatusBadge = itemView.findViewById(R.id.tvStatusBadge);
+            tvRatingBadge = itemView.findViewById(R.id.tvRatingBadge);
             btnBookDoctor = itemView.findViewById(R.id.btnBookDoctor);
         }
     }

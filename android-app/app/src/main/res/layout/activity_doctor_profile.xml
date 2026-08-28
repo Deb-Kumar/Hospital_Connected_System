@@ -23,6 +23,15 @@
             android:layout_centerVertical="true"
             android:src="@drawable/ic_back_arrow" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Doctor Profile"
+            android:textColor="#1A237E"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -101,8 +110,9 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="2dp"
                 android:textColor="#757575"
-                android:textSize="12sp"
-                tools:text="MBBS, MD (Cardiology)" />
+                android:textSize="13sp"
+                android:textStyle="bold"
+                tools:text="MBBS, MD, DM (Cardiology)" />
 
             <!-- Experience -->
             <TextView
@@ -133,11 +143,71 @@
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp" />
 
-            <!-- Section 1: About Doctor -->
+            <!-- Section 1: OPD Schedule & Availability Card -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
+                android:text="OPD Schedule &amp; Timings"
+                android:textColor="#1A237E"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="top"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_qa_book_app"
+                        android:layout_marginTop="2dp"
+                        app:tint="#1565C0" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical">
+
+                        <!-- OPD Timings (Displayed Line by Line) -->
+                        <TextView
+                            android:id="@+id/tvAvailabilitySchedule"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#212121"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:lineSpacingExtra="4dp"
+                            tools:text="• Monday : 09:00 AM - 01:00 PM\n• Wednesday : 09:00 AM - 01:00 PM\n• Friday : 02:00 PM - 06:00 PM" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Main OPD Clinic • Brainware Medical College &amp; Hospital"
+                            android:textColor="#757575"
+                            android:textSize="12sp"
+                            android:layout_marginTop="8dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Section 2: About Doctor -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:text="About Doctor"
                 android:textColor="#1A237E"
                 android:textSize="16sp"
@@ -153,7 +223,7 @@
                 android:lineSpacingExtra="3dp"
                 tools:text="Dr. Arindam Sen is a senior consultant cardiologist specializing in interventional cardiology, angioplasty, and heart failure management with over 12 years of clinical experience." />
 
-            <!-- Section 2: Specializations Checklist Header -->
+            <!-- Section 3: Specializations Checklist Header -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -198,7 +268,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="✓  Interventional Cardiology"
+                        android:text="✓  Advanced Medical Consultation"
                         android:textColor="#2E7D32"
                         android:textSize="13sp"
                         android:layout_marginBottom="8dp" />
@@ -206,7 +276,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="✓  Angioplasty &amp; Stenting"
+                        android:text="✓  Comprehensive Clinical Diagnosis"
                         android:textColor="#2E7D32"
                         android:textSize="13sp"
                         android:layout_marginBottom="8dp" />
@@ -214,15 +284,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="✓  Echocardiography (ECHO)"
-                        android:textColor="#2E7D32"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="✓  Heart Failure Management"
+                        android:text="✓  Patient Follow-up &amp; Prescription"
                         android:textColor="#2E7D32"
                         android:textSize="13sp" />
                 </LinearLayout>

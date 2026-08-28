@@ -33,6 +33,7 @@
             android:name=".ui.main.MainActivity"
             android:exported="false" />
 
+        <activity android:name=".ui.doctors.DoctorConsultationActivity" android:exported="false" />
         <activity android:name=".ui.doctors.DoctorsByDepartmentActivity" android:exported="false" />
         <activity android:name=".ui.doctors.DoctorProfileActivity" android:exported="false" />
         <activity android:name=".ui.booking.BookAppointmentActivity" android:exported="false" />

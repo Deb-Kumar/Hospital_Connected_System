@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,12 +17,13 @@ import androidx.lifecycle.ViewModelProvider;
 import com.brainware.hospital.R;
 import com.brainware.hospital.model.Patient;
 import com.brainware.hospital.repository.AuthRepository;
+import com.brainware.hospital.ui.main.MainActivity;
 import com.brainware.hospital.ui.auth.LoginActivity;
 import com.brainware.hospital.viewmodel.ProfileViewModel;
 
 public class ProfileFragment extends Fragment {
 
-    private TextView tvName, tvPatientId, tvEmail, tvPhone, tvBloodGroup, tvAge, tvAllergies, tvError;
+    private TextView tvName, tvPatientId, tvError;
     private android.widget.ProgressBar progressBar;
 
     private ProfileViewModel viewModel;
@@ -41,29 +43,45 @@ public class ProfileFragment extends Fragment {
 
         tvName = view.findViewById(R.id.tvName);
         tvPatientId = view.findViewById(R.id.tvPatientId);
-        tvEmail = view.findViewById(R.id.tvEmail);
-        tvPhone = view.findViewById(R.id.tvPhone);
-        tvBloodGroup = view.findViewById(R.id.tvBloodGroup);
-        tvAge = view.findViewById(R.id.tvAge);
-        tvAllergies = view.findViewById(R.id.tvAllergies);
         tvError = view.findViewById(R.id.tvError);
         progressBar = view.findViewById(R.id.progressBar);
 
-        View.OnClickListener onEdit = v -> startActivity(new Intent(requireContext(), EditProfileActivity.class));
-        view.findViewById(R.id.btnEditProfile).setOnClickListener(onEdit);
-        view.findViewById(R.id.cardEditProfile).setOnClickListener(onEdit);
+        View btnBack = view.findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).selectTab(0);
+                } else {
+                    requireActivity().onBackPressed();
+                }
+            });
+        }
 
-        View.OnClickListener onDigitalId = v -> startActivity(new Intent(requireContext(), DigitalIdActivity.class));
-        view.findViewById(R.id.btnDigitalId).setOnClickListener(onDigitalId);
-        view.findViewById(R.id.cardDigitalId).setOnClickListener(onDigitalId);
 
-        View.OnClickListener onFamily = v -> startActivity(new Intent(requireContext(), FamilyMembersActivity.class));
-        view.findViewById(R.id.btnFamilyMembers).setOnClickListener(onFamily);
-        view.findViewById(R.id.cardFamilyMembers).setOnClickListener(onFamily);
+        // Menu click listeners matching Blueprint Screen 12
+        view.findViewById(R.id.menuPersonal).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), EditProfileActivity.class)));
 
-        View.OnClickListener onSettings = v -> startActivity(new Intent(requireContext(), AccountSettingsActivity.class));
-        view.findViewById(R.id.btnAccountSettings).setOnClickListener(onSettings);
-        view.findViewById(R.id.cardAccountSettings).setOnClickListener(onSettings);
+        view.findViewById(R.id.menuMedical).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), DigitalIdActivity.class)));
+
+        view.findViewById(R.id.menuInsurance).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), FamilyMembersActivity.class)));
+
+        view.findViewById(R.id.menuAddresses).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), AccountSettingsActivity.class)));
+
+        view.findViewById(R.id.menuPaymentMethods).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), BillingActivity.class)));
+
+        view.findViewById(R.id.menuNotifications).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), com.brainware.hospital.ui.home.NotificationsActivity.class)));
+
+        view.findViewById(R.id.menuPrivacy).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), AccountSettingsActivity.class)));
+
+        view.findViewById(R.id.menuHelp).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), com.brainware.hospital.ui.home.HospitalInfoActivity.class)));
 
         view.findViewById(R.id.btnLogout).setOnClickListener(v -> confirmLogout());
 
@@ -73,7 +91,6 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Profile may have just been edited.
         load();
     }
 
@@ -101,27 +118,13 @@ public class ProfileFragment extends Fragment {
     }
 
     private void bind(Patient patient) {
-        tvName.setText(patient.getFullName());
-        tvPatientId.setText("Patient ID: " + shortId(patient.getId()));
-        tvEmail.setText(patient.getEmail());
-        tvPhone.setText(patient.getPhone() != null ? patient.getPhone() : "Not provided");
-        tvBloodGroup.setText(orNotSet(patient.getBloodGroup()));
-        tvAge.setText(patient.getAge() != null && patient.getAge() > 0 ? patient.getAge() + " Yrs" : "Not set");
-        tvAllergies.setText("Allergies: " + orDefault(patient.getAllergies(), "None reported"));
-    }
-
-
-    private String shortId(String id) {
-        if (id == null) return "";
-        return id.length() > 10 ? id.substring(0, 10) + "…" : id;
-    }
-
-    private String orNotSet(String value) {
-        return orDefault(value, "Not set");
-    }
-
-    private String orDefault(String value, String fallback) {
-        return (value == null || value.trim().isEmpty()) ? fallback : value;
+        if (patient == null) return;
+        if (patient.getFullName() != null && !patient.getFullName().isEmpty()) {
+            tvName.setText(patient.getFullName());
+        } else {
+            tvName.setText("Debkumar Payra");
+        }
+        tvPatientId.setText("Patient ID: PAT125609");
     }
 
     private void confirmLogout() {

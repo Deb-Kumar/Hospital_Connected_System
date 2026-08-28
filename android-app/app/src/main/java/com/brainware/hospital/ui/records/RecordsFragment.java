@@ -18,6 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.brainware.hospital.R;
 import com.brainware.hospital.adapter.RecordAdapter;
+import com.brainware.hospital.ui.main.MainActivity;
 import com.brainware.hospital.viewmodel.RecordsViewModel;
 
 public class RecordsFragment extends Fragment {
@@ -55,8 +56,15 @@ public class RecordsFragment extends Fragment {
 
         View btnBack = view.findViewById(R.id.btnBack);
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
+            btnBack.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).selectTab(0);
+                } else {
+                    requireActivity().onBackPressed();
+                }
+            });
         }
+
 
         View btnRequest = view.findViewById(R.id.btnRequestRecordCta);
         if (btnRequest != null) {

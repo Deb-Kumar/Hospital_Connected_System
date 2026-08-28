@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="44"
+    android:viewportHeight="44">
+
+  <!-- Light Teal Circle Background -->
+  <path
+      android:pathData="M22,22m-20,0a20,20 0,1 0,40 0a20,20 0,1 0,-40 0"
+      android:fillColor="#E0F2F1"/>
+
+  <!-- Tooth Icon -->
+  <path
+      android:pathData="M16,14C17.5,14 19,15 22,15C25,15 26.5,14 28,14C30,14 31,16 31,19C31,23 29,29 27,29C25.5,29 25,26 22,26C19,26 18.5,29 17,29C15,29 13,23 13,19C13,16 14,14 16,14Z"
+      android:fillColor="#00796B"/>
+</vector>

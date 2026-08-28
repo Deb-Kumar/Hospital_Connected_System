@@ -18,6 +18,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Header Row: Doctor Info + Status Badge -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -39,6 +40,7 @@
                 android:layout_toStartOf="@id/tvStatus"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="12dp"
+                android:layout_marginEnd="6dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -48,7 +50,9 @@
                     android:textColor="#212121"
                     android:textSize="15sp"
                     android:textStyle="bold"
-                    tools:text="Dr. Arindam Sen" />
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="Doctor not assigned" />
 
                 <TextView
                     android:id="@+id/tvDepartment"
@@ -57,7 +61,9 @@
                     android:textColor="#757575"
                     android:textSize="13sp"
                     android:layout_marginTop="1dp"
-                    tools:text="Cardiologist" />
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="Cardiology" />
             </LinearLayout>
 
             <!-- Status Pill Badge -->
@@ -68,15 +74,16 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:background="@drawable/bg_tile_card"
-                android:backgroundTint="#E8F5E9"
-                android:textColor="#2E7D32"
+                android:backgroundTint="#FEF3C7"
+                android:textColor="#D97706"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
-                tools:text="Confirmed" />
+                android:maxLines="1"
+                tools:text="Pending" />
         </RelativeLayout>
 
         <View
@@ -86,52 +93,106 @@
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp" />
 
-        <!-- Date & Time Row -->
-        <LinearLayout
+        <!-- Bottom Details Layout: Left Side (Scheduled Appointment & Hospital) | Right Side (Token # at top, Booking Time below) -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/ic_qa_book_app"
-                app:tint="#757575" />
-
-            <TextView
-                android:id="@+id/tvDateTime"
+            <!-- Left Side Details -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:textColor="#616161"
-                android:textSize="12sp"
-                tools:text="25 May 2025  •  11:00 AM" />
-        </LinearLayout>
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/layoutRightSide"
+                android:orientation="vertical">
 
-        <!-- Location & OPD Row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="6dp">
+                <!-- Scheduled Appointment Date & Time -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/ic_qa_hospital"
-                app:tint="#757575" />
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:src="@drawable/ic_qa_book_app"
+                        app:tint="#1976D2" />
 
-            <TextView
-                android:id="@+id/tvToken"
+                    <TextView
+                        android:id="@+id/tvDateTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textColor="#334155"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        tools:text="2026-08-31 • 10:00 PM" />
+                </LinearLayout>
+
+                <!-- Hospital Name -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="4dp">
+
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:src="@drawable/ic_qa_hospital"
+                        app:tint="#757575" />
+
+                    <TextView
+                        android:id="@+id/tvHospital"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Brainware Medical College &amp; Hospital"
+                        android:textColor="#616161"
+                        android:textSize="11sp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Right Side Stack: Token Number Top, Booking Timestamp Below -->
+            <LinearLayout
+                android:id="@+id/layoutRightSide"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:textColor="#616161"
-                android:textSize="12sp"
-                tools:text="Brainware Hospital, OPD 3" />
-        </LinearLayout>
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <!-- Token Number Top -->
+                <TextView
+                    android:id="@+id/tvToken"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#1E40AF"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    tools:text="Token #6" />
+
+                <!-- Booking Timestamp Below -->
+                <TextView
+                    android:id="@+id/tvBookingTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#64748B"
+                    android:textSize="11sp"
+                    android:layout_marginTop="2dp"
+                    android:maxLines="1"
+                    tools:text="Booked: 28 Aug, 12:17 PM" />
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

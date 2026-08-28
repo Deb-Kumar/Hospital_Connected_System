@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="44"
+    android:viewportHeight="44">
+
+  <!-- Light Cyan Circle Background -->
+  <path
+      android:pathData="M22,22m-20,0a20,20 0,1 0,40 0a20,20 0,1 0,-40 0"
+      android:fillColor="#E0F7FA"/>
+
+  <!-- Butterfly / Thyroid Gland Icon -->
+  <path
+      android:pathData="M22,15C22,15 15,13 13,19C11,25 18,29 22,23C26,29 33,25 31,19C29,13 22,15 22,15Z"
+      android:fillColor="#00838F"/>
+  <path
+      android:pathData="M22,21m-2,0a2,2 0,1 0,4 0a2,2 0,1 0,-4 0"
+      android:fillColor="#FFFFFF"/>
+</vector>

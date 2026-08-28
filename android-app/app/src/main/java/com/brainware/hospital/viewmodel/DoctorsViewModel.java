@@ -25,6 +25,10 @@ public class DoctorsViewModel extends AndroidViewModel {
         return repository.getAllDoctors();
     }
 
+    public LiveData<Resource<List<Doctor>>> getDoctors() {
+        return repository.getAllDoctors();
+    }
+
     public LiveData<Resource<List<Doctor>>> getDoctorsByDepartment(String departmentId) {
         return repository.getDoctorsByDepartment(departmentId);
     }

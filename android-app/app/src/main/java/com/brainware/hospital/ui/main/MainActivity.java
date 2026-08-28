@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int COLOR_ACTIVE = Color.parseColor("#8E24AA");
     private static final int COLOR_INACTIVE = Color.parseColor("#757575");
+
+    private int currentTabIndex = 0;
 
     private final BroadcastReceiver sessionExpiredReceiver = new BroadcastReceiver() {
         @Override
@@ -77,6 +80,18 @@ public class MainActivity extends AppCompatActivity {
         // Central FAB + click listener: Opens Quick Booking BottomSheet Modal
         fabContainer.setOnClickListener(v -> showQuickBookingModal());
 
+        // Handle back press gracefully — switch to Home tab if on another tab instead of exiting app
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (currentTabIndex != 0) {
+                    selectTab(0);
+                } else {
+                    finish();
+                }
+            }
+        });
+
         if (savedInstanceState == null) {
             selectTab(0);
         }
@@ -95,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Select a doctor to book your OPD appointment slot.", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(MainActivity.this, com.brainware.hospital.ui.doctors.DoctorsByDepartmentActivity.class));
             });
-
 
             // Option 2: AI Health Assistant
             view.findViewById(R.id.btnQuickAi).setOnClickListener(v -> {
@@ -116,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void selectTab(int index) {
+        this.currentTabIndex = index;
         Fragment fragment = null;
 
         // Reset all tabs to inactive state

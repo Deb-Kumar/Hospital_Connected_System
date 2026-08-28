@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet_dialog">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <!-- Top Header Row -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="❌ "
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel OPD Appointment"
+                    android:textColor="#0F172A"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/btnClose"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:text="✕"
+                android:textColor="#64748B"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tvCancelSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please select a mandatory reason for cancelling your appointment."
+            android:textColor="#64748B"
+            android:textSize="12sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Mandatory Radio Group for Cancellation Reason -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reason for Cancellation *"
+            android:textColor="#0F172A"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupReasons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
+
+            <RadioButton
+                android:id="@+id/rbScheduleConflict"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Schedule Conflict"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:buttonTint="#2563EB"
+                android:paddingStart="8dp" />
+
+            <RadioButton
+                android:id="@+id/rbDoctorNotAvailable"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Doctor Not Available"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:buttonTint="#2563EB"
+                android:paddingStart="8dp" />
+
+            <RadioButton
+                android:id="@+id/rbPersonalReason"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Personal Reason / Emergency"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:buttonTint="#2563EB"
+                android:paddingStart="8dp" />
+
+            <RadioButton
+                android:id="@+id/rbHealthImproved"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Health Improved / Not Needed"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:buttonTint="#2563EB"
+                android:paddingStart="8dp" />
+
+            <RadioButton
+                android:id="@+id/rbOtherReason"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Other Reason"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:buttonTint="#2563EB"
+                android:paddingStart="8dp" />
+
+        </RadioGroup>
+
+        <!-- Custom Reason EditText (Visible when Other Reason is selected) -->
+        <EditText
+            android:id="@+id/etCustomReason"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:background="@drawable/bg_tile_card"
+            android:backgroundTint="#F8FAFC"
+            android:padding="10dp"
+            android:hint="Specify your reason..."
+            android:textColor="#0F172A"
+            android:textColorHint="#94A3B8"
+            android:textSize="13sp"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:visibility="gone"
+            android:layout_marginBottom="14dp" />
+
+        <!-- Error Message View -->
+        <TextView
+            android:id="@+id/tvCancelError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#EF4444"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Confirm Cancellation Button -->
+        <Button
+            android:id="@+id/btnConfirmCancel"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="#EF4444"
+            android:text="Confirm Cancellation"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:cornerRadius="14dp" />
+
+    </LinearLayout>
+
+</FrameLayout>

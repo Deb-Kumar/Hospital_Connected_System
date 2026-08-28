@@ -9,6 +9,9 @@
         <item name="android:statusBarColor">@color/deep_navy</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowBackground">@color/background</item>
+        <item name="android:progressBarStyle">@style/Widget.Hospital.ProgressBar</item>
+        <item name="android:progressBarStyleLarge">@style/Widget.Hospital.ProgressBar.Large</item>
+        <item name="android:progressBarStyleSmall">@style/Widget.Hospital.ProgressBar.Small</item>
     </style>
 
     <style name="Theme.BrainwareHospital.Splash">
@@ -45,5 +48,17 @@
 
     <style name="TextAppearance.Hospital.Body" parent="TextAppearance.Material3.BodyMedium">
         <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="Widget.Hospital.ProgressBar" parent="android:Widget.ProgressBar">
+        <item name="android:indeterminateDrawable">@drawable/progress_mortar_pestle</item>
+    </style>
+
+    <style name="Widget.Hospital.ProgressBar.Large" parent="android:Widget.ProgressBar.Large">
+        <item name="android:indeterminateDrawable">@drawable/progress_mortar_pestle</item>
+    </style>
+
+    <style name="Widget.Hospital.ProgressBar.Small" parent="android:Widget.ProgressBar.Small">
+        <item name="android:indeterminateDrawable">@drawable/progress_mortar_pestle</item>
     </style>
 </resources>

@@ -1,5 +1,6 @@
 package com.brainware.hospital.model;
 
+import com.brainware.hospital.BuildConfig;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
@@ -11,9 +12,6 @@ public class Appointment {
     private String patientPhone;
     private String patientEmail;
 
-    // Sometimes a bare ObjectId string (e.g. response of POST /book), sometimes
-    // a populated Doctor object (e.g. GET /patient/:id history) — see
-    // backend/controllers/appointmentController.js. Parse defensively.
     private JsonElement doctor;
 
     private String departmentName;
@@ -42,6 +40,17 @@ public class Appointment {
     public String getAppointmentDate() { return appointmentDate; }
     public String getAppointmentTime() { return appointmentTime; }
     public String getStatus() { return status; }
+    public String getFormattedToken() {
+        if (queueNumber > 0) {
+            return "Token #" + queueNumber;
+        }
+        if (tokenNumber != null && !tokenNumber.trim().isEmpty()) {
+            if (tokenNumber.startsWith("Token #")) return tokenNumber;
+            return "Token #" + tokenNumber;
+        }
+        return "Token #1";
+    }
+
     public int getQueueNumber() { return queueNumber; }
     public String getTokenNumber() { return tokenNumber; }
     public int getEstimatedWaitMinutes() { return estimatedWaitMinutes; }
@@ -54,13 +63,43 @@ public class Appointment {
     public String getPaymentStatus() { return paymentStatus; }
     public String getCreatedAt() { return createdAt; }
 
-    /** Best-effort doctor display name whether "doctor" is populated or a bare id. */
-    public String getDoctorName() {
-        if (doctor == null || doctor.isJsonNull()) return "Assigned by Reception";
-        if (doctor.isJsonObject() && doctor.getAsJsonObject().has("fullName")) {
-            return "Dr. " + doctor.getAsJsonObject().get("fullName").getAsString();
+    public String getFormattedBookingTime() {
+        if (createdAt == null || createdAt.trim().isEmpty()) {
+            return "";
         }
-        return "Assigned by Reception";
+        try {
+            String cleanStr = createdAt.replace("Z", "+00:00");
+            if (cleanStr.contains(".")) {
+                cleanStr = cleanStr.substring(0, cleanStr.indexOf(".")) + "+00:00";
+            }
+            java.text.SimpleDateFormat isoFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US);
+            isoFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            java.util.Date date = isoFormat.parse(cleanStr.substring(0, 19));
+            if (date != null) {
+                java.text.SimpleDateFormat outFormat = new java.text.SimpleDateFormat("dd MMM, hh:mm a", java.util.Locale.US);
+                return "Booked: " + outFormat.format(date);
+            }
+        } catch (Exception ignored) {}
+
+        if (createdAt.length() >= 16) {
+            String datePart = createdAt.substring(0, 10);
+            String timePart = createdAt.substring(11, 16);
+            return "Booked: " + datePart + " " + timePart;
+        }
+        return "Booked: " + createdAt;
+    }
+
+    public String getDoctorName() {
+        if (doctor == null || doctor.isJsonNull()) return "Doctor not assigned";
+        if (doctor.isJsonObject() && doctor.getAsJsonObject().has("fullName")) {
+            String name = doctor.getAsJsonObject().get("fullName").getAsString();
+            if (name == null || name.trim().isEmpty() || name.toLowerCase().contains("reception") || name.toLowerCase().contains("assigned")) {
+                return "Doctor not assigned";
+            }
+            if (name.toLowerCase().startsWith("dr.")) return name;
+            return "Dr. " + name;
+        }
+        return "Doctor not assigned";
     }
 
     public String getDoctorId() {
@@ -69,6 +108,45 @@ public class Appointment {
             return doctor.getAsJsonObject().get("_id").getAsString();
         }
         if (doctor.isJsonPrimitive()) return doctor.getAsString();
+        return null;
+    }
+
+    public String getDoctorPhotoUrl() {
+        if (doctor == null || doctor.isJsonNull()) return null;
+        if (doctor.isJsonObject()) {
+            String url = null;
+            if (doctor.getAsJsonObject().has("avatarUrl") && !doctor.getAsJsonObject().get("avatarUrl").isJsonNull()) {
+                url = doctor.getAsJsonObject().get("avatarUrl").getAsString();
+            } else if (doctor.getAsJsonObject().has("profileImage") && !doctor.getAsJsonObject().get("profileImage").isJsonNull()) {
+                url = doctor.getAsJsonObject().get("profileImage").getAsString();
+            }
+            if (url != null && !url.trim().isEmpty()) {
+                url = url.trim();
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    return url;
+                }
+                String baseUrl = BuildConfig.BASE_URL;
+                String hostUrl = "https://hospital-connected-system.onrender.com";
+                if (baseUrl != null && baseUrl.contains("://")) {
+                    int apiIdx = baseUrl.indexOf("/api");
+                    if (apiIdx != -1) {
+                        hostUrl = baseUrl.substring(0, apiIdx);
+                    } else {
+                        hostUrl = baseUrl.replaceAll("/+$", "");
+                    }
+                }
+                if (url.startsWith("/")) return hostUrl + url;
+                return hostUrl + "/uploads/doctors/" + url;
+            }
+        }
+        return null;
+    }
+
+    public String getDoctorAvailabilitySchedule() {
+        if (doctor == null || doctor.isJsonNull()) return null;
+        if (doctor.isJsonObject() && doctor.getAsJsonObject().has("availabilitySchedule") && !doctor.getAsJsonObject().get("availabilitySchedule").isJsonNull()) {
+            return doctor.getAsJsonObject().get("availabilitySchedule").getAsString();
+        }
         return null;
     }
 

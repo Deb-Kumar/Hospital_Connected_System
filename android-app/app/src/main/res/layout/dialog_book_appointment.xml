@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet_dialog">
+
+    <!-- MAIN FORM SCROLL CONTAINER -->
+    <ScrollView
+        android:id="@+id/scrollForm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="22dp">
+
+            <!-- Top Header Row (Title & Close Button) -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🗓️ "
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Schedule New OPD Appointment"
+                        android:textColor="#0F172A"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/btnClose"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:gravity="center"
+                    android:text="✕"
+                    android:textColor="#64748B"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select your department, doctor, and preferred date/time."
+                android:textColor="#64748B"
+                android:textSize="12sp"
+                android:layout_marginBottom="18dp" />
+
+            <!-- 1. Department Dropdown (Required *) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Department *"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_tile_card"
+                android:backgroundTint="#F8FAFC"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginBottom="16dp">
+
+                <Spinner
+                    android:id="@+id/spinnerDepartment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toStartOf="@id/ivArrowDept"
+                    android:background="@null"
+                    android:spinnerMode="dropdown" />
+
+                <TextView
+                    android:id="@+id/ivArrowDept"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="▼"
+                    android:textColor="#64748B"
+                    android:textSize="10sp" />
+            </RelativeLayout>
+
+            <!-- 2. Doctor Dropdown (Disabled until Department is chosen) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Doctor (Optional — select department first)"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <RelativeLayout
+                android:id="@+id/layoutDoctorContainer"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_tile_card"
+                android:backgroundTint="#F1F5F9"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginBottom="6dp">
+
+                <Spinner
+                    android:id="@+id/spinnerDoctor"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toStartOf="@id/ivArrowDoc"
+                    android:background="@null"
+                    android:enabled="false"
+                    android:spinnerMode="dropdown" />
+
+                <TextView
+                    android:id="@+id/ivArrowDoc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="▼"
+                    android:textColor="#94A3B8"
+                    android:textSize="10sp" />
+            </RelativeLayout>
+
+            <!-- Doctor OPD Schedule Badge (Blue highlighted) -->
+            <TextView
+                android:id="@+id/tvDoctorScheduleBadge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_tile_card"
+                android:backgroundTint="#EFF6FF"
+                android:padding="8dp"
+                android:text="📅 Available OPD Days: MON, TUE, WED, THU, FRI (09:00 AM - 05:00 PM)"
+                android:textColor="#1D4ED8"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 3. Date & Time Row (Side-by-Side) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <!-- Appointment Date Field -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Appointment Date *"
+                        android:textColor="#0F172A"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="6dp" />
+
+                    <RelativeLayout
+                        android:id="@+id/layoutDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_tile_card"
+                        android:backgroundTint="#F8FAFC"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tvSelectedDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:text="mm/dd/yyyy"
+                            android:textColor="#64748B"
+                            android:textSize="13sp" />
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_qa_book_app"
+                            app:tint="#2563EB" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <!-- Appointment Time Field -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Appointment Time *"
+                        android:textColor="#0F172A"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="6dp" />
+
+                    <RelativeLayout
+                        android:id="@+id/layoutTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_tile_card"
+                        android:backgroundTint="#F8FAFC"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tvSelectedTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:text="--:-- --"
+                            android:textColor="#64748B"
+                            android:textSize="13sp" />
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_nav_history"
+                            app:tint="#2563EB" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- 4. Reason for Visit Field (Mandatory *) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reason for Visit *"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <EditText
+                android:id="@+id/etReason"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:background="@drawable/bg_tile_card"
+                android:backgroundTint="#F8FAFC"
+                android:padding="12dp"
+                android:hint="Describe your symptoms or reason..."
+                android:textColor="#0F172A"
+                android:textColorHint="#94A3B8"
+                android:textSize="13sp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 5. Video Consultation Checkbox -->
+            <CheckBox
+                android:id="@+id/cbVideoConsultation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Video Consultation (Telemedicine)"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:buttonTint="#2563EB"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Error Message -->
+            <TextView
+                android:id="@+id/tvError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#EF4444"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:layout_marginBottom="12dp" />
+
+            <!-- 6. Confirm Booking Button -->
+            <Button
+                android:id="@+id/btnConfirmBooking"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:backgroundTint="#2563EB"
+                android:text="🗓️ Confirm OPD Booking"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:cornerRadius="14dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- IN-PROGRESS LOADING CONTAINER (Shows MortarLoaderView + Progress Message) -->
+    <LinearLayout
+        android:id="@+id/layoutLoadingProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="32dp"
+        android:visibility="gone"
+        android:background="#FFFFFF">
+
+        <com.brainware.hospital.ui.view.MortarLoaderView
+            android:id="@+id/mortarLoader"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Appointment Booking is in progress..."
+            android:textColor="#0F172A"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="6dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please wait while we generate your universal OPD Queue Token."
+            android:textColor="#64748B"
+            android:textSize="12sp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- ANIMATED CONFIRMATION BADGE OVERLAY -->
+    <LinearLayout
+        android:id="@+id/layoutConfirmationOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp"
+        android:visibility="gone"
+        android:background="#FFFFFF">
+
+        <!-- Success Check Icon Badge Circle -->
+        <FrameLayout
+            android:id="@+id/frameSuccessBadge"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/bg_tile_card"
+            android:backgroundTint="#DCFCE7"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tvSuccessIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="✓"
+                android:textColor="#16A34A"
+                android:textSize="40sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Appointment Confirmed!"
+            android:textColor="#0F172A"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your OPD Queue Token has been successfully generated."
+            android:textColor="#64748B"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Token Number Display Pill Box ("Token #1", "Token #2", etc.) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_tile_card"
+            android:backgroundTint="#FEF3C7"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OPD QUEUE TOKEN NUMBER"
+                android:textColor="#D97706"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+            <TextView
+                android:id="@+id/tvConfirmToken"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Token #1"
+                android:textColor="#B45309"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Summary Details Box -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_tile_card"
+            android:backgroundTint="#F8FAFC"
+            android:orientation="vertical"
+            android:padding="14dp"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:id="@+id/tvConfirmDepartment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Department: General Medicine"
+                android:textColor="#334155"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvConfirmDoctor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Doctor: Any Available Specialist"
+                android:textColor="#475569"
+                android:textSize="12sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvConfirmDateTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date &amp; Time: 2026-08-28 (10:00 AM)"
+                android:textColor="#475569"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Done & Close Button -->
+        <Button
+            android:id="@+id/btnDoneClose"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="#2563EB"
+            android:text="Done &amp; Close Modal"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:cornerRadius="14dp" />
+
+    </LinearLayout>
+
+</FrameLayout>

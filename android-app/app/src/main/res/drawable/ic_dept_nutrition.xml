@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="44"
+    android:viewportHeight="44">
+
+  <!-- Light Green Background Circle -->
+  <path
+      android:pathData="M22,22m-20,0a20,20 0,1 0,40 0a20,20 0,1 0,-40 0"
+      android:fillColor="#E8F5E9"/>
+
+  <!-- Leaf / Healthy Nutrition Icon -->
+  <path
+      android:pathData="M29,13C22,13 15,19 15,27C15,29.5 17,31 19,31C27,31 31,24 31,15V13H29Z"
+      android:fillColor="#388E3C"/>
+  <path
+      android:pathData="M15,27L25,17"
+      android:strokeWidth="2"
+      android:strokeColor="#E8F5E9"
+      android:strokeLineCap="round"/>
+</vector>

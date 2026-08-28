@@ -1,5 +1,6 @@
 package com.brainware.hospital.model;
 
+import com.brainware.hospital.BuildConfig;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 
@@ -11,9 +12,6 @@ public class Doctor {
     private String phone;
     private String role;
 
-    // Populated as a full Department object on /doctor/all and
-    // /doctor/department/:id, but may just be an ObjectId string elsewhere —
-    // parse defensively via JsonElement rather than assuming one shape.
     private JsonElement department;
 
     private String qualification;
@@ -26,6 +24,8 @@ public class Doctor {
     private String leaveReason;
     private String approvalStatus;
     private double rating;
+    private String profileImage;
+    private String avatarUrl;
 
     public String getId() { return id; }
     public String getFullName() { return fullName; }
@@ -42,8 +42,34 @@ public class Doctor {
     public String getLeaveReason() { return leaveReason; }
     public String getApprovalStatus() { return approvalStatus; }
     public double getRating() { return rating; }
+    public String getProfileImage() { return profileImage; }
+    public String getAvatarUrl() { return avatarUrl; }
 
-    /** Works whether "department" arrived as a populated object or a bare ObjectId string. */
+    public String getPhotoUrl() {
+        String url = (avatarUrl != null && !avatarUrl.trim().isEmpty()) ? avatarUrl : profileImage;
+        if (url == null || url.trim().isEmpty()) return null;
+        url = url.trim();
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            return url;
+        }
+
+        String baseUrl = BuildConfig.BASE_URL;
+        String hostUrl = "https://hospital-connected-system.onrender.com";
+        if (baseUrl != null && baseUrl.contains("://")) {
+            int apiIdx = baseUrl.indexOf("/api");
+            if (apiIdx != -1) {
+                hostUrl = baseUrl.substring(0, apiIdx);
+            } else {
+                hostUrl = baseUrl.replaceAll("/+$", "");
+            }
+        }
+
+        if (url.startsWith("/")) {
+            return hostUrl + url;
+        }
+        return hostUrl + "/uploads/doctors/" + url;
+    }
+
     public String getDepartmentName() {
         if (department == null || department.isJsonNull()) return "General Medicine";
         if (department.isJsonObject() && department.getAsJsonObject().has("name")) {

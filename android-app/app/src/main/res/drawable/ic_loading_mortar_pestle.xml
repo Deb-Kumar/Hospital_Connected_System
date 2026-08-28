@@ -1,0 +1,62 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+
+    <!-- Outer Mortar Bowl Body -->
+    <path
+        android:pathData="M 12,32 C 12,50 52,50 52,32 Z"
+        android:fillColor="#EEF2FF"
+        android:strokeColor="#1D4ED8"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Bowl Top Ellipse Rim -->
+    <path
+        android:pathData="M 12,32 C 12,27 52,27 52,32 C 52,37 12,37 12,32 Z"
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#1D4ED8"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Base Pedestal Stand -->
+    <path
+        android:pathData="M 26,48 L 38,48 C 36,53 28,53 26,48 Z"
+        android:fillColor="#1D4ED8"
+        android:strokeColor="#1D4ED8"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+
+    <!-- Pestle Handle -->
+    <path
+        android:pathData="M 29,14 C 27,14 27,20 29,28 L 35,28 C 37,20 37,14 35,14 Z"
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#1D4ED8"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Pestle Knob Top -->
+    <path
+        android:pathData="M 28,14 C 28,9 36,9 36,14 Z"
+        android:fillColor="#1D4ED8"
+        android:strokeColor="#1D4ED8"
+        android:strokeWidth="1" />
+
+    <!-- Herbs inside bowl -->
+    <path
+        android:pathData="M 22,28 C 20,23 27,23 25,28 Z"
+        android:fillColor="#60A5FA"
+        android:strokeColor="#1D4ED8"
+        android:strokeWidth="1.5" />
+
+    <path
+        android:pathData="M 42,28 C 40,23 47,23 45,28 Z"
+        android:fillColor="#93C5FD"
+        android:strokeColor="#1D4ED8"
+        android:strokeWidth="1.5" />
+
+</vector>

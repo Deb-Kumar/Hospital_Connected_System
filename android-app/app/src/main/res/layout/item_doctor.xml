@@ -4,10 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="14dp"
+    android:layout_marginBottom="12dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="2dp"
-    app:cardBackgroundColor="#FFFFFF">
+    app:cardBackgroundColor="#FFFFFF"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +19,7 @@
         android:gravity="center_vertical"
         android:padding="14dp">
 
-        <!-- Doctor Avatar Photo -->
+        <!-- Doctor Avatar Photo Container -->
         <FrameLayout
             android:layout_width="60dp"
             android:layout_height="60dp">
@@ -35,79 +38,90 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="14dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="6dp"
             android:orientation="vertical">
 
             <!-- Doctor Name -->
             <TextView
                 android:id="@+id/tvName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="#212121"
+                android:textColor="#1E293B"
+                android:maxLines="1"
+                android:ellipsize="end"
                 tools:text="Dr. Arindam Sen" />
 
             <!-- Specialization / Designation -->
             <TextView
                 android:id="@+id/tvSpecialization"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textSize="12sp"
-                android:textColor="#616161"
-                tools:text="Senior Cardiologist" />
+                android:textColor="#64748B"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Cardiologist" />
 
             <!-- Degrees & Qualifications -->
             <TextView
                 android:id="@+id/tvDegrees"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:textSize="11sp"
-                android:textColor="#757575"
-                tools:text="MBBS, MD, DM (Cardiology)" />
+                android:textColor="#94A3B8"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="MBBS, MD (Cardiology)" />
 
             <!-- Experience -->
             <TextView
                 android:id="@+id/tvFee"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textSize="11sp"
-                android:textColor="#757575"
+                android:textColor="#64748B"
+                android:maxLines="1"
+                android:ellipsize="end"
                 tools:text="12+ Years Experience" />
         </LinearLayout>
 
-        <!-- Right Side: Book Button & Available Badge -->
+        <!-- Right Side: Rating Badge on top & Book Button on bottom -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="end">
 
+            <!-- Rating Badge (e.g. ★ 4.8) -->
+            <TextView
+                android:id="@+id/tvRatingBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="★ 4.8"
+                android:textColor="#F59E0B"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:gravity="end" />
+
+            <!-- Book Button -->
             <Button
                 android:id="@+id/btnBookDoctor"
                 android:layout_width="72dp"
-                android:layout_height="36dp"
-                android:backgroundTint="#1976D2"
+                android:layout_height="34dp"
+                android:backgroundTint="#1D4ED8"
                 android:text="Book"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:textAllCaps="false"
                 android:padding="0dp"
-                app:cornerRadius="18dp" />
-
-            <TextView
-                android:id="@+id/tvStatusBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="• Available"
-                android:textColor="#2E7D32"
-                android:textSize="10sp"
-                android:textStyle="bold" />
+                app:cornerRadius="17dp" />
         </LinearLayout>
 
     </LinearLayout>

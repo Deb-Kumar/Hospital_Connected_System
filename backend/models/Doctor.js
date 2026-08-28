@@ -97,11 +97,11 @@ const doctorSchema = new mongoose.Schema({
   twoFactorEnabled: {
      type: Boolean, 
      default: false 
-  },
+    },
   active: {
      type: Boolean, 
      default: true 
-  },
+    },
 
   otpCode: {
      type: String 
@@ -117,6 +117,13 @@ const doctorSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
+doctorSchema.virtual('departmentName').get(function () {
+  if (this.department && typeof this.department === 'object' && this.department.name) {
+    return this.department.name;
+  }
+  return this.specialization || 'General Medicine';
+});
+
 doctorSchema.virtual('user').get(function () {
   return {
     _id: this._id,
@@ -128,6 +135,7 @@ doctorSchema.virtual('user').get(function () {
     approvalStatus: this.approvalStatus,
   };
 });
+
 doctorSchema.set('toJSON', { 
   virtuals: true 
 });

@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="44"
+    android:viewportHeight="44">
+
+  <!-- Light Amber Background Circle -->
+  <path
+      android:pathData="M22,22m-20,0a20,20 0,1 0,40 0a20,20 0,1 0,-40 0"
+      android:fillColor="#FFF3E0"/>
+
+  <!-- Senior Care Walking Cane & Care Circle -->
+  <path
+      android:pathData="M20,15C20,13.34 21.34,12 23,12C24.66,12 26,13.34 26,15V32"
+      android:strokeWidth="2.5"
+      android:strokeColor="#E65100"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M17,18m-3,0a3,3 0,1 0,6 0a3,3 0,1 0,-6 0"
+      android:fillColor="#E65100"/>
+</vector>
