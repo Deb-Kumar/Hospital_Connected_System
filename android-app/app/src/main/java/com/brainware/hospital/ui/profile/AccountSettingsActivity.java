@@ -27,7 +27,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
     private TextView tvPasswordError;
     private MaterialButton btnChangePassword, btnDeleteAccount;
     private SwitchMaterial switch2fa;
-    private android.widget.ProgressBar progressBar;
+    private android.view.View progressBar;
 
     private AccountSettingsViewModel viewModel;
     private boolean suppressSwitchCallback = false;

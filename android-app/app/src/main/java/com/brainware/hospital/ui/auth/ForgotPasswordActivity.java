@@ -22,7 +22,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private TextInputEditText etEmail, etOtp, etNewPassword;
     private View layoutStep2;
     private MaterialButton btnAction;
-    private android.widget.ProgressBar progressBar;
+    private android.view.View progressBar;
     private android.widget.TextView tvError, tvSuccess, tvSubtitle;
 
     private ForgotPasswordViewModel viewModel;

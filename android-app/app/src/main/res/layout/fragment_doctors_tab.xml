@@ -156,14 +156,12 @@
                 android:paddingTop="12dp"
                 android:paddingBottom="120dp" />
 
-            <!-- Custom Medical Mortar & Pestle Rotating Loader -->
-            <ProgressBar
+            <!-- Custom Medical Mortar & Pestle Animated Loader -->
+            <com.brainware.hospital.ui.view.MortarLoaderView
                 android:id="@+id/progressBar"
-                style="@style/Widget.Hospital.ProgressBar"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_gravity="center"
-                android:indeterminateDrawable="@drawable/progress_mortar_pestle"
                 android:visibility="gone" />
 
             <TextView

@@ -109,42 +109,7 @@ public class DepartmentAdapter extends RecyclerView.Adapter<DepartmentAdapter.Vi
         int count = dept.getDoctorCount() > 0 ? dept.getDoctorCount() : (position % 3 + 2);
         holder.tvSubtitle.setText(count + " Doctors Available");
 
-        String nameLower = dept.getName() != null ? dept.getName().toLowerCase() : "";
-        if (nameLower.contains("cardio") || nameLower.contains("heart") || nameLower.contains("thalassaem")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_cardio);
-        } else if (nameLower.contains("neuro") || nameLower.contains("brain")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_neuro);
-        } else if (nameLower.contains("ortho") || nameLower.contains("bone")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_ortho);
-        } else if (nameLower.contains("paediatr") || nameLower.contains("pediatr") || nameLower.contains("child guidance") || nameLower.contains("child")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_pedia);
-        } else if (nameLower.contains("gyna") || nameLower.contains("gyno") || nameLower.contains("female") || nameLower.contains("women") || nameLower.contains("obstetric")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_gynae);
-        } else if (nameLower.contains("derma") || nameLower.contains("skin")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_derma);
-        } else if (nameLower.contains("eye") || nameLower.contains("ophthal")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_eye);
-        } else if (nameLower.contains("dental") || nameLower.contains("teeth") || nameLower.contains("maxillofacial")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_dental);
-        } else if (nameLower.contains("ent") || nameLower.contains("otolaryngology") || nameLower.contains("ear") || nameLower.contains("throat")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_ent);
-        } else if (nameLower.contains("critical care") || nameLower.contains("icu") || nameLower.contains("emerg") || nameLower.contains("trauma")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_icu);
-        } else if (nameLower.contains("nutrition") || nameLower.contains("diet") || nameLower.contains("food")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_nutrition);
-        } else if (nameLower.contains("surg") || nameLower.contains("operation")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_surgery);
-        } else if (nameLower.contains("psychiatr") || nameLower.contains("mind") || nameLower.contains("mental")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_psychiatry);
-        } else if (nameLower.contains("endocrin") || nameLower.contains("thyroid") || nameLower.contains("hormone")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_endocrin);
-        } else if (nameLower.contains("geriatric") || nameLower.contains("senior")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_geriatric);
-        } else if (nameLower.contains("gastro") || nameLower.contains("digest") || nameLower.contains("liver")) {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_gastro);
-        } else {
-            holder.ivIcon.setImageResource(R.drawable.ic_dept_genmed);
-        }
+        holder.ivIcon.setImageResource(com.brainware.hospital.utils.DepartmentIconHelper.getIconDrawableRes(dept.getName()));
 
         if (dept.getDescription() != null && !dept.getDescription().trim().isEmpty()) {
             holder.tvDescription.setText(dept.getDescription().trim());

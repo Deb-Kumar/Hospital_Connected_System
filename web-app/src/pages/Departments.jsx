@@ -4,6 +4,7 @@ import Navbar from '../components/Header/Navbar';
 import Footer from '../components/Footer/Footer';
 import AppointmentSection from '../components/Appointment/AppointmentSection';
 import axiosClient from '../api/axiosClient';
+import { getDeptIconUrl } from '../utils/departmentIcons';
 
 const ICON_MAP = {
   'Cardio Thoracic Surgery': '🫀',
@@ -205,7 +206,7 @@ export default function DepartmentsPage() {
     return {
       id: dept._id || dept.name,
       name: dept.name,
-      icon: getDeptIcon(dept.name),
+      iconUrl: getDeptIconUrl(dept.name),
       cat: matchingDefault?.cat || 'Specialized',
       consultationFee: dept.consultationFee ?? 500,
       description: dept.description || matchingDefault?.description || 'Advanced clinical diagnosis and procedure management.',
@@ -322,8 +323,13 @@ export default function DepartmentsPage() {
                 <div className="space-y-4">
                   {/* Header */}
                   <div className="flex justify-between items-start">
-                    <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary text-3xl flex items-center justify-center border border-primary/20 group-hover:scale-105 group-hover:bg-primary group-hover:text-white transition duration-300 shadow-2xs">
-                      {dept.icon}
+                    <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-200 group-hover:scale-105 group-hover:border-primary/40 group-hover:shadow-md transition duration-300 shadow-xs p-2 bg-white">
+                      <img
+                        src={dept.iconUrl}
+                        alt={dept.name}
+                        className="w-full h-full object-contain"
+                        onError={(e) => { e.target.src = '/uploads/departments_icons/General_Medicine.png'; }}
+                      />
                     </div>
                     <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 uppercase">
                       ACTIVE WING

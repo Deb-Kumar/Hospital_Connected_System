@@ -25,7 +25,7 @@ public class RecordsFragment extends Fragment {
 
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rvRecords;
-    private android.widget.ProgressBar progressBar;
+    private View progressBar;
     private TextView tvError, tvEmpty, tabAllRecords, tabLabReports, tabImaging;
 
     private RecordsViewModel viewModel;

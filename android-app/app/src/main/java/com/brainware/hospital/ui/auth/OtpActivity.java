@@ -24,7 +24,7 @@ public class OtpActivity extends AppCompatActivity {
     private TextInputLayout tilOtp;
     private TextInputEditText etOtp;
     private MaterialButton btnVerify;
-    private android.widget.ProgressBar progressBar;
+    private android.view.View progressBar;
     private android.widget.TextView tvError, tvSubtitle;
 
     private OtpViewModel viewModel;

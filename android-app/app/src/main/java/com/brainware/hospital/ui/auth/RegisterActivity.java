@@ -33,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputEditText etFullName, etEmail, etPhone, etDob, etPassword, etConfirmPassword;
     private AutoCompleteTextView etGender, etBloodGroup;
     private MaterialButton btnRegister;
-    private ProgressBar progressBar;
+    private View progressBar;
     private TextView tvError;
 
     private RegisterViewModel viewModel;

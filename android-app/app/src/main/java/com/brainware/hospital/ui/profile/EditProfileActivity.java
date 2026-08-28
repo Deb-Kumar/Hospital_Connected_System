@@ -25,7 +25,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private TextInputEditText etFullName, etPhone, etAge, etAddress, etEmergencyContact, etAllergies, etChronicConditions;
     private AutoCompleteTextView etBloodGroup;
     private MaterialButton btnSave;
-    private android.widget.ProgressBar progressBar;
+    private android.view.View progressBar;
     private android.widget.TextView tvError;
 
     private ProfileViewModel viewModel;

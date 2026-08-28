@@ -43,7 +43,7 @@ public class DoctorsTabFragment extends Fragment {
     private EditText etSearchDept;
     private Spinner spinnerDepartment;
     private RecyclerView rvDoctors;
-    private ProgressBar progressBar;
+    private View progressBar;
     private TextView tvDoctorCount, tvEmptyState, tvError;
 
     private DoctorsViewModel doctorsViewModel;

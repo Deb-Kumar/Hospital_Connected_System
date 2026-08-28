@@ -36,7 +36,7 @@ public class HomeFragment extends Fragment {
     private SwipeRefreshLayout swipeRefresh;
     private TextView tvGreeting, tvError;
     private RecyclerView rvDepartments;
-    private android.widget.ProgressBar progressBar;
+    private View progressBar;
 
     // ViewPager2 & Patient Reviews Carousel State
     private ViewPager2 viewPagerReviews;

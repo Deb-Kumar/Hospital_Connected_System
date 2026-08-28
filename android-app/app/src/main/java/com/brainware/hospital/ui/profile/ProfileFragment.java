@@ -24,7 +24,7 @@ import com.brainware.hospital.viewmodel.ProfileViewModel;
 public class ProfileFragment extends Fragment {
 
     private TextView tvName, tvPatientId, tvError;
-    private android.widget.ProgressBar progressBar;
+    private View progressBar;
 
     private ProfileViewModel viewModel;
     private Patient currentPatient;

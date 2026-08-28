@@ -24,7 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout tilEmail, tilPassword, tilOtp;
     private TextInputEditText etEmail, etPassword, etOtp;
     private MaterialButton btnLogin;
-    private android.widget.ProgressBar progressBar;
+    private android.view.View progressBar;
     private android.widget.TextView tvError;
 
     private LoginViewModel viewModel;

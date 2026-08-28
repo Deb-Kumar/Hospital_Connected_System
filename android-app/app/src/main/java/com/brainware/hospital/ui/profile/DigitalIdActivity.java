@@ -23,7 +23,7 @@ public class DigitalIdActivity extends AppCompatActivity {
 
     private ImageView ivQrCode;
     private TextView tvName, tvPatientId, tvBloodGroup, tvError;
-    private android.widget.ProgressBar progressBar;
+    private android.view.View progressBar;
 
     private ProfileViewModel viewModel;
 

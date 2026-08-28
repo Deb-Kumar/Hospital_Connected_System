@@ -99,10 +99,10 @@
             android:text="Show this QR code at reception for quick check-in."
             android:textColor="@color/text_secondary" />
 
-        <ProgressBar
+        <com.brainware.hospital.ui.view.MortarLoaderView
             android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_marginTop="16dp" />
 
         <TextView
