@@ -568,6 +568,9 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="12dp"
+        android:drawableStart="@drawable/ic_check_shield_sm"
+        android:drawablePadding="6dp"
+        android:gravity="center_vertical"
         android:text="@string/app_version"
         android:textColor="#94A3B8"
         android:textSize="12sp" />
